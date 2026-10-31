@@ -2333,14 +2333,6 @@
         // ==========================================
         // 📞 PREMIUM CALLING & WEBRTC SIGNALING SYSTEM
         // ==========================================
-        let audioCtx = null;
-        let ringInterval = null;
-        let toneOscillators = [];
-        
-        let peerConnection = null;
-        let localStream = null;
-        let currentCallFriend = null;
-        let callType = null;
         let isCaller = false;
         let peerConnection = null;
         let localStream = null;
