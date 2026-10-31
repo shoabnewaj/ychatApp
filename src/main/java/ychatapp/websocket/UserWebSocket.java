@@ -136,7 +136,7 @@ public class UserWebSocket {
                             aiMsgObj.addProperty("sender", "Gemini AI");
                             aiMsgObj.addProperty("receiver", targetPartner);
                             aiMsgObj.addProperty("message", aiReply);
-                            aiMsgObj.addProperty("isRead", false);
+                            aiMsgObj.addProperty("isRead", true);
                             aiMsgObj.addProperty("isEdited", false);
                             aiMsgObj.addProperty("isDeleted", false);
                             if (promptMsgId > 0) {
@@ -144,6 +144,7 @@ public class UserWebSocket {
                                 aiMsgObj.addProperty("replyToText", rawText);
                             }
 
+                            new ychatapp.model.dao.MessageDAO().markAsRead("Gemini AI", isAiTarget ? chatSender : targetPartner);
                             String aiPayloadStr = aiMsgObj.toString();
 
                             // Stop typing

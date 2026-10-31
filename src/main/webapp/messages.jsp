@@ -1254,6 +1254,7 @@
                             }
                         }
                         var bubble = document.getElementById("chatTypingBubble");
+                try { window.dispatchEvent(new CustomEvent('ychat:notification')); } catch(e){}
                         if (bubble) {
                             bubble.style.display = (state === "typing") ? "inline-flex" : "none";
                             if (state === "typing") {
@@ -1929,6 +1930,7 @@
             }
 
             const typingBubble = document.getElementById("chatTypingBubble");
+                try { window.dispatchEvent(new CustomEvent('ychat:notification')); } catch(e){}
             if (typingBubble && typingBubble.parentNode === chatBox) {
                 chatBox.insertBefore(row, typingBubble);
             } else {

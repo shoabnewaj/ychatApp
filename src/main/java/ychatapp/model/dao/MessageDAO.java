@@ -19,7 +19,7 @@ public class MessageDAO {
 
     public List<String> getUnreadConversationPartners(String username) {
         List<String> partners = new ArrayList<>();
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement("SELECT DISTINCT sender_id FROM messages WHERE receiver_id=? AND is_read=0 AND is_deleted=0")) {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement("SELECT DISTINCT sender_id FROM messages WHERE receiver_id=? AND sender_id NOT IN ('Gemini AI', 'gemini') AND is_read=0 AND is_deleted=0")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) { while (rs.next()) partners.add(rs.getString(1)); }
         } catch (Exception e) { e.printStackTrace(); }
@@ -29,7 +29,7 @@ public class MessageDAO {
     /** Count incoming messages the user has not opened yet. */
     public int getUnreadMessageCount(String username) {
         if (username == null || username.trim().isEmpty()) return 0;
-        String sql = "SELECT COUNT(*) FROM messages WHERE receiver_id=? AND is_read=0 AND is_deleted=0";
+        String sql = "SELECT COUNT(*) FROM messages WHERE receiver_id=? AND sender_id NOT IN ('Gemini AI', 'gemini') AND is_read=0 AND is_deleted=0";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
