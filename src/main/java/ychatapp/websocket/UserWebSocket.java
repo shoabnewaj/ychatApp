@@ -26,6 +26,7 @@ public class UserWebSocket {
         public String caller;
         public String receiver;
         public String type = "voice";
+        public String sdpJson;
         public long timestamp;
         public boolean answered = false;
         public boolean rejected = false;
@@ -74,9 +75,13 @@ public class UserWebSocket {
         PendingCallInfo pending = getPendingCall(username);
         if (pending != null && !pending.answered && !pending.rejected) {
             try {
-                com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
-                callJson.addProperty("type", pending.type);
-                session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
+                if (pending.sdpJson != null && !pending.sdpJson.isEmpty()) {
+                    session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + pending.sdpJson);
+                } else {
+                    com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
+                    callJson.addProperty("type", pending.type);
+                    session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
+                }
             } catch (Exception ignored) {}
         }
     }
@@ -306,6 +311,7 @@ public class UserWebSocket {
                 call.caller = sender;
                 call.receiver = receiver;
                 call.type = callType;
+                call.sdpJson = content;
                 call.timestamp = System.currentTimeMillis();
                 pendingCalls.put(receiver.trim().toLowerCase(), call);
 
@@ -315,6 +321,8 @@ public class UserWebSocket {
                 clearPendingCall(sender);
                 clearPendingCall(receiver);
                 sendMessageToUser(receiver, type + "|" + sender + "|" + content);
+            } else if ("ICE_CANDIDATE".equalsIgnoreCase(type)) {
+                sendMessageToUser(receiver, "ICE_CANDIDATE|" + sender + "|" + content);
             } else if ("CALL_REJECT".equalsIgnoreCase(type) || "CALL_END".equalsIgnoreCase(type)) {
                 touchUser(sender);
                 clearPendingCall(sender);

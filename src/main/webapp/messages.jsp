@@ -1373,8 +1373,7 @@
                             document.getElementById("videoGrid").style.display = "none";
                             document.getElementById("voiceWaves").style.display = "none";
 
-                            socket.send("CALL_ANSWER|" + targetUser + "|" + JSON.stringify({ status: "accepted" }));
-                            startPeerConnection();
+                            acceptCall();
                         } else if (acceptAttempts++ < 30) {
                             setTimeout(triggerAutoAccept, 150);
                         }
@@ -2356,15 +2355,7 @@
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
                 { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.services.mozilla.com:3478' },
-                {
-                    urls: [
-                        'turn:3.26.151.171:3478?transport=udp',
-                        'turn:3.26.151.171:3478?transport=tcp'
-                    ],
-                    username: 'ychat',
-                    credential: 'pass2026'
-                }
+                { urls: 'stun:stun.services.mozilla.com:3478' }
             ],
             iceCandidatePoolSize: 0
         };
@@ -2679,6 +2670,24 @@
             pendingRemoteOffer = offerData.sdp || null;
             iceCandidateQueue = [];
 
+            if (peerConnection && pendingRemoteOffer) {
+                try {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingRemoteOffer));
+                    await flushIceCandidateQueue();
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted", sdp: answer }));
+                    }
+                    playConnectedTone();
+                    switchToActiveCallUI();
+                    return;
+                } catch (e) {
+                    console.error("Error setting delayed remote offer:", e);
+                }
+            }
+
             document.getElementById("callOverlay").style.display = "flex";
             document.getElementById("callingRings").style.display = "block";
             document.getElementById("callAvatar").innerText = sender.charAt(0).toUpperCase();
@@ -2768,7 +2777,7 @@
                     switchToActiveCallUI();
                 } else {
                     if (socket && socket.readyState === WebSocket.OPEN) {
-                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted" }));
+                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted_need_offer" }));
                     }
                 }
             } catch (err) {
@@ -2781,6 +2790,13 @@
         async function handleCallAnswer(sender, answerData) {
             stopRingtone();
             if (callTimer) clearTimeout(callTimer);
+
+            if (answerData.status === "accepted_need_offer") {
+                if (peerConnection && peerConnection.localDescription && socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send("CALL_OFFER|" + sender + "|" + JSON.stringify({ type: callType, sdp: peerConnection.localDescription }));
+                }
+                return;
+            }
 
             if (answerData.status === "accepted") {
                 document.getElementById("callingRings").style.display = "none";
