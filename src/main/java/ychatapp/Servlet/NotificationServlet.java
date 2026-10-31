@@ -36,7 +36,8 @@ public class NotificationServlet extends HttpServlet {
             res.setHeader("Cache-Control", "no-store");
             int unreadMessages = new MessageDAO().getUnreadMessageCount(ub.getName());
             res.getWriter().write("{\"unreadCount\":" + dao.getUnreadCount(ub.getId())
-                    + ",\"unreadMessages\":" + unreadMessages + "}");
+                    + ",\"unreadMessages\":" + unreadMessages
+                    + ",\"username\":\"" + ub.getName().replace("\"", "\\\"") + "\"}");
             return;
         }
         int userId = ub.getId();

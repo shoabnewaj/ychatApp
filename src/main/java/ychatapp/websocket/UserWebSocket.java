@@ -41,6 +41,13 @@ public class UserWebSocket {
             String receiver = parts[1];
             String content = parts.length > 2 ? parts[2] : "";
 
+            if ("PING".equalsIgnoreCase(type)) {
+                try {
+                    session.getBasicRemote().sendText("PONG|server");
+                } catch (Exception ignored) {}
+                return;
+            }
+
             if ("CHAT".equalsIgnoreCase(type)) {
                 int generatedId = 0;
                 String textToSave = content;

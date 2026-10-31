@@ -1,4 +1,4 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="ychatapp.model.beans.UsersBeans" %>
 <%@ page import="ychatapp.model.dao.UsersDAO" %>
 <%@ page import="java.util.List" %>
@@ -1079,6 +1079,18 @@
         function requestNotificationPermission() {
             if ("Notification" in window && Notification.permission === "default") {
                 Notification.requestPermission();
+                document.addEventListener("visibilitychange", function() {
+                    if (document.visibilityState === "visible") {
+                        if (!socket || socket.readyState !== WebSocket.OPEN) {
+                            initWebSocket();
+                        }
+                    }
+                });
+                window.addEventListener("pageshow", function() {
+                    if (!socket || socket.readyState !== WebSocket.OPEN) {
+                        initWebSocket();
+                    }
+                });
             }
         }
 
@@ -1145,6 +1157,12 @@
             socket.onopen = function(event) {
                 console.log("WebSocket Connected successfully to: " + wsUrl);
                 clearTimeout(reconnectTimer);
+                if (window.messagesPingTimer) clearInterval(window.messagesPingTimer);
+                window.messagesPingTimer = setInterval(function() {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("PING|server|heartbeat");
+                    }
+                }, 25000);
             };
 
             socket.onerror = function(event) {
@@ -1152,6 +1170,7 @@
             };
 
             socket.onclose = function(event) {
+                if (window.messagesPingTimer) clearInterval(window.messagesPingTimer);
                 console.log("WebSocket Closed. Attempting reconnect in 3s...");
                 scheduleReconnect();
             };
@@ -1332,6 +1351,45 @@
                 if (item) {
                     openChat(targetUser, item);
                     window.targetToOpen = null;
+                }
+                const autoCallAction = urlParams.get('callAction');
+                const autoCallType = urlParams.get('callType') || 'voice';
+                if (autoCallAction === 'accept') {
+                    let acceptAttempts = 0;
+                    function triggerAutoAccept() {
+                        if (socket && socket.readyState === WebSocket.OPEN) {
+                            initAudio();
+                            isCaller = false;
+                            currentCallFriend = targetUser;
+                            callType = autoCallType;
+
+                            document.getElementById("callOverlay").style.display = "flex";
+                            document.getElementById("callingRings").style.display = "block";
+                            document.getElementById("callAvatar").innerText = targetUser.charAt(0).toUpperCase();
+                            document.getElementById("callUsername").innerText = targetUser;
+                            document.getElementById("callStatus").innerText = "Connecting...";
+                            document.getElementById("acceptBtn").style.display = "none";
+                            document.getElementById("declineBtn").style.display = "flex";
+                            document.getElementById("videoGrid").style.display = "none";
+                            document.getElementById("voiceWaves").style.display = "none";
+
+                            socket.send("CALL_ANSWER|" + targetUser + "|" + JSON.stringify({ status: "accepted" }));
+                            startPeerConnection();
+                        } else if (acceptAttempts++ < 30) {
+                            setTimeout(triggerAutoAccept, 150);
+                        }
+                    }
+                    triggerAutoAccept();
+                } else if (autoCallAction === 'call') {
+                    let callAttempts = 0;
+                    function triggerAutoCall() {
+                        if (socket && socket.readyState === WebSocket.OPEN) {
+                            initiateCall(autoCallType);
+                        } else if (callAttempts++ < 30) {
+                            setTimeout(triggerAutoCall, 150);
+                        }
+                    }
+                    triggerAutoCall();
                 }
             }
         };
@@ -2473,12 +2531,13 @@
             if (callTimer) clearTimeout(callTimer);
             callTimer = setTimeout(() => {
                 if (currentCallFriend === friend && document.getElementById("activeCallControls").style.display === "none") {
-                    if (!activeOnlineUsers.has(friend.toLowerCase())) {
+                    if (true) {
                         stopRingtone();
-                        startPeerConnection();
+                        document.getElementById("callStatus").innerText = "No Answer";
+                        setTimeout(declineCall, 2000);
                     }
                 }
-            }, 4000);
+            }, 45000);
         }
 
         function startVoiceCall() {
@@ -2668,7 +2727,7 @@
                     }
                 };
                 
-                if (isCaller && socket && socket.readyState === WebSocket.OPEN && activeOnlineUsers.has((currentCallFriend || "").toLowerCase())) {
+                if (isCaller && socket && socket.readyState === WebSocket.OPEN) {
                     const offer = await peerConnection.createOffer({
                         offerToReceiveAudio: true,
                         offerToReceiveVideo: callType === 'video'
@@ -3360,6 +3419,18 @@
             }
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission();
+                document.addEventListener("visibilitychange", function() {
+                    if (document.visibilityState === "visible") {
+                        if (!socket || socket.readyState !== WebSocket.OPEN) {
+                            initWebSocket();
+                        }
+                    }
+                });
+                window.addEventListener("pageshow", function() {
+                    if (!socket || socket.readyState !== WebSocket.OPEN) {
+                        initWebSocket();
+                    }
+                });
             }
         });
     </script>
