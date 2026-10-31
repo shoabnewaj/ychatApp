@@ -2343,6 +2343,7 @@
         let toneOscillators = [];
         let audioCtx = null;
         let micMuted = false;
+            loudspeakerOn = false;
         let camOff = false;
         let loudspeakerOn = false;
         let speakerToastTimer = null;
@@ -2375,7 +2376,7 @@
             const rAud = document.getElementById("remoteAudio");
             if (rAud) {
                 rAud.muted = false;
-                rAud.volume = 1.0;
+                rAud.volume = loudspeakerOn ? 1.0 : 0.55;
                 rAud.play().catch(function() {});
             }
         }
@@ -2517,7 +2518,7 @@
                 if (rAud) {
                     rAud.srcObject = stream;
                     rAud.muted = false;
-                    rAud.volume = 1.0;
+                    rAud.volume = loudspeakerOn ? 1.0 : 0.55;
                     const p = rAud.play();
                     if (p !== undefined) {
                         p.catch(function(err) {
@@ -2932,6 +2933,7 @@
             }
 
             micMuted = false;
+            loudspeakerOn = false;
             camOff = false;
             loudspeakerOn = false;
 
@@ -2992,26 +2994,7 @@
             }
         }
 
-        function setLoudspeaker(enable) {
-            loudspeakerOn = enable;
-            const remoteAudio = document.getElementById("remoteAudio");
-            if (remoteAudio) {
-                remoteAudio.volume = 1.0;
-                remoteAudio.muted = false;
-            }
-            if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
-                try { window.AndroidApp.setSpeakerphoneOn(loudspeakerOn); } catch(e) {}
-            }
-            const btn = document.getElementById("toggleSpeakerBtn");
-            const icon = document.getElementById("speakerIcon");
-            if (btn) btn.classList.toggle("active", loudspeakerOn);
-            if (icon) icon.className = loudspeakerOn ? "fa-solid fa-volume-high" : "fa-solid fa-volume-low";
-            showSpeakerToast(loudspeakerOn ? "Loudspeaker ON" : "Normal Speaker ON", loudspeakerOn);
-        }
 
-        function toggleSpeakerphone() {
-            setLoudspeaker(!loudspeakerOn);
-        }
 
         function showSpeakerToast(text, isLoud) {
             const toast = document.getElementById("callSpeakerToast");
@@ -3421,9 +3404,7 @@
         // Initialize blocked users list & Service Worker on load
         document.addEventListener('DOMContentLoaded', () => {
             fetchBlockedUsers();
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(regs => { for (let r of regs) r.unregister(); }); if ('caches' in window) { caches.keys().then(keys => { for (let k of keys) caches.delete(k); }); }
-            }
+            
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission();
                 document.addEventListener("visibilitychange", function() {

@@ -64,6 +64,32 @@ public class UserWebSocket {
         }
     }
  
+    public static void triggerWebPush(String receiver, String title, String body, String url) {
+        if (receiver == null || receiver.trim().isEmpty()) return;
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            com.google.gson.JsonObject payload = new com.google.gson.JsonObject();
+            payload.addProperty("title", title);
+            payload.addProperty("body", body);
+            payload.addProperty("url", url);
+            payload.addProperty("requireInteraction", true);
+            
+            com.google.gson.JsonObject reqJson = new com.google.gson.JsonObject();
+            reqJson.addProperty("username", receiver.trim());
+            reqJson.add("payload", payload);
+            
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://172.17.0.1:3001/notify-user"))
+                .header("Content-Type", "application/json")
+                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(reqJson.toString()))
+                .timeout(java.time.Duration.ofSeconds(3))
+                .build();
+            client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.discarding());
+        } catch (Exception e) {
+            System.err.println("WebPush dispatch exception: " + e.getMessage());
+        }
+    }
+
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String encodedUsername) {
         String username = decodeUsername(encodedUsername);
@@ -316,6 +342,7 @@ public class UserWebSocket {
                 pendingCalls.put(receiver.trim().toLowerCase(), call);
 
                 sendMessageToUser(receiver, "CALL_OFFER|" + sender + "|" + content);
+                triggerWebPush(receiver, "📞 " + sender + " is calling...", "Tap to answer incoming " + callType + " call", "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType);
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);
                 clearPendingCall(sender);

@@ -5,18 +5,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-                for (var i = 0; i < regs.length; i++) regs[i].unregister();
-            }).catch(function() {});
-        }
-        if ('caches' in window) {
-            caches.keys().then(function(keys) {
-                for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
-            }).catch(function() {});
-        }
-    </script>
+
     <script src="<%=request.getContextPath()%>/js/notification-badge.js" data-context-path="<%=request.getContextPath()%>" defer></script>
     <script src="<%=request.getContextPath()%>/js/global-call-presence.js" data-user="${sessionScope.ub.name}" data-context-path="<%=request.getContextPath()%>" defer></script>
 <meta charset="UTF-8">
@@ -4056,17 +4045,7 @@ header, .navbar {
 		}
 	}
 
-	// Service Worker cleaner & iOS Safari gesture auto-zoom suppressor
-	if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.getRegistrations().then(regs => {
-			for (let r of regs) r.unregister();
-		}).catch(() => {});
-	}
-	if ('caches' in window) {
-		caches.keys().then(keys => {
-			for (let k of keys) caches.delete(k);
-		}).catch(() => {});
-	}
+
 	(function() {
 		var lastTouch = 0;
 		document.addEventListener('touchend', function(e) {

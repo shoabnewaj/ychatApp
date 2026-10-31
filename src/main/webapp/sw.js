@@ -11,8 +11,8 @@ self.addEventListener('push', function (event) {
     let payload = {
         title: 'YChat',
         body: 'You have a new notification',
-        icon: '/images/icons/icon-192x192.png',
-        badge: '/images/icons/icon-192x192.png',
+        icon: 'icons/icon-192.png',
+        badge: 'icons/icon-192.png',
         url: '/'
     };
 
@@ -26,8 +26,8 @@ self.addEventListener('push', function (event) {
 
     const options = {
         body: payload.body,
-        icon: payload.icon || '/images/icons/icon-192x192.png',
-        badge: payload.badge || '/images/icons/icon-192x192.png',
+        icon: payload.icon || 'icons/icon-192.png',
+        badge: payload.badge || 'icons/icon-192.png',
         tag: payload.tag || 'ychat-notification',
         renotify: true,
         requireInteraction: payload.requireInteraction || false,

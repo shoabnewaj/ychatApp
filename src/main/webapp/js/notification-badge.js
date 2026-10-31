@@ -1,10 +1,51 @@
 (function () {
     const appContextPath = document.currentScript?.dataset.contextPath || window.contextPath || "";
 
+    const VAPID_PUBLIC_KEY = 'BKAnb5oOPr691scCUtputXeYY2rOP_tIa_ISegWc9w9DrbROrlvM9EMXcw2ssUO9Qb94-cTmDBEKBlbCLxkTBwI';
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function subscribeUserToPush() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub) {
+                sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+            }
+            if (sub) {
+                await fetch(appContextPath + '/PushSubscriptionServlet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sub)
+                });
+                console.log('Push subscription active');
+            }
+        } catch (e) {
+            console.debug('Push subscription:', e);
+        }
+    }
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register(appContextPath + '/sw.js').catch(err => {
+            navigator.serviceWorker.register(appContextPath + '/sw.js').then(() => {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    subscribeUserToPush();
+                }
+            }).catch(err => {
                 console.debug('ServiceWorker registration:', err);
             });
         });
@@ -12,8 +53,16 @@
 
     // Auto-request notification permission on first user interaction
     function requestPushPermission() {
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
+        if ('Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        subscribeUserToPush();
+                    }
+                });
+            } else if (Notification.permission === 'granted') {
+                subscribeUserToPush();
+            }
         }
     }
     document.addEventListener('click', requestPushPermission, { once: true });

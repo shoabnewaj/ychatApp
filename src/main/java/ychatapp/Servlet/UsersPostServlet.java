@@ -73,9 +73,12 @@ public class UsersPostServlet extends HttpServlet {
 
         PollDAO pollDAO = new PollDAO();
         for (UsersPost post : allPosts) {
-            post.setPollQuestion(pollDAO.getPollQuestion(post.getId()));
-            List<ychatapp.model.beans.PollOption> pollOptions = pollDAO.getPollOptions(post.getId(), ub.getId());
-            if (!pollOptions.isEmpty()) post.setPollOptions(pollOptions);
+            String q = pollDAO.getPollQuestion(post.getId());
+            if (q != null) {
+                post.setPollQuestion(q);
+                List<ychatapp.model.beans.PollOption> pollOptions = pollDAO.getPollOptions(post.getId(), ub.getId());
+                if (!pollOptions.isEmpty()) post.setPollOptions(pollOptions);
+            }
             if ("REEL".equalsIgnoreCase(post.getPost_type())) {
                 reelsList.add(post);
             } else {
