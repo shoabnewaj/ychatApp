@@ -20,13 +20,65 @@ public class UserWebSocket {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserWebSocket.class);
  
     private static final ConcurrentHashMap<String, Set<Session>> clients = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Long> lastActiveMap = new ConcurrentHashMap<>();
+
+    public static class PendingCallInfo {
+        public String caller;
+        public String receiver;
+        public String type = "voice";
+        public long timestamp;
+        public boolean answered = false;
+        public boolean rejected = false;
+    }
+    private static final ConcurrentHashMap<String, PendingCallInfo> pendingCalls = new ConcurrentHashMap<>();
+
+    public static void touchUser(String username) {
+        if (username != null && !username.trim().isEmpty()) {
+            lastActiveMap.put(username.trim().toLowerCase(), System.currentTimeMillis());
+        }
+    }
+
+    public static void setOffline(String username) {
+        if (username != null) {
+            lastActiveMap.remove(username.trim().toLowerCase());
+        }
+    }
+
+    public static PendingCallInfo getPendingCall(String username) {
+        if (username == null) return null;
+        String key = username.trim().toLowerCase();
+        PendingCallInfo call = pendingCalls.get(key);
+        if (call != null) {
+            if (System.currentTimeMillis() - call.timestamp > 45000 || call.answered || call.rejected) {
+                pendingCalls.remove(key);
+                return null;
+            }
+        }
+        return call;
+    }
+
+    public static void clearPendingCall(String username) {
+        if (username != null) {
+            pendingCalls.remove(username.trim().toLowerCase());
+        }
+    }
  
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String encodedUsername) {
         String username = decodeUsername(encodedUsername);
+        touchUser(username);
         clients.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet()).add(session);
         System.out.println("User Online: " + username + " (sessions: " + clients.get(username).size() + ")");
         broadcastOnlineUsers();
+
+        PendingCallInfo pending = getPendingCall(username);
+        if (pending != null && !pending.answered && !pending.rejected) {
+            try {
+                com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
+                callJson.addProperty("type", pending.type);
+                session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
+            } catch (Exception ignored) {}
+        }
     }
  
     @OnMessage
@@ -244,8 +296,29 @@ public class UserWebSocket {
                 LiveManager.LiveStreamInfo live = LiveManager.getStream(receiver);
                 if (live != null) sendMessageToUser(receiver, "LIVE_VIEWER_COUNT|" + receiver + "|" + live.getViewers().size());
                 sendMessageToUser(receiver, "LIVE_VIEWER_LEFT|" + sender + "|{}");
-            } else {
-                // Default fallback: forward all other signals (CALL_OFFER, CALL_ANSWER, etc.) to the receiver
+            } else if ("CALL_OFFER".equalsIgnoreCase(type)) {
+                touchUser(sender);
+                String callType = "voice";
+                if (content != null && content.contains("\"video\"")) {
+                    callType = "video";
+                }
+                PendingCallInfo call = new PendingCallInfo();
+                call.caller = sender;
+                call.receiver = receiver;
+                call.type = callType;
+                call.timestamp = System.currentTimeMillis();
+                pendingCalls.put(receiver.trim().toLowerCase(), call);
+
+                sendMessageToUser(receiver, "CALL_OFFER|" + sender + "|" + content);
+            } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
+                touchUser(sender);
+                clearPendingCall(sender);
+                clearPendingCall(receiver);
+                sendMessageToUser(receiver, type + "|" + sender + "|" + content);
+            } else if ("CALL_REJECT".equalsIgnoreCase(type) || "CALL_END".equalsIgnoreCase(type)) {
+                touchUser(sender);
+                clearPendingCall(sender);
+                clearPendingCall(receiver);
                 sendMessageToUser(receiver, type + "|" + sender + "|" + content);
             }
         } catch (Exception e) {
@@ -256,6 +329,7 @@ public class UserWebSocket {
     @OnClose
     public void onClose(Session session, @PathParam("username") String encodedUsername) {
         String username = decodeUsername(encodedUsername);
+        touchUser(username);
         Set<Session> userSessions = clients.get(username);
         if (userSessions != null) {
             userSessions.remove(session);
@@ -270,6 +344,15 @@ public class UserWebSocket {
                 }
                 
                 broadcastOnlineUsers();
+
+        PendingCallInfo pending = getPendingCall(username);
+        if (pending != null && !pending.answered && !pending.rejected) {
+            try {
+                com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
+                callJson.addProperty("type", pending.type);
+                session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
+            } catch (Exception ignored) {}
+        }
             }
         }
     }
@@ -277,6 +360,7 @@ public class UserWebSocket {
     @OnError
     public void onError(Session session, Throwable throwable, @PathParam("username") String encodedUsername) {
         String username = decodeUsername(encodedUsername);
+        touchUser(username);
         System.err.println("WebSocket Error for " + username + ": " + throwable.getMessage());
     }
  
@@ -340,9 +424,23 @@ public class UserWebSocket {
     }
 
     private void broadcastOnlineUsers() {
+        long now = System.currentTimeMillis();
+        java.util.Set<String> onlineUserNames = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+        for (String u : clients.keySet()) {
+            if (u != null && !u.trim().isEmpty()) {
+                onlineUserNames.add(u.trim());
+            }
+        }
+        for (java.util.Map.Entry<String, Long> entry : lastActiveMap.entrySet()) {
+            if (now - entry.getValue() <= 30 * 60 * 1000L) {
+                onlineUserNames.add(entry.getKey());
+            }
+        }
+
         StringBuilder sb = new StringBuilder("ONLINE_USERS|");
         int count = 0;
-        for (String user : clients.keySet()) {
+        for (String user : onlineUserNames) {
             if (count > 0) {
                 sb.append(",");
             }

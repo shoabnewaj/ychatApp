@@ -27,6 +27,7 @@ public class NotificationServlet extends HttpServlet {
         if (ub == null) {
             res.sendRedirect("UsersLoginServlet");
             return;
+
         }
 
         String action = req.getParameter("action");
@@ -35,10 +36,31 @@ public class NotificationServlet extends HttpServlet {
             res.setContentType("application/json;charset=UTF-8");
             res.setHeader("Cache-Control", "no-store");
             int unreadMessages = new MessageDAO().getUnreadMessageCount(ub.getName());
-            res.getWriter().write("{\"unreadCount\":" + dao.getUnreadCount(ub.getId())
-                    + ",\"unreadMessages\":" + unreadMessages
-                    + ",\"username\":\"" + ub.getName().replace("\"", "\\\"") + "\"}");
+            ychatapp.websocket.UserWebSocket.touchUser(ub.getName());
+            ychatapp.websocket.UserWebSocket.PendingCallInfo pendingCall = ychatapp.websocket.UserWebSocket.getPendingCall(ub.getName());
+
+            StringBuilder json = new StringBuilder();
+            json.append("{\"unreadCount\":").append(dao.getUnreadCount(ub.getId()))
+                .append(",\"unreadMessages\":").append(unreadMessages)
+                .append(",\"username\":\"").append(ub.getName().replace("\"", "\\\"")).append("\"");
+
+            if (pendingCall != null && !pendingCall.answered && !pendingCall.rejected) {
+                json.append(",\"incomingCall\":{\"caller\":\"")
+                    .append(pendingCall.caller.replace("\"", "\\\""))
+                    .append("\",\"type\":\"")
+                    .append(pendingCall.type)
+                    .append("\"}");
+            }
+            json.append("}");
+
+            res.getWriter().write(json.toString());
             return;
+
+
+
+
+
+
         }
         int userId = ub.getId();
 

@@ -4,10 +4,10 @@
         return;
     }
 
-    const currentScript = document.currentScript;
-    let contextPath = currentScript?.dataset.contextPath || window.contextPath || "";
+    const scriptEl = document.currentScript || document.querySelector('script[src*="global-call-presence.js"]');
+    let contextPath = scriptEl?.dataset?.contextPath || window.contextPath || "";
     if (contextPath === "/" || !contextPath) contextPath = "";
-    let myName = currentScript?.dataset.user || document.querySelector('meta[name="current-user"]')?.content || window.currentUserName || "";
+    let myName = scriptEl?.dataset?.user || document.querySelector('meta[name="current-user"]')?.content || window.currentUserName || "";
 
     let socket = null;
     let reconnectTimer = null;
@@ -198,6 +198,7 @@
         overlay.style.display = "flex";
         startRingtone();
     }
+    window.showGlobalIncomingCall = showIncomingCall;
 
     function hideIncomingCall() {
         stopRingtone();

@@ -2547,6 +2547,10 @@
         function startVideoCall() {
             initiateCall('video');
         }
+        window.showGlobalIncomingCall = function(caller, type) {
+            if (currentCallFriend && currentCallFriend === caller) return;
+            handleCallOffer(caller, { type: type || 'voice' });
+        }
 
         async function handleCallOffer(sender, offerData) {
             if (offerData.sdp) {
