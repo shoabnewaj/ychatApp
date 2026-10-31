@@ -1898,7 +1898,7 @@
             } else if (isAudio) {
                 bubbleHtml += '<div style="display:flex; align-items:center; gap:8px;">' +
                     '<i class="fa fa-microphone" style="color:#a855f7;"></i>' +
-                    '<audio controls src="' + data.message + '" style="max-width:200px; height:32px; border-radius:16px;"></audio>' +
+                    '<audio controls src="' + data.message + '" style="max-width:200px; height:32px; border-radius:16px;" onplay="this.volume=0.75;"></audio>' +
                 '</div>';
             } else if (isImg) {
                 bubbleHtml += '<img src="' + data.message + '" style="max-width:220px; max-height:220px; border-radius:12px; cursor:pointer;" onclick="window.open(\'' + data.message + '\', \'_blank\')">';
@@ -3038,7 +3038,13 @@
                 if (!callAudioSource) {
                     callAudioSource = callAudioCtx.createMediaStreamSource(stream);
                     callGainNode = callAudioCtx.createGain();
-                    callGainNode.gain.setValueAtTime(loudspeakerOn ? 2.5 : 1.0, callAudioCtx.currentTime);
+                    callGainNode.gain.setValueAtTime(loudspeakerOn ? 1.35 : 0.85, callAudioCtx.currentTime);
+                    if (window.AndroidApp && typeof window.AndroidApp.setCallMode === 'function') {
+                        try { window.AndroidApp.setCallMode(true); } catch(e) {}
+                    }
+                    if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
+                        try { window.AndroidApp.setSpeakerphoneOn(loudspeakerOn); } catch(e) {}
+                    }
                     callAudioSource.connect(callGainNode);
                     callGainNode.connect(callAudioCtx.destination);
                     
@@ -3075,7 +3081,7 @@
                 if (callAudioCtx.state === 'suspended') {
                     callAudioCtx.resume();
                 }
-                const targetGain = loudspeakerOn ? 2.5 : 1.0;
+                const targetGain = loudspeakerOn ? 1.35 : 0.85;
                 callGainNode.gain.cancelScheduledValues(callAudioCtx.currentTime);
                 callGainNode.gain.setValueAtTime(callGainNode.gain.value, callAudioCtx.currentTime);
                 callGainNode.gain.linearRampToValueAtTime(targetGain, callAudioCtx.currentTime + 0.1);
