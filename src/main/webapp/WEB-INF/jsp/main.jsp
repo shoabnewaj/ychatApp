@@ -468,6 +468,37 @@ header, .navbar {
 	</div>
 
 
+		<!-- GLOBAL PRO UTILITY BANNER (Guaranteed visible on Desktop & Mobile/PWA/APK) -->
+	<div id="ychatGlobalProBar" class="ychat-pro-bar">
+		<button type="button" onclick="openStreakAndLevelModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-fire text-orange-500" style="color:#f97316;"></i> <span id="ychatStreakText">3d Streak &middot; Lv.3</span>
+		</button>
+		<button type="button" onclick="openSendGiftModal('Creator', '')" class="ychat-pro-pill">
+			<i class="fa-solid fa-coins text-amber-500" style="color:#f59e0b;"></i> <span id="ychatCoinsText">500 Coins &middot; Gift</span>
+		</button>
+		<button type="button" onclick="openStoryStudioModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-music" style="color:#ec4899;"></i> <span>Story Music &amp; Poll</span>
+		</button>
+		<button type="button" onclick="openSavedCollectionsModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-folder-open" style="color:#f59e0b;"></i> <span>Saved Folders</span>
+		</button>
+		<button type="button" onclick="recordAndOpenVisitorsModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-eye" style="color:#06b6d4;"></i> <span>Profile Visitors</span>
+		</button>
+		<button type="button" onclick="openProfileQrModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-qrcode" style="color:#7c3aed;"></i> <span>My QR Code</span>
+		</button>
+		<button type="button" onclick="toggleVerifiedBadge()" class="ychat-pro-pill">
+			<i class="fa-solid fa-circle-check" style="color:#2563eb;"></i> <span>Verified Badge</span>
+		</button>
+		<button type="button" onclick="openRingtoneSelectorModal()" class="ychat-pro-pill">
+			<i class="fa-solid fa-bell" style="color:#f59e0b;"></i> <span>Ringtones</span>
+		</button>
+		<button type="button" onclick="triggerInstallApp()" class="ychat-pro-pill">
+			<i class="fa-solid fa-download" style="color:#10b981;"></i> <span>Install App</span>
+		</button>
+	</div>
+
 	<div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] xl:grid-cols-[280px_1fr_320px] gap-6 mt-4 px-4">
 
 		<!-- LEFT SIDEBAR -->

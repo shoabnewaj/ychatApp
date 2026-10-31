@@ -1,0 +1,12 @@
+RECOMMENDED SCREENSHOT SIZES FOR APP STORES:
+
+Google Play Store:
+- Phone: Minimum 2 screenshots, 1080 x 1920 or 1080 x 2400 (aspect ratio 16:9 or 9:20).
+- 7-inch & 10-inch tablets: 1200 x 1920 or 2048 x 1536.
+
+Apple App Store:
+- 6.7" iPhone (iPhone 16 Pro Max, 15 Pro Max, 14 Pro Max): 1290 x 2796 pixels (Portrait)
+- 6.5" iPhone (iPhone 11 Pro Max, XS Max): 1242 x 2688 pixels (Portrait)
+- 12.9" iPad Pro (6th Gen): 2048 x 2732 pixels (Portrait)
+
+Place your taken screenshots into the respective screenshots/ folder before submitting.

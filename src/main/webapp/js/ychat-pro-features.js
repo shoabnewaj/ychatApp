@@ -1526,8 +1526,8 @@
 
         bar.innerHTML = '';
         var buttons = [
-            { html: '🔥 ' + streak + 'd Streak • Lv.' + level, fn: openStreakAndLevelModal },
-            { html: '🪙 ' + coins + ' Coins • Gift', fn: function () { openSendGiftModal('Creator', ''); } },
+            { html: '<i class="fa-solid fa-fire" style="color:#f97316;"></i> ' + streak + 'd Streak &middot; Lv.' + level, fn: openStreakAndLevelModal },
+            { html: '<i class="fa-solid fa-coins" style="color:#f59e0b;"></i> ' + coins + ' Coins &middot; Gift', fn: function () { openSendGiftModal('Creator', ''); } },
             { html: '<i class="fa-solid fa-music" style="color:#ec4899;"></i> Story Music & Poll', fn: openStoryStudioModal },
             { html: '<i class="fa-solid fa-folder-open" style="color:#f59e0b;"></i> Saved Folders', fn: function () { openSavedCollectionsModal(); } },
             { html: '<i class="fa-solid fa-eye" style="color:#06b6d4;"></i> Profile Visitors', fn: recordAndOpenVisitorsModal },
