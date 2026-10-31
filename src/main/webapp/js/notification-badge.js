@@ -68,7 +68,8 @@
             renderCount(Math.max(0, Number(data.unreadCount) || 0));
             renderMessengerCount(Math.max(0, Number(data.unreadMessages) || 0));
             if (data.incomingCall && data.incomingCall.caller) {
-                if (typeof window.showGlobalIncomingCall === 'function') {
+                const isMessagesPage = window.location.pathname.endsWith("messages.jsp") || window.location.pathname.endsWith("/messages");
+                if (!isMessagesPage && typeof window.showGlobalIncomingCall === 'function') {
                     window.showGlobalIncomingCall(data.incomingCall.caller, data.incomingCall.type || 'voice');
                 }
             }

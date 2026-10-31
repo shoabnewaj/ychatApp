@@ -1028,7 +1028,7 @@
             </div>
 
             <!-- Dedicated Audio Receiver for Voice & Video Calls -->
-            <audio id="remoteAudio" autoplay playsinline style="display:none;"></audio>
+            <audio id="remoteAudio" autoplay playsinline style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0.001;pointer-events:none;"></audio>
 
             <!-- Toast notification for Loudspeaker Toggle -->
             <div id="callSpeakerToast" class="call-speaker-toast"><i class="fa-solid fa-volume-high"></i> Loudspeaker ON</div>
@@ -2342,17 +2342,20 @@
         let currentCallFriend = null;
         let callType = null;
         let isCaller = false;
+        let peerConnection = null;
+        let localStream = null;
         let callTimer = null;
+        let currentCallFriend = null;
+        let callType = 'voice';
+        let ringInterval = null;
         let callStartTime = null;
-        let simulationInterval = null;
-        
+        let toneOscillators = [];
+        let audioCtx = null;
         let micMuted = false;
         let camOff = false;
         let loudspeakerOn = false;
-        let callAudioCtx = null;
-        let callGainNode = null;
-        let callAudioSource = null;
         let speakerToastTimer = null;
+        let pendingRemoteOffer = null;
 
         const rtcConfig = {
             iceServers: [
@@ -2361,38 +2364,36 @@
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
                 { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:global.stun.twilio.com:3478' },
                 { urls: 'stun:stun.services.mozilla.com:3478' },
-                { urls: 'stun:stun.relay.metered.ca:80' },
                 {
                     urls: [
-                        'turn:openrelay.metered.ca:80',
-                        'turn:openrelay.metered.ca:443',
-                        'turn:openrelay.metered.ca:443?transport=tcp'
+                        'turn:3.26.151.171:3478?transport=udp',
+                        'turn:3.26.151.171:3478?transport=tcp'
                     ],
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                },
-                {
-                    urls: [
-                        'turns:openrelay.metered.ca:443',
-                        'turns:openrelay.metered.ca:443?transport=tcp',
-                        'turns:openrelay.metered.ca:5349?transport=tcp'
-                    ],
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
+                    username: 'ychat',
+                    credential: 'pass2026'
                 }
             ],
-            iceCandidatePoolSize: 10,
-            iceTransportPolicy: 'all',
-            bundlePolicy: 'max-bundle',
-            rtcpMuxPolicy: 'require'
+            iceCandidatePoolSize: 0
         };
         let iceCandidateQueue = [];
 
         function initAudio() {
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) audioCtx = new AudioCtx();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(function() {});
+            }
+        }
+
+        function unlockAudioElement() {
+            const rAud = document.getElementById("remoteAudio");
+            if (rAud) {
+                rAud.muted = false;
+                rAud.volume = 1.0;
+                rAud.play().catch(function() {});
             }
         }
 
@@ -2400,6 +2401,7 @@
             initAudio();
             stopRingtone();
             let playTone = () => {
+                if (!audioCtx) return;
                 let osc1 = audioCtx.createOscillator();
                 let osc2 = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
@@ -2436,6 +2438,7 @@
             initAudio();
             stopRingtone();
             let playRing = () => {
+                if (!audioCtx) return;
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
                 
@@ -2479,6 +2482,7 @@
 
         function playConnectedTone() {
             initAudio();
+            if (!audioCtx) return;
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
             osc.frequency.setValueAtTime(660, audioCtx.currentTime);
@@ -2493,7 +2497,94 @@
             }, 300);
         }
 
-        function initiateCall(type) {
+        async function getMediaStream(type) {
+            try {
+                return await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true },
+                    video: type === 'video' ? { facingMode: "user" } : false
+                });
+            } catch (err1) {
+                console.warn("Primary getUserMedia failed, trying minimal constraints:", err1);
+                try {
+                    return await navigator.mediaDevices.getUserMedia({
+                        audio: true,
+                        video: type === 'video'
+                    });
+                } catch (err2) {
+                    console.error("getUserMedia completely failed:", err2);
+                    alert("Microphone/Camera permission is required. Please check your browser or iPhone settings.");
+                    return null;
+                }
+            }
+        }
+
+        function createPeerConnection() {
+            if (peerConnection) {
+                try { peerConnection.close(); } catch(e) {}
+                peerConnection = null;
+            }
+
+            peerConnection = new RTCPeerConnection(rtcConfig);
+
+            peerConnection.ontrack = (event) => {
+                console.log("Remote track received:", event.track.kind, event.streams);
+                const stream = (event.streams && event.streams[0]) ? event.streams[0] : new MediaStream([event.track]);
+
+                const rAud = document.getElementById("remoteAudio");
+                if (rAud) {
+                    rAud.srcObject = stream;
+                    rAud.muted = false;
+                    rAud.volume = 1.0;
+                    const p = rAud.play();
+                    if (p !== undefined) {
+                        p.catch(function(err) {
+                            console.warn("remoteAudio.play() caught:", err);
+                            const resumeClick = function() {
+                                rAud.play();
+                                document.removeEventListener('click', resumeClick);
+                                document.removeEventListener('touchend', resumeClick);
+                            };
+                            document.addEventListener('click', resumeClick, { once: true });
+                            document.addEventListener('touchend', resumeClick, { once: true });
+                        });
+                    }
+                }
+
+                const rVid = document.getElementById("remoteVideo");
+                if (rVid && callType === 'video') {
+                    rVid.srcObject = stream;
+                    rVid.muted = true; // Avoid duplicate audio echo
+                    rVid.play().catch(function(e) { console.log("remoteVideo play:", e); });
+                }
+
+                switchToActiveCallUI();
+            };
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && currentCallFriend && socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send("ICE_CANDIDATE|" + currentCallFriend + "|" + JSON.stringify(event.candidate));
+                }
+            };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log("ICE Connection State:", peerConnection.iceConnectionState);
+                if (peerConnection.iceConnectionState === "connected" || peerConnection.iceConnectionState === "completed") {
+                    switchToActiveCallUI();
+                } else if (peerConnection.iceConnectionState === "failed") {
+                    console.warn("ICE connection failed, attempting restart...");
+                    if (peerConnection.restartIce) peerConnection.restartIce();
+                }
+            };
+
+            peerConnection.onconnectionstatechange = () => {
+                console.log("Peer Connection State:", peerConnection.connectionState);
+                if (peerConnection.connectionState === "connected") {
+                    switchToActiveCallUI();
+                }
+            };
+        }
+
+        async function initiateCall(type) {
             var friend = document.getElementById("targetFriendName").value;
             if (!friend || friend === "None") {
                 var firstItem = document.querySelector("#friendListContainer .friend-item");
@@ -2507,10 +2598,13 @@
             }
 
             initAudio();
+            unlockAudioElement();
             isCaller = true;
             currentCallFriend = friend;
             callType = type;
-            
+            pendingRemoteOffer = null;
+            iceCandidateQueue = [];
+
             document.getElementById("callOverlay").style.display = "flex";
             document.getElementById("callingRings").style.display = "block";
             document.getElementById("callAvatar").innerText = friend.charAt(0).toUpperCase();
@@ -2523,19 +2617,43 @@
 
             startOutgoingRingtone();
 
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send("CALL_OFFER|" + friend + "|" + JSON.stringify({ type: type }));
+            try {
+                localStream = await getMediaStream(callType);
+                if (!localStream) {
+                    declineCall();
+                    return;
+                }
+                const localVideo = document.getElementById("localVideo");
+                if (localVideo && localStream) localVideo.srcObject = localStream;
+
+                createPeerConnection();
+
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                const offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: true,
+                    offerToReceiveVideo: (callType === 'video')
+                });
+                await peerConnection.setLocalDescription(offer);
+
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send("CALL_OFFER|" + friend + "|" + JSON.stringify({ type: callType, sdp: offer }));
+                }
+            } catch (err) {
+                console.error("Initiate call error:", err);
+                alert("Failed to start call: " + err.message);
+                declineCall();
+                return;
             }
 
-            // If target user is offline or doesn't answer via WebSocket within 4s, connect call on Safari
             if (callTimer) clearTimeout(callTimer);
             callTimer = setTimeout(() => {
                 if (currentCallFriend === friend && document.getElementById("activeCallControls").style.display === "none") {
-                    if (true) {
-                        stopRingtone();
-                        document.getElementById("callStatus").innerText = "No Answer";
-                        setTimeout(declineCall, 2000);
-                    }
+                    stopRingtone();
+                    document.getElementById("callStatus").innerText = "No Answer";
+                    setTimeout(declineCall, 2000);
                 }
             }, 45000);
         }
@@ -2547,38 +2665,27 @@
         function startVideoCall() {
             initiateCall('video');
         }
+
         window.showGlobalIncomingCall = function(caller, type) {
             if (currentCallFriend && currentCallFriend === caller) return;
             handleCallOffer(caller, { type: type || 'voice' });
-        }
+        };
 
         async function handleCallOffer(sender, offerData) {
-            if (offerData.sdp) {
-                if (!peerConnection) {
-                    currentCallFriend = sender;
-                    callType = offerData.type || callType || 'voice';
-                    await startPeerConnection();
-                }
-                if (peerConnection) {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData.sdp));
-                    await flushIceCandidateQueue();
-                    const answer = await peerConnection.createAnswer();
-                    await peerConnection.setLocalDescription(answer);
-                    socket.send("WEBRTC_ANSWER|" + sender + "|" + JSON.stringify({ sdp: answer }));
-                    switchToActiveCallUI();
+            if (currentCallFriend && currentCallFriend !== sender) {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send("CALL_REJECT|" + sender + "|busy");
                 }
                 return;
             }
 
-            if (currentCallFriend && currentCallFriend !== sender) {
-                socket.send("CALL_REJECT|" + sender + "|busy");
-                return;
-            }
-            
             initAudio();
+            unlockAudioElement();
             isCaller = false;
             currentCallFriend = sender;
             callType = offerData.type || 'voice';
+            pendingRemoteOffer = offerData.sdp || null;
+            iceCandidateQueue = [];
 
             document.getElementById("callOverlay").style.display = "flex";
             document.getElementById("callingRings").style.display = "block";
@@ -2591,7 +2698,8 @@
             document.getElementById("voiceWaves").style.display = "none";
 
             startIncomingRingtone();
-            
+
+            if (callTimer) clearTimeout(callTimer);
             callTimer = setTimeout(() => {
                 declineCall();
             }, 45000);
@@ -2600,15 +2708,19 @@
         function declineCall() {
             stopRingtone();
             if (callTimer) clearTimeout(callTimer);
-            
+
             if (currentCallFriend) {
                 if (isCaller) {
-                    socket.send("CALL_END|" + currentCallFriend + "|cancelled");
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_END|" + currentCallFriend + "|cancelled");
+                    }
                 } else {
-                    socket.send("CALL_REJECT|" + currentCallFriend + "|declined");
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_REJECT|" + currentCallFriend + "|declined");
+                    }
                 }
             }
-            
+
             resetCallUI();
         }
 
@@ -2627,139 +2739,76 @@
             endCall(true);
         }
 
-        function acceptCall() {
+        async function acceptCall() {
             stopRingtone();
             if (callTimer) clearTimeout(callTimer);
-            
+
+            unlockAudioElement();
             document.getElementById("acceptBtn").style.display = "none";
             document.getElementById("callingRings").style.display = "none";
             document.getElementById("callStatus").innerText = "Connecting...";
 
-            socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted" }));
+            try {
+                localStream = await getMediaStream(callType);
+                if (!localStream) {
+                    declineCall();
+                    return;
+                }
+                const localVideo = document.getElementById("localVideo");
+                if (localVideo && localStream) localVideo.srcObject = localStream;
 
-            startPeerConnection();
+                createPeerConnection();
+
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                if (pendingRemoteOffer) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingRemoteOffer));
+                    await flushIceCandidateQueue();
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted", sdp: answer }));
+                    }
+                    playConnectedTone();
+                    switchToActiveCallUI();
+                } else {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted" }));
+                    }
+                }
+            } catch (err) {
+                console.error("Accept call error:", err);
+                alert("Failed to connect call: " + err.message);
+                declineCall();
+            }
         }
 
-        function handleCallAnswer(sender, answerData) {
+        async function handleCallAnswer(sender, answerData) {
             stopRingtone();
             if (callTimer) clearTimeout(callTimer);
 
             if (answerData.status === "accepted") {
                 document.getElementById("callingRings").style.display = "none";
                 document.getElementById("callStatus").innerText = "Connecting...";
-                startPeerConnection();
-            }
-        }
 
-        async function startPeerConnection() {
-            playConnectedTone();
-            
-            try {
-                const constraints = {
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    },
-                    video: callType === 'video' ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } : false
-                };
-                
-                if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function") {
+                if (answerData.sdp && peerConnection) {
                     try {
-                        localStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    } catch (mediaErr) {
-                        console.warn("Media stream fallback (no camera/mic or HTTP context):", mediaErr);
-                        localStream = null;
-                    }
-                } else {
-                    localStream = null;
-                }
-                
-                const localVideo = document.getElementById("localVideo");
-                if (localVideo && localStream) localVideo.srcObject = localStream;
-                
-                if (peerConnection) {
-                    try { peerConnection.close(); } catch(e) {}
-                }
-                peerConnection = new RTCPeerConnection(rtcConfig);
-                
-                if (localStream) {
-                    localStream.getTracks().forEach(track => {
-                        peerConnection.addTrack(track, localStream);
-                    });
-                }
-                
-                peerConnection.ontrack = (event) => {
-                    console.log("Remote media stream received:", event.streams);
-                    const remoteStream = event.streams[0];
-                    const remoteVideo = document.getElementById("remoteVideo");
-                    if (remoteVideo) {
-                        remoteVideo.srcObject = remoteStream;
-                        remoteVideo.play().catch(e => console.log("video play:", e));
-                    }
-                    const remoteAudio = document.getElementById("remoteAudio");
-                    if (remoteAudio) {
-                        remoteAudio.srcObject = remoteStream;
-                        remoteAudio.play().catch(e => console.log("audio play:", e));
-                    }
-                    initCallAudioRouting(remoteStream);
-                    switchToActiveCallUI();
-                };
-                
-                peerConnection.oniceconnectionstatechange = () => {
-                    console.log("ICE Connection State:", peerConnection.iceConnectionState);
-                    if (peerConnection.iceConnectionState === "connected" || peerConnection.iceConnectionState === "completed") {
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(answerData.sdp));
+                        await flushIceCandidateQueue();
+                        playConnectedTone();
                         switchToActiveCallUI();
-                    } else if (peerConnection.iceConnectionState === "failed") {
-                        console.warn("ICE Connection Failed, attempting ICE restart...");
-                        if (peerConnection.restartIce) {
-                            peerConnection.restartIce();
-                        }
+                    } catch (e) {
+                        console.error("setRemoteDescription error:", e);
                     }
-                };
-
-                peerConnection.onconnectionstatechange = () => {
-                    console.log("Peer Connection State:", peerConnection.connectionState);
-                    if (peerConnection.connectionState === "connected") {
-                        switchToActiveCallUI();
-                    }
-                };
-                
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        socket.send("ICE_CANDIDATE|" + currentCallFriend + "|" + JSON.stringify(event.candidate));
-                    }
-                };
-                
-                if (isCaller && socket && socket.readyState === WebSocket.OPEN) {
-                    const offer = await peerConnection.createOffer({
-                        offerToReceiveAudio: true,
-                        offerToReceiveVideo: callType === 'video'
-                    });
-                    await peerConnection.setLocalDescription(offer);
-                    socket.send("CALL_OFFER|" + currentCallFriend + "|" + JSON.stringify({ sdp: offer, type: callType }));
-                    if (!localStream) {
-                        switchToActiveCallUI(true);
-                    }
-                } else {
-                    switchToActiveCallUI(!localStream);
                 }
-                
-            } catch (err) {
-                console.warn("Call connection fallback:", err);
-                switchToActiveCallUI(true);
-            }
-        }
-
-        async function handleWebRTCAnswer(sender, answerData) {
-            if (peerConnection && answerData.sdp) {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(answerData.sdp));
-                await flushIceCandidateQueue();
-                switchToActiveCallUI();
             }
         }
 
         async function handleIceCandidate(sender, candidate) {
+            if (!candidate) return;
             if (!peerConnection || !peerConnection.remoteDescription || !peerConnection.remoteDescription.type) {
                 iceCandidateQueue.push(candidate);
                 return;
@@ -2800,7 +2849,8 @@
             document.getElementById("declineBtn").style.display = "none";
             document.getElementById("activeCallControls").style.display = "flex";
             document.getElementById("callStatus").innerText = "Active Call (00:00)";
-            
+
+            if (callTimer) clearInterval(callTimer);
             callStartTime = Date.now();
             callTimer = setInterval(() => {
                 let elapsed = Math.floor((Date.now() - callStartTime) / 1000);
@@ -2813,132 +2863,32 @@
             }, 1000);
 
             if (callType === 'video') {
-                if (simulation || !localStream) {
-                    startVideoSimulations();
-                }
-                setLoudspeaker(true, false);
-            } else {
-                setLoudspeaker(false, false);
+                setTimeout(() => {
+                    const rVid = document.getElementById("remoteVideo");
+                    const fallback = document.getElementById("remoteAvatarFallback");
+                    if (rVid && (!rVid.srcObject || !rVid.videoWidth)) {
+                        if (fallback) fallback.style.display = "block";
+                    } else if (fallback) {
+                        fallback.style.display = "none";
+                    }
+                }, 3000);
             }
-        }
-
-        function startVideoSimulations() {
-            let remoteContainer = document.querySelector(".remote-video-container");
-            let localContainer = document.querySelector(".local-video-container");
-            
-            document.querySelectorAll(".simulated-canvas").forEach(c => c.remove());
-            
-            let remoteCanvas = document.createElement("canvas");
-            let localCanvas = document.createElement("canvas");
-            
-            remoteCanvas.className = "simulated-canvas";
-            localCanvas.className = "simulated-canvas";
-            
-            remoteCanvas.style.cssText = "width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; border-radius: 32px;";
-            localCanvas.style.cssText = "width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0;";
-            
-            remoteContainer.appendChild(remoteCanvas);
-            localContainer.appendChild(localCanvas);
-            
-            let rCtx = remoteCanvas.getContext("2d");
-            let lCtx = localCanvas.getContext("2d");
-            
-            remoteCanvas.width = 640; remoteCanvas.height = 480;
-            localCanvas.width = 160; localCanvas.height = 200;
-            
-            let frame = 0;
-            simulationInterval = setInterval(() => {
-                frame++;
-                
-                // Draw Remote (Premium cosmic space backdrop)
-                rCtx.fillStyle = "#0f0a19";
-                rCtx.fillRect(0, 0, 640, 480);
-                
-                let grad = rCtx.createRadialGradient(320, 240, 10, 320, 240, 300);
-                grad.addColorStop(0, "rgba(124, 58, 237, 0.45)");
-                grad.addColorStop(1, "#0f0a19");
-                rCtx.fillStyle = grad;
-                rCtx.fillRect(0, 0, 640, 480);
-                
-                for (let i = 0; i < 5; i++) {
-                    let x = 320 + Math.sin(frame * 0.015 + i * 1.5) * 140;
-                    let y = 240 + Math.cos(frame * 0.02 + i * 2) * 90;
-                    let r = 25 + Math.sin(frame * 0.03 + i) * 8;
-                    
-                    let g = rCtx.createRadialGradient(x - r/3, y - r/3, 2, x, y, r);
-                    g.addColorStop(0, "rgba(244, 63, 94, 0.65)");
-                    g.addColorStop(1, "rgba(168, 85, 247, 0.05)");
-                    
-                    rCtx.beginPath();
-                    rCtx.arc(x, y, r, 0, Math.PI * 2);
-                    rCtx.fillStyle = g;
-                    rCtx.fill();
-                }
-                
-                rCtx.fillStyle = "rgba(255, 255, 255, 0.85)";
-                rCtx.font = "bold 22px 'Segoe UI', sans-serif";
-                rCtx.textAlign = "center";
-                rCtx.fillText(currentCallFriend, 320, 380);
-                
-                rCtx.fillStyle = "rgba(192, 132, 252, 0.8)";
-                rCtx.font = "14px 'Segoe UI', sans-serif";
-                rCtx.fillText("Connected • Remote Feed Active", 320, 410);
-
-                // Draw Local (Moving geometric gradient grid)
-                lCtx.fillStyle = "#1e1b4b";
-                lCtx.fillRect(0, 0, 160, 200);
-                
-                let lGrad = lCtx.createLinearGradient(0, 0, 160, 200);
-                lGrad.addColorStop(0, "rgba(168, 85, 247, 0.6)");
-                lGrad.addColorStop(1, "rgba(59, 130, 246, 0.6)");
-                lCtx.fillStyle = lGrad;
-                lCtx.fillRect(0, 0, 160, 200);
-                
-                lCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-                lCtx.lineWidth = 1.5;
-                lCtx.beginPath();
-                for (let x = 0; x < 160; x += 25) {
-                    let offset = Math.sin(frame * 0.04 + x) * 6;
-                    lCtx.moveTo(x + offset, 0);
-                    lCtx.lineTo(x + offset, 200);
-                }
-                lCtx.stroke();
-                
-                lCtx.fillStyle = "rgba(255, 255, 255, 0.9)";
-                lCtx.font = "bold 12px 'Segoe UI', sans-serif";
-                lCtx.textAlign = "center";
-                lCtx.fillText("You", 80, 175);
-                
-            }, 30);
-        }
-
-        function simulateConnectedCall() {
-            stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
-            switchToActiveCallUI(true);
         }
 
         function endCall(byRemote = false) {
-            playConnectedTone();
-            
             stopRingtone();
             if (callTimer) {
                 clearInterval(callTimer);
-                clearTimeout(callTimer);
                 callTimer = null;
             }
-            
-            if (simulationInterval) {
-                clearInterval(simulationInterval);
-                simulationInterval = null;
-            }
-            
-            iceCandidateQueue = [];
+
             if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
+                localStream.getTracks().forEach(track => {
+                    try { track.stop(); } catch(e) {}
+                });
                 localStream = null;
             }
-            
+
             if (peerConnection) {
                 try { peerConnection.close(); } catch(e) {}
                 peerConnection = null;
@@ -2950,13 +2900,13 @@
             if (rAud) rAud.srcObject = null;
             const lVid = document.getElementById("localVideo");
             if (lVid) lVid.srcObject = null;
-            
+
             if (currentCallFriend && !byRemote) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send("CALL_END|" + currentCallFriend + "|ended");
                 }
             }
-            
+
             resetCallUI();
         }
 
@@ -2964,8 +2914,7 @@
             document.getElementById("callOverlay").style.display = "none";
             document.getElementById("callingRings").style.display = "none";
             document.getElementById("activeCallControls").style.display = "none";
-            document.querySelectorAll(".simulated-canvas").forEach(c => c.remove());
-            
+
             const container = document.getElementById("callContainer");
             if (container) container.classList.remove("video-mode");
             const topBar = document.getElementById("callTopBar");
@@ -2973,40 +2922,25 @@
             if (document.fullscreenElement) {
                 try { document.exitFullscreen(); } catch(e) {}
             }
-            
+
             micMuted = false;
             camOff = false;
-            
-            // Clean up loudspeaker state & AudioContext
             loudspeakerOn = false;
+
             if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
                 try { window.AndroidApp.setSpeakerphoneOn(false); } catch(e) {}
             }
-            if (callGainNode && callAudioCtx) {
-                try { callGainNode.gain.setValueAtTime(1.0, callAudioCtx.currentTime); } catch(e) {}
-            }
-            if (callAudioSource) {
-                try { callAudioSource.disconnect(); } catch(e) {}
-                callAudioSource = null;
-            }
-            if (callGainNode) {
-                try { callGainNode.disconnect(); } catch(e) {}
-                callGainNode = null;
-            }
-            if (callAudioCtx) {
-                try { callAudioCtx.close(); } catch(e) {}
-                callAudioCtx = null;
-            }
+
             const speakerBtn = document.getElementById("toggleSpeakerBtn");
             const speakerIcon = document.getElementById("speakerIcon");
             if (speakerBtn) {
                 speakerBtn.classList.remove("active");
-                speakerBtn.title = "Loudspeaker: OFF (Click for Loudspeaker)";
+                speakerBtn.title = "Loudspeaker: OFF";
             }
             if (speakerIcon) {
                 speakerIcon.className = "fa-solid fa-volume-low";
             }
-            
+
             const micBtn = document.getElementById("muteMicBtn");
             const camBtn = document.getElementById("toggleCamBtn");
             if (micBtn) {
@@ -3017,10 +2951,71 @@
                 camBtn.classList.remove("active");
                 camBtn.innerHTML = '<i class="fa-solid fa-video"></i>';
             }
-            
+
             currentCallFriend = null;
             isCaller = false;
+            pendingRemoteOffer = null;
+            iceCandidateQueue = [];
         }
+
+        function toggleMic() {
+            if (!localStream) return;
+            micMuted = !micMuted;
+            localStream.getAudioTracks().forEach(track => {
+                track.enabled = !micMuted;
+            });
+            const micBtn = document.getElementById("muteMicBtn");
+            if (micBtn) {
+                micBtn.classList.toggle("active", micMuted);
+                micBtn.innerHTML = micMuted ? '<i class="fa-solid fa-microphone-slash"></i>' : '<i class="fa-solid fa-microphone"></i>';
+            }
+        }
+
+        function toggleCam() {
+            if (!localStream || callType !== 'video') return;
+            camOff = !camOff;
+            localStream.getVideoTracks().forEach(track => {
+                track.enabled = !camOff;
+            });
+            const camBtn = document.getElementById("toggleCamBtn");
+            if (camBtn) {
+                camBtn.classList.toggle("active", camOff);
+                camBtn.innerHTML = camOff ? '<i class="fa-solid fa-video-slash"></i>' : '<i class="fa-solid fa-video"></i>';
+            }
+        }
+
+        function setLoudspeaker(enable) {
+            loudspeakerOn = enable;
+            const remoteAudio = document.getElementById("remoteAudio");
+            if (remoteAudio) {
+                remoteAudio.volume = 1.0;
+                remoteAudio.muted = false;
+            }
+            if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
+                try { window.AndroidApp.setSpeakerphoneOn(loudspeakerOn); } catch(e) {}
+            }
+            const btn = document.getElementById("toggleSpeakerBtn");
+            const icon = document.getElementById("speakerIcon");
+            if (btn) btn.classList.toggle("active", loudspeakerOn);
+            if (icon) icon.className = loudspeakerOn ? "fa-solid fa-volume-high" : "fa-solid fa-volume-low";
+            showSpeakerToast(loudspeakerOn ? "Loudspeaker ON" : "Normal Speaker ON", loudspeakerOn);
+        }
+
+        function toggleSpeakerphone() {
+            setLoudspeaker(!loudspeakerOn);
+        }
+
+        function showSpeakerToast(text, isLoud) {
+            const toast = document.getElementById("callSpeakerToast");
+            if (!toast) return;
+            toast.innerHTML = (isLoud ? '<i class="fa-solid fa-volume-high" style="color:#60a5fa;"></i> ' : '<i class="fa-solid fa-volume-low" style="color:#94a3b8;"></i> ') + text;
+            toast.classList.add("show");
+            if (speakerToastTimer) clearTimeout(speakerToastTimer);
+            speakerToastTimer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+
 
         function toggleCallFullscreen() {
             const overlay = document.getElementById("callOverlay");

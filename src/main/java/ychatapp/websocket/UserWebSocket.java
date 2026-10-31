@@ -345,14 +345,6 @@ public class UserWebSocket {
                 
                 broadcastOnlineUsers();
 
-        PendingCallInfo pending = getPendingCall(username);
-        if (pending != null && !pending.answered && !pending.rejected) {
-            try {
-                com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
-                callJson.addProperty("type", pending.type);
-                session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
-            } catch (Exception ignored) {}
-        }
             }
         }
     }
