@@ -61,6 +61,32 @@
                 </div>
                 <p class="text-slate-500 font-medium">Join 10,000+ active users today!</p>
             </div>
+
+            <!-- Native Mobile App Card (Left Branding) -->
+            <div class="mt-8 p-6 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                            <i class="fa fa-mobile-screen text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">Download Native App</h4>
+                            <p class="text-xs text-slate-500">Lock-screen incoming call ringing &amp; CallKit</p>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">v1.0.0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <a href="<%=request.getContextPath()%>/app-debug.apk" download="YChat.apk" class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-2xl shadow-sm transition-all hover:scale-[1.02]">
+                        <i class="fab fa-android text-base text-emerald-400"></i>
+                        <span>Android .APK</span>
+                    </a>
+                    <button type="button" onclick="openIosModal()" class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold rounded-2xl shadow-sm transition-all hover:scale-[1.02]">
+                        <i class="fab fa-apple text-base"></i>
+                        <span>iOS / iPhone</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Right Side: Login Card -->
@@ -167,6 +193,23 @@
                         </a>
                     </div>
 
+                    <!-- Mobile App Download Banner (Visible on all devices) -->
+                    <div class="pt-4 border-t border-slate-100 text-center">
+                        <p class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5">
+                            <i class="fa fa-mobile-screen text-blue-600 mr-1"></i> Get YChat Mobile App
+                        </p>
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="<%=request.getContextPath()%>/app-debug.apk" download="YChat.apk" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+                                <i class="fab fa-android text-emerald-400"></i> Android APK
+                            </a>
+                            <button type="button" onclick="openIosModal()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                                <i class="fab fa-apple"></i> iOS (iPhone)
+                            </button>
+                            <a href="https://github.com/shoabnewaj/ychatApp/releases/tag/mobile-latest" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-2 text-slate-500 hover:text-slate-800 text-xs font-medium rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="GitHub Releases">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -177,6 +220,50 @@
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center text-white">
         <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
         <p class="font-bold text-xl animate-pulse">Authenticating...</p>
+    </div>
+
+    <!-- iOS / iPhone Installation Modal -->
+    <div id="iosModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative">
+            <button type="button" onclick="closeIosModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm transition-colors">
+                <i class="fa fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-700 text-white flex items-center justify-center text-2xl shadow-md">
+                    <i class="fab fa-apple"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">YChat for iOS (iPhone)</h3>
+                    <p class="text-xs text-slate-500">Native Apple CallKit &amp; Lock-Screen Ringing</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
+                    <p><b>Download the IPA file:</b> Tap below to download <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-blue-600 font-semibold">YChat.ipa</code>.</p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
+                    <p><b>Install via Sideloadly / AltStore / Scarlet:</b> Sideload the IPA onto your iPhone using your Apple ID (No jailbreak required).</p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
+                    <p><b>Trust App:</b> Go to <i>Settings &rarr; General &rarr; VPN &amp; Device Management</i> and tap <b>Trust</b>.</p>
+                </div>
+            </div>
+
+            <div class="mt-5 flex flex-col gap-2.5">
+                <a href="<%=request.getContextPath()%>/YChat.ipa" download="YChat.ipa" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 text-sm transition-all">
+                    <i class="fa fa-download"></i>
+                    <span>Download YChat.ipa (906 KB)</span>
+                </a>
+                <a href="https://github.com/shoabnewaj/ychatApp/releases/tag/mobile-latest" target="_blank" rel="noopener" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl flex items-center justify-center gap-2 text-xs transition-colors">
+                    <i class="fab fa-github"></i>
+                    <span>View Releases on GitHub</span>
+                </a>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -274,6 +361,14 @@
             loginForm.classList.remove('hidden');
             errorBox.classList.add('hidden');
         });
+
+        function openIosModal() {
+            document.getElementById('iosModal').classList.remove('hidden');
+        }
+
+        function closeIosModal() {
+            document.getElementById('iosModal').classList.add('hidden');
+        }
     </script>
     <script src="js/theme.js"></script>
 </body>

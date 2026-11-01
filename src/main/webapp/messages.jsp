@@ -796,9 +796,14 @@
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h3>Chats</h3>
-            <small>Logged in as: <b><%= ub.getName() %></b></small>
+        <div class="sidebar-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3>Chats</h3>
+                <small>Logged in as: <b><%= ub.getName() %></b></small>
+            </div>
+            <button type="button" onclick="openAppDownloadModal()" style="background:rgba(255,255,255,0.22); color:white; border:none; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:bold; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.22)'" title="Download YChat Mobile App">
+                <i class="fa fa-mobile-screen"></i> App
+            </button>
         </div>
 
         <div class="search-container">
@@ -979,6 +984,53 @@
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
                 <button type="button" onclick="closeEditModal()" style="background:#f1f5f9; border:none; color:#475569; padding:8px 16px; border-radius:20px; font-weight:600; cursor:pointer;">Cancel</button>
                 <button type="button" onclick="submitEditMessage()" style="background:#9333ea; border:none; color:white; padding:8px 20px; border-radius:20px; font-weight:700; cursor:pointer;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📲 Mobile App Download Modal -->
+    <div id="appDownloadModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(6px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:white; border-radius:24px; padding:24px; width:100%; max-width:460px; box-shadow:0 25px 50px rgba(0,0,0,0.25); position:relative;">
+            <button type="button" onclick="closeAppDownloadModal()" style="position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%; background:#f1f5f9; border:none; color:#64748b; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div style="width:48px; height:48px; border-radius:16px; background:linear-gradient(135deg,#9333ea,#4f46e5); color:white; display:flex; align-items:center; justify-content:center; font-size:22px;">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:700; color:#0f172a;">YChat Mobile Apps</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Lock-screen incoming call ringing &amp; CallKit</p>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                <!-- Android Download -->
+                <a href="<%=request.getContextPath()%>/app-debug.apk" download="YChat.apk" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px; background:#0f172a; color:white; border-radius:16px; text-decoration:none; transition:0.2s;">
+                    <i class="fa-brands fa-android" style="font-size:26px; color:#4ade80; margin-bottom:6px;"></i>
+                    <span style="font-size:13px; font-weight:700;">Android APK</span>
+                    <span style="font-size:11px; color:#94a3b8; margin-top:2px;">Direct Download</span>
+                </a>
+
+                <!-- iOS Download Guide -->
+                <a href="<%=request.getContextPath()%>/YChat.ipa" download="YChat.ipa" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px; background:linear-gradient(135deg,#2563eb,#4f46e5); color:white; border-radius:16px; text-decoration:none; transition:0.2s;">
+                    <i class="fa-brands fa-apple" style="font-size:26px; margin-bottom:6px;"></i>
+                    <span style="font-size:13px; font-weight:700;">iOS (iPhone)</span>
+                    <span style="font-size:11px; color:#cbd5e1; margin-top:2px;">YChat.ipa (906 KB)</span>
+                </a>
+            </div>
+
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px 14px; font-size:12px; color:#475569; line-height:1.5; margin-bottom:14px;">
+                <div style="font-weight:700; color:#0f172a; margin-bottom:4px;">🍎 iPhone Users Quick Guide:</div>
+                <div>1. Download <b style="color:#2563eb;">YChat.ipa</b> above.</div>
+                <div>2. Sideload via <b>Sideloadly</b>, <b>AltStore</b>, or <b>Scarlet</b> using your Apple ID (No jailbreak needed).</div>
+                <div>3. Go to <i>Settings &rarr; General &rarr; VPN &amp; Device Management</i> &rarr; Tap <b>Trust</b>.</div>
+            </div>
+
+            <div style="text-align:center;">
+                <a href="https://github.com/shoabnewaj/ychatApp/releases/tag/mobile-latest" target="_blank" rel="noopener" style="font-size:12px; color:#64748b; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-brands fa-github"></i> View latest releases &amp; source on GitHub
+                </a>
             </div>
         </div>
     </div>
@@ -2129,6 +2181,16 @@
 
         function closeEditModal() {
             document.getElementById("editMsgModal").style.display = "none";
+        }
+
+        function openAppDownloadModal() {
+            const modal = document.getElementById("appDownloadModal");
+            if (modal) modal.style.display = "flex";
+        }
+
+        function closeAppDownloadModal() {
+            const modal = document.getElementById("appDownloadModal");
+            if (modal) modal.style.display = "none";
         }
 
         function submitEditMessage() {
