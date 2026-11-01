@@ -18,13 +18,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Mobile Dependencies
+      - name: Install NPM Packages
         run: |
           cd mobile
           npm install
+
+      - name: Capacitor Copy iOS
+        run: |
+          cd mobile
           npx cap copy ios
-          cd ios/App
-          pod install
+
+      - name: Pod Install
+        run: |
+          cd mobile/ios/App
+          pod install --repo-update
 
       - name: Build iOS App with Xcode
         run: |
