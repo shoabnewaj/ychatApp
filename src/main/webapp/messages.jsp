@@ -2693,19 +2693,6 @@
                     }
                 }
 
-                try {
-                    initAudio();
-                    if (audioCtx && stream.getAudioTracks().length > 0) {
-                        if (audioCtx.state === 'suspended') {
-                            audioCtx.resume();
-                        }
-                        const audioSource = audioCtx.createMediaStreamSource(stream);
-                        audioSource.connect(audioCtx.destination);
-                    }
-                } catch (e) {
-                    console.debug("Web Audio destination connect:", e);
-                }
-
                 const rVid = document.getElementById("remoteVideo");
                 if (rVid && callType === 'video') {
                     rVid.srcObject = stream;
@@ -3028,7 +3015,14 @@
             document.getElementById("acceptBtn").style.display = "none";
             document.getElementById("declineBtn").style.display = "none";
             document.getElementById("activeCallControls").style.display = "flex";
-            setLoudspeaker(callType === 'video', false);
+            const rAud = document.getElementById("remoteAudio");
+            if (rAud) {
+                rAud.muted = false;
+                rAud.volume = 1.0;
+                if (rAud.paused && rAud.srcObject) {
+                    rAud.play().catch(function() {});
+                }
+            }
             document.getElementById("callStatus").innerText = "Active Call (00:00)";
 
             if (callTimer) clearInterval(callTimer);
@@ -3234,54 +3228,21 @@
             }, 2000);
         }
 
-        function initCallAudioRouting(stream) {
-            try {
-                if (!stream) return;
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-                if (!callAudioCtx) {
-                    callAudioCtx = new AudioCtx();
-                }
-                if (callAudioCtx.state === 'suspended') {
-                    callAudioCtx.resume();
-                }
-                if (!callAudioSource) {
-                    callAudioSource = callAudioCtx.createMediaStreamSource(stream);
-                    callGainNode = callAudioCtx.createGain();
-                    callGainNode.gain.setValueAtTime(loudspeakerOn ? 1.0 : 0.20, callAudioCtx.currentTime);
-                    if (window.AndroidApp && typeof window.AndroidApp.setCallMode === 'function') {
-                        try { window.AndroidApp.setCallMode(true); } catch(e) {}
-                    }
-                    if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
-                        try { window.AndroidApp.setSpeakerphoneOn(loudspeakerOn); } catch(e) {}
-                    }
-                    callAudioSource.connect(callGainNode);
-                    callGainNode.connect(callAudioCtx.destination);
-                    
-                    const remoteAudio = document.getElementById("remoteAudio");
-                    if (remoteAudio) remoteAudio.muted = true;
-                    const remoteVideo = document.getElementById("remoteVideo");
-                    if (remoteVideo) remoteVideo.muted = true;
-                }
-            } catch(e) {
-                console.warn("Audio routing error:", e);
-                const remoteAudio = document.getElementById("remoteAudio");
-                if (remoteAudio) remoteAudio.muted = false;
-            }
+        function toggleLoudspeaker() {
+            setLoudspeaker(!loudspeakerOn, true);
         }
 
-        async function setLoudspeaker(enable, showToast = true) {
+        function setLoudspeaker(enable, showToast = true) {
             loudspeakerOn = enable;
             const btn = document.getElementById("toggleSpeakerBtn");
             const icon = document.getElementById("speakerIcon");
             const remoteAudio = document.getElementById("remoteAudio");
-            const remoteVideo = document.getElementById("remoteVideo");
 
-            // Update UI Button and Toast IMMEDIATELY so the user gets instant visual feedback on tap
+            // Update UI Button and Toast
             if (loudspeakerOn) {
                 if (btn) {
                     btn.classList.add("active");
-                    btn.title = "Loudspeaker: ON (Click for Earpiece/Normal)";
+                    btn.title = "Loudspeaker: ON";
                 }
                 if (icon) {
                     icon.className = "fa-solid fa-volume-high";
@@ -3290,15 +3251,15 @@
             } else {
                 if (btn) {
                     btn.classList.remove("active");
-                    btn.title = "Loudspeaker: OFF (Click for Loudspeaker)";
+                    btn.title = "Loudspeaker: OFF";
                 }
                 if (icon) {
                     icon.className = "fa-solid fa-volume-low";
                 }
-                if (showToast) showSpeakerToast("Loudspeaker OFF (Earpiece/Normal)", false);
+                if (showToast) showSpeakerToast("Loudspeaker OFF", false);
             }
 
-            // 1. Android Native App Bridge
+            // Android Native App Hardware Speaker Switch
             if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
                 try {
                     window.AndroidApp.setSpeakerphoneOn(loudspeakerOn);
@@ -3307,60 +3268,12 @@
                 }
             }
 
-            // 2. Web Audio Gain Booster & Volume
-            try {
-                if (callGainNode && callAudioCtx) {
-                    if (callAudioCtx.state === 'suspended') {
-                        callAudioCtx.resume();
-                    }
-                    const targetGain = loudspeakerOn ? 1.4 : 0.8;
-                    callGainNode.gain.cancelScheduledValues(callAudioCtx.currentTime);
-                    callGainNode.gain.setValueAtTime(callGainNode.gain.value, callAudioCtx.currentTime);
-                    callGainNode.gain.linearRampToValueAtTime(targetGain, callAudioCtx.currentTime + 0.1);
-                } else {
-                    if (remoteAudio) {
-                        remoteAudio.volume = loudspeakerOn ? 1.0 : 0.7;
-                        remoteAudio.muted = false;
-                    }
-                    if (remoteVideo) {
-                        remoteVideo.volume = loudspeakerOn ? 1.0 : 0.7;
-                    }
-                }
-            } catch (err) {
-                console.warn("Gain booster error:", err);
-            }
-
-            // 3. Audio Output Device Sink Selection (Chrome/Edge/Android supported)
-            if (typeof remoteAudio?.setSinkId === 'function' && navigator.mediaDevices?.enumerateDevices) {
-                try {
-                    const devices = await navigator.mediaDevices.enumerateDevices();
-                    const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
-                    if (audioOutputs.length > 0) {
-                        if (loudspeakerOn) {
-                            const speakerDev = audioOutputs.find(d => 
-                                d.label.toLowerCase().includes('speaker') || 
-                                d.label.toLowerCase().includes('loudspeaker') ||
-                                d.label.toLowerCase().includes('default')
-                            );
-                            if (speakerDev) {
-                                await remoteAudio.setSinkId(speakerDev.deviceId);
-                                if (remoteVideo) await remoteVideo.setSinkId(speakerDev.deviceId);
-                            }
-                        } else {
-                            const commDev = audioOutputs.find(d => 
-                                d.label.toLowerCase().includes('earpiece') || 
-                                d.label.toLowerCase().includes('headset') ||
-                                d.label.toLowerCase().includes('receiver') ||
-                                d.label.toLowerCase().includes('communications')
-                            ) || audioOutputs[0];
-                            if (commDev) {
-                                await remoteAudio.setSinkId(commDev.deviceId);
-                                if (remoteVideo) await remoteVideo.setSinkId(commDev.deviceId);
-                            }
-                        }
-                    }
-                } catch(err) {
-                    console.log("Device sink note:", err);
+            // Always ensure remoteAudio is unmuted and playing at 100% volume
+            if (remoteAudio) {
+                remoteAudio.muted = false;
+                remoteAudio.volume = 1.0;
+                if (remoteAudio.paused && remoteAudio.srcObject) {
+                    remoteAudio.play().catch(function() {});
                 }
             }
         }
