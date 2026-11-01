@@ -361,18 +361,8 @@ public class UserWebSocket {
                 final String finalSender = sender.trim();
                 final String finalCallType = callType;
 
-                for (int delaySec : new int[]{0, 4, 8, 12, 16}) {
-                    if (delaySec == 0) {
-                        triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
-                    } else {
-                        callScheduler.schedule(() -> {
-                            PendingCallInfo p = getPendingCall(finalReceiver);
-                            if (p != null && !p.answered && !p.rejected && finalSender.equalsIgnoreCase(p.caller)) {
-                                triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
-                            }
-                        }, delaySec, java.util.concurrent.TimeUnit.SECONDS);
-                    }
-                }
+                // Send a single persistent push notification that stays on screen until answered
+                triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);
                 if (content != null && content.contains("accepted_need_offer")) {

@@ -2613,6 +2613,21 @@
         }
 
         function stopRingtone() {
+            if ('Notification' in window && navigator.serviceWorker) {
+                try {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        for (let reg of registrations) {
+                            reg.getNotifications().then(notifications => {
+                                for (let notif of notifications) {
+                                    if (notif.tag && (notif.tag.includes('call') || notif.tag.includes('incoming'))) {
+                                        notif.close();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } catch(e) {}
+            }
             if (ringInterval) {
                 clearInterval(ringInterval);
                 ringInterval = null;

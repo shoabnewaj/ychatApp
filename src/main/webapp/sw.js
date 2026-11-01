@@ -116,8 +116,8 @@ self.addEventListener('push', function (event) {
         body: payload.body || 'Tap to answer incoming call',
         icon: iconUrl,
         badge: badgeUrl,
-        tag: isCall ? ('call-' + (payload.caller || 'call') + '-' + Date.now()) : ('ychat-' + Date.now()),
-        renotify: true,
+        tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
+        renotify: false,
         requireInteraction: true,
         vibrate: [500, 250, 500, 250, 500],
         data: {
