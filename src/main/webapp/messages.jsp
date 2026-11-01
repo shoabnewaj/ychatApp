@@ -1099,6 +1099,9 @@
 
             <!-- Dedicated Audio Receiver for Voice & Video Calls -->
             <audio id="remoteAudio" autoplay playsinline style="width:0;height:0;position:absolute;opacity:0.99;pointer-events:none;"></audio>
+            <!-- Ringtone Audio Elements for Incoming & Outgoing Calls -->
+            <audio id="incomingRingtoneAudio" src="${pageContext.request.contextPath}/sounds/ringtone.wav" loop preload="auto" playsinline style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0.01; pointer-events:none;"></audio>
+            <audio id="outgoingRingtoneAudio" src="${pageContext.request.contextPath}/sounds/outgoing.wav" loop preload="auto" playsinline style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0.01; pointer-events:none;"></audio>
 
             <!-- Banner for Autoplay Unmute if Browser Blocks Audio -->
             <div id="tapForSoundBanner" onclick="forcePlayRingtone()" style="display:none; position:absolute; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:#fff; padding:10px 22px; border-radius:30px; font-weight:700; font-size:14px; box-shadow:0 6px 20px rgba(34,197,94,0.5); z-index:100; cursor:pointer;">
@@ -1467,18 +1470,6 @@
                     }
                     triggerAutoCall();
                 }
-            }
-
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.addEventListener('message', function (event) {
-                    if (!event.data) return;
-                    if (event.data.action === 'acceptIncomingCall') {
-                        unlockAudioEngine();
-                        acceptCall();
-                    } else if (event.data.action === 'declineIncomingCall') {
-                        declineCall();
-                    }
-                });
             }
         };
 
@@ -2555,27 +2546,17 @@
             }
         }
 
-        let ringtoneAudioBuffer = null;
-        let activeRingtoneNode = null;
-
-        async function preloadRingtoneBuffer() {
-            if (ringtoneAudioBuffer) return ringtoneAudioBuffer;
-            try {
-                initAudio();
-                if (!audioCtx) return null;
-                const url = (cleanContextPath || '') + '/sounds/ringtone.wav';
-                const resp = await fetch(url);
-                const arrayBuf = await resp.arrayBuffer();
-                ringtoneAudioBuffer = await audioCtx.decodeAudioData(arrayBuf);
-            } catch(e) {
-                console.warn("Ringtone decode note:", e);
-            }
-            return ringtoneAudioBuffer;
-        }
-
         function startOutgoingRingtone() {
             initAudio();
             stopRingtone();
+
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) {
+                outAud.currentTime = 0;
+                outAud.volume = 1.0;
+                let p = outAud.play();
+                if (p !== undefined) p.catch(() => {});
+            }
 
             let playTone = () => {
                 if (!audioCtx) return;
@@ -2616,14 +2597,12 @@
             if (audioEngineUnlocked) return;
             initAudio();
             if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume().then(() => { 
-                    audioEngineUnlocked = true; 
-                    preloadRingtoneBuffer();
-                }).catch(() => {});
-            } else if (audioCtx) {
-                audioEngineUnlocked = true;
-                preloadRingtoneBuffer();
+                audioCtx.resume().then(() => { audioEngineUnlocked = true; }).catch(() => {});
             }
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) inAud.load();
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) outAud.load();
             const rAud = document.getElementById("remoteAudio");
             if (rAud) rAud.load();
         }
@@ -2636,59 +2615,46 @@
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(() => {});
             }
+            const ringAud = document.getElementById("incomingRingtoneAudio");
+            if (ringAud) {
+                ringAud.currentTime = 0;
+                ringAud.volume = 1.0;
+                ringAud.play().catch(() => {});
+            }
             const banner = document.getElementById("tapForSoundBanner");
             if (banner) banner.style.display = "none";
-            startIncomingRingtone();
         }
 
         function startIncomingRingtone() {
             initAudio();
             stopRingtone();
 
-            // Suppress browser mediaSession so Android NEVER creates the "Video/Music Media Player" widget
-            if ('mediaSession' in navigator) {
-                try {
-                    navigator.mediaSession.metadata = null;
-                    navigator.mediaSession.playbackState = "none";
-                } catch(e) {}
+            const ringAud = document.getElementById("incomingRingtoneAudio");
+            if (ringAud) {
+                ringAud.currentTime = 0;
+                ringAud.volume = 1.0;
+                let p = ringAud.play();
+                if (p !== undefined) {
+                    p.catch(err => {
+                        console.warn("Autoplay audio blocked, displaying user tap trigger:", err);
+                        const banner = document.getElementById("tapForSoundBanner");
+                        if (banner) banner.style.display = "block";
+                        window.addEventListener('click', forcePlayRingtone, { once: true });
+                        window.addEventListener('touchstart', forcePlayRingtone, { once: true });
+                    });
+                }
             }
 
             if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(err => {
-                    console.warn("Autoplay audio blocked, displaying user tap trigger:", err);
-                    const banner = document.getElementById("tapForSoundBanner");
-                    if (banner) banner.style.display = "block";
-                    window.addEventListener('click', forcePlayRingtone, { once: true });
-                    window.addEventListener('touchstart', forcePlayRingtone, { once: true });
-                });
+                audioCtx.resume().catch(function() {});
             }
-
-            // 1. Play decoded WAV buffer via Web Audio buffer source (NEVER triggers Android media player!)
-            if (audioCtx && ringtoneAudioBuffer) {
-                try {
-                    activeRingtoneNode = audioCtx.createBufferSource();
-                    activeRingtoneNode.buffer = ringtoneAudioBuffer;
-                    activeRingtoneNode.loop = true;
-                    const gain = audioCtx.createGain();
-                    gain.gain.value = 0.95;
-                    activeRingtoneNode.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    activeRingtoneNode.start(0);
-                } catch(e) {
-                    console.warn("Buffer source play error:", e);
-                }
-            } else {
-                preloadRingtoneBuffer();
-            }
-
-            // 2. Multi-note marimba chime synthesizer as continuous acoustic guarantee
             let playRingChime = () => {
                 if (!audioCtx) return;
                 if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().catch(() => {});
+                    audioCtx.resume().catch(function() {});
                 }
                 const now = audioCtx.currentTime;
-                // Marimba chime: C5, E5, G5, C6, E6, C6
+                // Multi-note marimba chime: C5, E5, G5, C6, E6, C6
                 const chord = [
                     { f: 523.25, t: 0.00 },
                     { f: 659.25, t: 0.14 },
@@ -2727,17 +2693,18 @@
             const banner = document.getElementById("tapForSoundBanner");
             if (banner) banner.style.display = "none";
 
-            if (activeRingtoneNode) {
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) {
                 try {
-                    activeRingtoneNode.stop();
-                    activeRingtoneNode.disconnect();
+                    inAud.pause();
+                    inAud.currentTime = 0;
                 } catch(e) {}
-                activeRingtoneNode = null;
             }
-
-            if ('mediaSession' in navigator) {
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) {
                 try {
-                    navigator.mediaSession.playbackState = "none";
+                    outAud.pause();
+                    outAud.currentTime = 0;
                 } catch(e) {}
             }
             if ('Notification' in window && navigator.serviceWorker) {
