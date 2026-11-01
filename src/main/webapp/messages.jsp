@@ -18,8 +18,15 @@
     if (dbFriendList == null) {
         dbFriendList = new java.util.ArrayList<>();
     }
+    dbFriendList.removeIf(f -> f == null || f.getId() == ub.getId() || f.getName().equalsIgnoreCase(ub.getName()));
     for (String partnerName : new ychatapp.model.dao.MessageDAO().getConversationPartners(ub.getName())) {
+        if (partnerName == null || partnerName.trim().isEmpty() || partnerName.equalsIgnoreCase(ub.getName())) {
+            continue;
+        }
         UsersBeans partner = uDao.getUserByName(partnerName);
+        if (partner == null || partner.getId() == ub.getId() || partner.getName().equalsIgnoreCase(ub.getName())) {
+            continue;
+        }
         boolean listed = false;
         for (UsersBeans existing : dbFriendList) {
             if (existing.getName().equalsIgnoreCase(partnerName)) {
@@ -27,13 +34,19 @@
                 break;
             }
         }
-        if (partner != null && !listed) {
+        if (!listed) {
             dbFriendList.add(partner);
         }
     }
 
     // Resolve target user from URL parameters (?userId=... or ?userName=...)
     String targetUserNameParam = request.getParameter("userName");
+    if (targetUserNameParam == null || targetUserNameParam.trim().isEmpty()) {
+        targetUserNameParam = request.getParameter("friend");
+    }
+    if (targetUserNameParam == null || targetUserNameParam.trim().isEmpty()) {
+        targetUserNameParam = request.getParameter("user");
+    }
     String targetUserIdParam = request.getParameter("userId");
     UsersBeans targetUserBean = null;
 
@@ -1028,7 +1041,7 @@
             </div>
 
             <!-- Dedicated Audio Receiver for Voice & Video Calls -->
-            <audio id="remoteAudio" autoplay playsinline style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0.001;pointer-events:none;"></audio>
+            <audio id="remoteAudio" autoplay playsinline style="width:0;height:0;position:absolute;opacity:0.99;pointer-events:none;"></audio>
 
             <!-- Toast notification for Loudspeaker Toggle -->
             <div id="callSpeakerToast" class="call-speaker-toast"><i class="fa-solid fa-volume-high"></i> Loudspeaker ON</div>
@@ -1052,6 +1065,9 @@
         var typingTimeout = null;
         var isCurrentlyTyping = false;
         var reconnectTimer = null;
+        var blockedUserIds = new Set();
+        var blockedUserNames = new Set();
+        var currentChatUserId = null;
 
         // 七 Web Audio Notification Chime (Zero external dependencies)
         function playMessageChime() {
@@ -1340,7 +1356,7 @@
 
             // 櫨 Check for deep link (?userName=... or ?userId=...)
             const urlParams = new URLSearchParams(window.location.search);
-            let targetUser = urlParams.get('userName');
+            let targetUser = urlParams.get('userName') || urlParams.get('friend') || urlParams.get('user');
             if (!targetUser || targetUser.trim() === "") {
                 targetUser = "<%= (targetUserBean != null) ? targetUserBean.getName().replace("\"", "\\\"") : "" %>";
             }
@@ -1348,10 +1364,8 @@
                 targetUser = targetUser.trim();
                 window.targetToOpen = targetUser;
                 let item = document.getElementById("friend-item-" + targetUser);
-                if (item) {
-                    openChat(targetUser, item);
-                    window.targetToOpen = null;
-                }
+                openChat(targetUser, item || null);
+                window.targetToOpen = null;
                 const autoCallAction = urlParams.get('callAction');
                 const autoCallType = urlParams.get('callType') || 'voice';
                 if (autoCallAction === 'accept') {
@@ -1428,12 +1442,43 @@
         }
         function togglePinnedMessagesPanel() { const panel=document.getElementById('pinnedMessagesPanel'); if(!panel)return; panel.hidden=!panel.hidden; renderPinnedMessages(); }
         function renderPinnedMessages() {
-            const panel=document.getElementById('pinnedMessagesPanel'); if(!panel)return;
-            const friend=document.getElementById('targetFriendName')?.value || ''; const list=getPinnedMessageMap()[friend] || [];
-            panel.replaceChildren();
-            const heading=document.createElement('strong'); heading.textContent='Pinned messages'; panel.append(heading);
-            if(!list.length){const empty=document.createElement('p');empty.textContent='No pinned messages in this chat yet.';empty.style.color='#64748b';panel.append(empty);return;}
-            list.forEach(item=>{const row=document.createElement('div');row.style.cssText='display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee';const jump=document.createElement('button');jump.type='button';jump.textContent=item.text;jump.style.cssText='flex:1;text-align:left;border:0;background:transparent;color:#334155;cursor:pointer';jump.onclick=()=>{panel.hidden=true;scrollToMessage(item.id);};const unpin=document.createElement('button');unpin.type='button';unpin.textContent='Unpin';unpin.style.cssText='border:0;background:transparent;color:#be123c;cursor:pointer';unpin.onclick=()=>pinCurrentMessage(item.id);row.append(jump,unpin);panel.append(row);});
+            try {
+                const panel = document.getElementById('pinnedMessagesPanel');
+                if (!panel) return;
+                const targetFriendEl = document.getElementById('targetFriendName');
+                const friend = targetFriendEl ? targetFriendEl.value : '';
+                const list = getPinnedMessageMap()[friend] || [];
+                panel.innerHTML = '';
+                const heading = document.createElement('strong');
+                heading.textContent = 'Pinned messages';
+                panel.appendChild(heading);
+                if (!list.length) {
+                    const empty = document.createElement('p');
+                    empty.textContent = 'No pinned messages in this chat yet.';
+                    empty.style.color = '#64748b';
+                    panel.appendChild(empty);
+                    return;
+                }
+                list.forEach(item => {
+                    const row = document.createElement('div');
+                    row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee';
+                    const jump = document.createElement('button');
+                    jump.type = 'button';
+                    jump.textContent = item.text;
+                    jump.style.cssText = 'flex:1;text-align:left;border:0;background:transparent;color:#334155;cursor:pointer';
+                    jump.onclick = () => { panel.hidden = true; scrollToMessage(item.id); };
+                    const unpin = document.createElement('button');
+                    unpin.type = 'button';
+                    unpin.textContent = 'Unpin';
+                    unpin.style.cssText = 'border:0;background:transparent;color:#be123c;cursor:pointer';
+                    unpin.onclick = () => pinCurrentMessage(item.id);
+                    row.appendChild(jump);
+                    row.appendChild(unpin);
+                    panel.appendChild(row);
+                });
+            } catch (err) {
+                console.warn('renderPinnedMessages error:', err);
+            }
         }
 
         function filterUsers() {
@@ -1564,32 +1609,28 @@
         }
 
         function quickCallFriend(friend, type, element) {
+            if (!friend || friend === myName) return;
+            var targetFriendNameEl = document.getElementById("targetFriendName");
+            if (targetFriendNameEl) targetFriendNameEl.value = friend;
+            var chattingWithEl = document.getElementById("chattingWith");
+            if (chattingWithEl) chattingWithEl.innerText = friend;
             openChat(friend, element || document.getElementById("friend-item-" + friend));
-            setTimeout(function() {
-                initiateCall(type);
-            }, 100);
+            initiateCall(type);
         }
 
         function openChat(friend, element) {
+            if (!friend || friend === "None") return;
             document.body.classList.add('chat-open');
-            document.getElementById("chattingWith").innerText = friend;
-            document.getElementById("conversationTools").style.display = friend === "Gemini AI" || friend === "gemini" ? "none" : "flex";
-            const archiveRow = document.getElementById("friend-item-" + friend);
-            document.getElementById("archiveConversationBtn").title = archiveRow && archiveRow.dataset.archived === "true" ? "Restore conversation" : "Archive conversation";
-            document.getElementById("targetFriendName").value = friend;
-            renderPinnedMessages();
-            if (element && element.dataset && element.dataset.userid) {
-                currentChatUserId = parseInt(element.dataset.userid);
-            } else {
-                const el = document.getElementById("friend-item-" + friend);
-                if (el && el.dataset && el.dataset.userid) currentChatUserId = parseInt(el.dataset.userid);
-            }
-            updateBlockedStatusForActiveChat();
-            updateChatHeaderStatus();
-            cancelReplyQuote();
-            dismissSmartReplies();
 
-            document.getElementById("callButtons").classList.add("active");
+            var chattingWithEl = document.getElementById("chattingWith");
+            if (chattingWithEl) chattingWithEl.innerText = friend;
+
+            var targetFriendNameEl = document.getElementById("targetFriendName");
+            if (targetFriendNameEl) targetFriendNameEl.value = friend;
+
+            var callButtonsEl = document.getElementById("callButtons");
+            if (callButtonsEl) callButtonsEl.classList.add("active");
+
             var voiceCallIcon = document.querySelector("#callButtons .fa-phone");
             var videoCallIcon = document.querySelector("#callButtons .fa-video");
             if (friend === "Gemini AI" || friend === "gemini") {
@@ -1600,7 +1641,35 @@
                 if (videoCallIcon) videoCallIcon.style.display = "inline-flex";
             }
 
-            document.getElementById("chatBox").innerHTML = "<p style='text-align:center; padding-top:50px; color:#999;'>Loading messages...</p>";
+            var convTools = document.getElementById("conversationTools");
+            if (convTools) convTools.style.display = (friend === "Gemini AI" || friend === "gemini") ? "none" : "flex";
+
+            try {
+                const archiveRow = document.getElementById("friend-item-" + friend);
+                var archiveBtn = document.getElementById("archiveConversationBtn");
+                if (archiveBtn) {
+                    archiveBtn.title = archiveRow && archiveRow.dataset.archived === "true" ? "Restore conversation" : "Archive conversation";
+                }
+            } catch (e) {}
+
+            try { renderPinnedMessages(); } catch (e) {}
+
+            try {
+                if (element && element.dataset && element.dataset.userid) {
+                    currentChatUserId = parseInt(element.dataset.userid);
+                } else {
+                    const el = document.getElementById("friend-item-" + friend);
+                    if (el && el.dataset && el.dataset.userid) currentChatUserId = parseInt(el.dataset.userid);
+                }
+            } catch (e) {}
+
+            try { updateBlockedStatusForActiveChat(); } catch (e) {}
+            try { updateChatHeaderStatus(); } catch (e) {}
+            try { cancelReplyQuote(); } catch (e) {}
+            try { dismissSmartReplies(); } catch (e) {}
+
+            var chatBoxEl = document.getElementById("chatBox");
+            if (chatBoxEl) chatBoxEl.innerHTML = "<p style='text-align:center; padding-top:50px; color:#999;'>Loading messages...</p>";
             document.querySelectorAll('.friend-item').forEach(i => i.classList.remove('active'));
             if(element) {
                 element.classList.add('active');
@@ -2343,7 +2412,6 @@
         let toneOscillators = [];
         let audioCtx = null;
         let micMuted = false;
-            loudspeakerOn = false;
         let camOff = false;
         let loudspeakerOn = false;
         let speakerToastTimer = null;
@@ -2356,9 +2424,28 @@
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
                 { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.services.mozilla.com:3478' }
+                { urls: 'stun:stun.cloudflare.com:3478' },
+                {
+                    urls: [
+                        'turn:openrelay.metered.ca:80',
+                        'turn:openrelay.metered.ca:443',
+                        'turn:openrelay.metered.ca:443?transport=tcp',
+                        'turns:openrelay.metered.ca:443?transport=tcp'
+                    ],
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: [
+                        'turn:3.26.151.171:3478',
+                        'turn:3.26.151.171:3478?transport=udp',
+                        'turn:3.26.151.171:3478?transport=tcp'
+                    ],
+                    username: 'ychat',
+                    credential: 'pass2026'
+                }
             ],
-            iceCandidatePoolSize: 0
+            iceCandidatePoolSize: 10
         };
         let iceCandidateQueue = [];
 
@@ -2376,7 +2463,7 @@
             const rAud = document.getElementById("remoteAudio");
             if (rAud) {
                 rAud.muted = false;
-                rAud.volume = loudspeakerOn ? 1.0 : 0.55;
+                rAud.volume = 1.0;
                 rAud.play().catch(function() {});
             }
         }
@@ -2421,8 +2508,14 @@
         function startIncomingRingtone() {
             initAudio();
             stopRingtone();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(function() {});
+            }
             let playRing = () => {
                 if (!audioCtx) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(function() {});
+                }
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
                 
@@ -2434,8 +2527,8 @@
                 osc.frequency.setValueAtTime(1046.50, now + 0.45); // C6
                 
                 gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.2, now + 0.05);
-                gain.gain.setValueAtTime(0.2, now + 0.5);
+                gain.gain.linearRampToValueAtTime(0.75, now + 0.05);
+                gain.gain.setValueAtTime(0.75, now + 0.5);
                 gain.gain.linearRampToValueAtTime(0, now + 0.75);
                 
                 osc.connect(gain);
@@ -2444,13 +2537,17 @@
                 osc.start();
                 toneOscillators.push(osc);
                 
+                if (navigator.vibrate) {
+                    try { navigator.vibrate([400, 200, 400]); } catch(e) {}
+                }
+
                 setTimeout(() => {
                     try { osc.stop(); } catch(e) {}
                 }, 800);
             };
             
             playRing();
-            ringInterval = setInterval(playRing, 1200);
+            ringInterval = setInterval(playRing, 1500);
         }
 
         function stopRingtone() {
@@ -2518,7 +2615,7 @@
                 if (rAud) {
                     rAud.srcObject = stream;
                     rAud.muted = false;
-                    rAud.volume = loudspeakerOn ? 1.0 : 0.55;
+                    rAud.volume = 1.0;
                     const p = rAud.play();
                     if (p !== undefined) {
                         p.catch(function(err) {
@@ -2532,6 +2629,19 @@
                             document.addEventListener('touchend', resumeClick, { once: true });
                         });
                     }
+                }
+
+                try {
+                    initAudio();
+                    if (audioCtx && stream.getAudioTracks().length > 0) {
+                        if (audioCtx.state === 'suspended') {
+                            audioCtx.resume();
+                        }
+                        const audioSource = audioCtx.createMediaStreamSource(stream);
+                        audioSource.connect(audioCtx.destination);
+                    }
+                } catch (e) {
+                    console.debug("Web Audio destination connect:", e);
                 }
 
                 const rVid = document.getElementById("remoteVideo");
@@ -2570,15 +2680,9 @@
 
         async function initiateCall(type) {
             var friend = document.getElementById("targetFriendName").value;
-            if (!friend || friend === "None") {
-                var firstItem = document.querySelector("#friendListContainer .friend-item");
-                if (firstItem && firstItem.getAttribute("data-username")) {
-                    friend = firstItem.getAttribute("data-username");
-                    openChat(friend, firstItem);
-                } else {
-                    alert("Please select a friend to call.");
-                    return;
-                }
+            if (!friend || friend === "None" || friend.toLowerCase() === (myName || '').toLowerCase()) {
+                alert("Please select a friend to call.");
+                return;
             }
 
             initAudio();
@@ -2624,6 +2728,11 @@
 
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send("CALL_OFFER|" + friend + "|" + JSON.stringify({ type: callType, sdp: offer }));
+                } else {
+                    console.error("Socket not connected when sending offer, state:", socket ? socket.readyState : 'null');
+                    alert("Reconnecting to server... Please try calling again in a moment.");
+                    declineCall();
+                    return;
                 }
             } catch (err) {
                 console.error("Initiate call error:", err);
@@ -2656,7 +2765,7 @@
         };
 
         async function handleCallOffer(sender, offerData) {
-            if (currentCallFriend && currentCallFriend !== sender) {
+            if (currentCallFriend && currentCallFriend.toLowerCase() !== (sender || '').toLowerCase()) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send("CALL_REJECT|" + sender + "|busy");
                 }
@@ -3087,7 +3196,7 @@
                 if (!callAudioSource) {
                     callAudioSource = callAudioCtx.createMediaStreamSource(stream);
                     callGainNode = callAudioCtx.createGain();
-                    callGainNode.gain.setValueAtTime(loudspeakerOn ? 1.35 : 0.85, callAudioCtx.currentTime);
+                    callGainNode.gain.setValueAtTime(loudspeakerOn ? 1.0 : 0.20, callAudioCtx.currentTime);
                     if (window.AndroidApp && typeof window.AndroidApp.setCallMode === 'function') {
                         try { window.AndroidApp.setCallMode(true); } catch(e) {}
                     }
@@ -3130,17 +3239,17 @@
                 if (callAudioCtx.state === 'suspended') {
                     callAudioCtx.resume();
                 }
-                const targetGain = loudspeakerOn ? 1.35 : 0.85;
+                const targetGain = loudspeakerOn ? 1.4 : 1.0;
                 callGainNode.gain.cancelScheduledValues(callAudioCtx.currentTime);
                 callGainNode.gain.setValueAtTime(callGainNode.gain.value, callAudioCtx.currentTime);
                 callGainNode.gain.linearRampToValueAtTime(targetGain, callAudioCtx.currentTime + 0.1);
             } else {
                 if (remoteAudio) {
-                    remoteAudio.volume = loudspeakerOn ? 1.0 : 0.6;
+                    remoteAudio.volume = 1.0;
                     remoteAudio.muted = false;
                 }
                 if (remoteVideo) {
-                    remoteVideo.volume = loudspeakerOn ? 1.0 : 0.6;
+                    remoteVideo.volume = 1.0;
                 }
             }
 
@@ -3273,9 +3382,7 @@
         }
 
         // ================= SECURITY & BLOCK MANAGEMENT =================
-        let blockedUserIds = new Set();
-        let blockedUserNames = new Set();
-        let currentChatUserId = null;
+        // blockedUserIds, blockedUserNames, currentChatUserId hoisted to top of script
 
         function fetchBlockedUsers() {
             fetch('SecurityServlet?action=getBlockedUsers')

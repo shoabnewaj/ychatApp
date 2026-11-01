@@ -1,0 +1,15 @@
+{
+  "appId": "com.ychat.app",
+  "appName": "YChat",
+  "webDir": "www",
+  "server": {
+    "url": "https://rational-not-emotions-tears.trycloudflare.com",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

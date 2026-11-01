@@ -54,7 +54,7 @@ public class PushSubscriptionServlet extends HttpServlet {
 
             String sql = "INSERT INTO push_subscriptions (username, endpoint, p256dh, auth) " +
                          "VALUES (?, ?, ?, ?) " +
-                         "ON DUPLICATE KEY UPDATE username = VALUES(username), p256dh = VALUES(p256dh), auth = VALUES(auth), updated_at = CURRENT_TIMESTAMP";
+                         "ON DUPLICATE KEY UPDATE p256dh = VALUES(p256dh), auth = VALUES(auth), updated_at = CURRENT_TIMESTAMP";
 
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {

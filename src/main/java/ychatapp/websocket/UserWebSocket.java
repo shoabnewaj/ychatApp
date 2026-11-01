@@ -21,6 +21,8 @@ public class UserWebSocket {
  
     private static final ConcurrentHashMap<String, Set<Session>> clients = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> lastActiveMap = new ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService callScheduler = 
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
 
     public static class PendingCallInfo {
         public String caller;
@@ -64,7 +66,7 @@ public class UserWebSocket {
         }
     }
  
-    public static void triggerWebPush(String receiver, String title, String body, String url) {
+    public static void triggerWebPush(String receiver, String title, String body, String url, String caller) {
         if (receiver == null || receiver.trim().isEmpty()) return;
         try {
             java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
@@ -73,6 +75,10 @@ public class UserWebSocket {
             payload.addProperty("body", body);
             payload.addProperty("url", url);
             payload.addProperty("requireInteraction", true);
+            if (caller != null) {
+                payload.addProperty("caller", caller);
+                payload.addProperty("isCall", true);
+            }
             
             com.google.gson.JsonObject reqJson = new com.google.gson.JsonObject();
             reqJson.addProperty("username", receiver.trim());
@@ -90,6 +96,10 @@ public class UserWebSocket {
         }
     }
 
+    public static void triggerWebPush(String receiver, String title, String body, String url) {
+        triggerWebPush(receiver, title, body, url, null);
+    }
+
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String encodedUsername) {
         String username = decodeUsername(encodedUsername);
@@ -102,11 +112,11 @@ public class UserWebSocket {
         if (pending != null && !pending.answered && !pending.rejected) {
             try {
                 if (pending.sdpJson != null && !pending.sdpJson.isEmpty()) {
-                    session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + pending.sdpJson);
+                    safeSend(session, "CALL_OFFER|" + pending.caller + "|" + pending.sdpJson);
                 } else {
                     com.google.gson.JsonObject callJson = new com.google.gson.JsonObject();
                     callJson.addProperty("type", pending.type);
-                    session.getBasicRemote().sendText("CALL_OFFER|" + pending.caller + "|" + callJson.toString());
+                    safeSend(session, "CALL_OFFER|" + pending.caller + "|" + callJson.toString());
                 }
             } catch (Exception ignored) {}
         }
@@ -126,7 +136,7 @@ public class UserWebSocket {
 
             if ("PING".equalsIgnoreCase(type)) {
                 try {
-                    session.getBasicRemote().sendText("PONG|server");
+                    safeSend(session, "PONG|server");
                 } catch (Exception ignored) {}
                 return;
             }
@@ -329,6 +339,9 @@ public class UserWebSocket {
                 sendMessageToUser(receiver, "LIVE_VIEWER_LEFT|" + sender + "|{}");
             } else if ("CALL_OFFER".equalsIgnoreCase(type)) {
                 touchUser(sender);
+                if (sender == null || receiver == null || sender.trim().equalsIgnoreCase(receiver.trim())) {
+                    return;
+                }
                 String callType = "voice";
                 if (content != null && content.contains("\"video\"")) {
                     callType = "video";
@@ -342,12 +355,37 @@ public class UserWebSocket {
                 pendingCalls.put(receiver.trim().toLowerCase(), call);
 
                 sendMessageToUser(receiver, "CALL_OFFER|" + sender + "|" + content);
-                triggerWebPush(receiver, "📞 " + sender + " is calling...", "Tap to answer incoming " + callType + " call", "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType);
+
+                final String targetPushUrl = "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType;
+                final String finalReceiver = receiver.trim();
+                final String finalSender = sender.trim();
+                final String finalCallType = callType;
+
+                for (int delaySec : new int[]{0, 4, 8, 12, 16}) {
+                    if (delaySec == 0) {
+                        triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
+                    } else {
+                        callScheduler.schedule(() -> {
+                            PendingCallInfo p = getPendingCall(finalReceiver);
+                            if (p != null && !p.answered && !p.rejected && finalSender.equalsIgnoreCase(p.caller)) {
+                                triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
+                            }
+                        }, delaySec, java.util.concurrent.TimeUnit.SECONDS);
+                    }
+                }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);
-                clearPendingCall(sender);
-                clearPendingCall(receiver);
-                sendMessageToUser(receiver, type + "|" + sender + "|" + content);
+                if (content != null && content.contains("accepted_need_offer")) {
+                    PendingCallInfo call = getPendingCall(sender);
+                    if (call != null && call.sdpJson != null) {
+                        sendMessageToUser(sender, "CALL_OFFER|" + call.caller + "|" + call.sdpJson);
+                    }
+                    sendMessageToUser(receiver, type + "|" + sender + "|" + content);
+                } else {
+                    clearPendingCall(sender);
+                    clearPendingCall(receiver);
+                    sendMessageToUser(receiver, type + "|" + sender + "|" + content);
+                }
             } else if ("ICE_CANDIDATE".equalsIgnoreCase(type)) {
                 sendMessageToUser(receiver, "ICE_CANDIDATE|" + sender + "|" + content);
             } else if ("CALL_REJECT".equalsIgnoreCase(type) || "CALL_END".equalsIgnoreCase(type)) {
@@ -399,43 +437,55 @@ public class UserWebSocket {
         }
     }
 
-    public static void sendNotification(String username, String message) {
+    public static void safeSend(Session s, String message) {
+        if (s == null) return;
+        synchronized (s) {
+            if (s.isOpen()) {
+                try {
+                    s.getBasicRemote().sendText(message);
+                } catch (Exception e) {
+                    logger.warn("WebSocket send failed to session {}: {}", s.getId(), e.getMessage());
+                }
+            }
+        }
+    }
+
+    private static Set<Session> getSessionsForUser(String username) {
+        if (username == null) return null;
         Set<Session> userSessions = clients.get(username);
+        if (userSessions == null || userSessions.isEmpty()) {
+            for (java.util.Map.Entry<String, Set<Session>> entry : clients.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(username)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return userSessions;
+    }
+
+    public static void sendNotification(String username, String message) {
+        Set<Session> userSessions = getSessionsForUser(username);
         if (userSessions != null) {
             for (Session s : userSessions) {
-                if (s.isOpen()) {
-                    try {
-                        s.getBasicRemote().sendText("NOTIF|" + message);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                safeSend(s, "NOTIF|" + message);
             }
         }
     }
 
     public static void sendToUser(String username, String message) {
-        Set<Session> userSessions = clients.get(username);
+        Set<Session> userSessions = getSessionsForUser(username);
         if (userSessions != null) {
             for (Session s : userSessions) {
-                if (s.isOpen()) {
-                    try { s.getBasicRemote().sendText(message); } catch (IOException e) { logger.warn("WebSocket send failed: {}", e.getMessage()); }
-                }
+                safeSend(s, message);
             }
         }
     }
 
     private void sendMessageToUser(String username, String message) {
-        Set<Session> userSessions = clients.get(username);
+        Set<Session> userSessions = getSessionsForUser(username);
         if (userSessions != null) {
             for (Session s : userSessions) {
-                if (s.isOpen()) {
-                    try {
-                        s.getBasicRemote().sendText(message);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                safeSend(s, message);
             }
         }
     }

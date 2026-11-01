@@ -111,7 +111,7 @@ public class PostDAO {
             "LEFT JOIN post_views pv ON pv.post_id = p.id " +
             "WHERE p.publish_status = 'PUBLISHED' AND (p.scheduled_at IS NULL OR p.scheduled_at <= NOW()) " +
             "GROUP BY p.id, u.name, u.is_verified, p.user_id, p.content, p.file_name, p.post_type, p.feeling, p.original_post_id, u.profile_pic, p.created_at, p.share_count " +
-            "ORDER BY p.id DESC";
+            "ORDER BY p.id DESC LIMIT 40";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -190,7 +190,7 @@ public class PostDAO {
             "LEFT JOIN comments c ON c.post_id = p.id " +
             "WHERE p.post_type = 'video' " +
             "GROUP BY p.id, u.name, u.is_verified, p.user_id, p.content, p.file_name, p.post_type, p.feeling, u.profile_pic, p.created_at, p.share_count " +
-            "ORDER BY p.id DESC";
+            "ORDER BY p.id DESC LIMIT 40";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -253,7 +253,7 @@ public class PostDAO {
                      "FROM posts p " +
                      "JOIN users u ON p.user_id = u.id " +
                      "WHERE p.user_id = ? " +
-                     "ORDER BY p.id DESC";
+                     "ORDER BY p.id DESC LIMIT 40";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -494,7 +494,7 @@ public class PostDAO {
             "LEFT JOIN comments c ON c.post_id = p.id " +
             "WHERE p.content LIKE ? " +
             "GROUP BY p.id, u.name, u.is_verified, p.user_id, p.content, p.file_name, p.post_type, p.feeling, p.original_post_id, u.profile_pic, p.created_at, p.share_count " +
-            "ORDER BY p.id DESC";
+            "ORDER BY p.id DESC LIMIT 40";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

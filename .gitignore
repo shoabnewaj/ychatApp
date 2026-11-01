@@ -26,3 +26,12 @@ src/main/webapp/WEB-INF/classes/
 src/main/resources/gemini.properties
 
 gemini.properties
+
+mobile/node_modules/
+mobile/android/.gradle/
+mobile/android/.gradle_home/
+mobile/android/build/
+mobile/android/app/build/
+mobile/ios/App/Pods/
+mobile/ios/App/build/
+

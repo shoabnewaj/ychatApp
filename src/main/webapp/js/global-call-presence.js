@@ -222,7 +222,7 @@
         if (!caller) return;
 
         // Navigate immediately to messages.jsp with auto-accept parameters
-        const targetUrl = contextPath + "/messages.jsp?userName=" + encodeURIComponent(caller) + "&callAction=accept&callType=" + encodeURIComponent(type);
+        const targetUrl = contextPath + "/messages.jsp?friend=" + encodeURIComponent(caller) + "&userName=" + encodeURIComponent(caller) + "&callAction=accept&callType=" + encodeURIComponent(type);
         window.location.href = targetUrl;
     }
 
@@ -267,10 +267,7 @@
                 const caller = parts[1];
                 let payload = {};
                 try { payload = JSON.parse(parts[2]); } catch (e) {}
-                // If it's an initial call offer (not renegotiation SDP)
-                if (!payload.sdp) {
-                    showIncomingCall(caller, payload.type || "voice");
-                }
+                showIncomingCall(caller, payload.type || "voice");
             } else if (data.startsWith("CALL_END|") || data.startsWith("CALL_REJECT|")) {
                 const parts = data.split("|", 3);
                 if (currentIncomingCaller && parts[1] === currentIncomingCaller) {

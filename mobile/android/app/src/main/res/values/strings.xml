@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">YChat</string>
+    <string name="title_activity_main">YChat</string>
+    <string name="package_name">com.ychat.app</string>
+    <string name="custom_url_scheme">com.ychat.app</string>
+</resources>

@@ -6,8 +6,8 @@
 <html lang="en">
 <head>
 
-    <script src="<%=request.getContextPath()%>/js/notification-badge.js" data-context-path="<%=request.getContextPath()%>" defer></script>
-    <script src="<%=request.getContextPath()%>/js/global-call-presence.js" data-user="${sessionScope.ub.name}" data-context-path="<%=request.getContextPath()%>" defer></script>
+    <script src="<%=request.getContextPath()%>/js/notification-badge.js?v=20261101_v4" data-context-path="<%=request.getContextPath()%>" defer></script>
+    <script src="<%=request.getContextPath()%>/js/global-call-presence.js?v=20261101_v4" data-user="${sessionScope.ub.name}" data-context-path="<%=request.getContextPath()%>" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
 <title>Y-ChatApp | Newsfeed</title>
@@ -28,6 +28,10 @@
 <link rel="icon" type="image/png"
 	href="<%=request.getContextPath()%>/icons/icon-192.png">
 
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -739,9 +743,9 @@ header, .navbar {
 
 				<c:forEach var="reel" items="${reelsList}">
 					<div onclick="openReelViewer(${reel.getId()})" data-reel-id="${reel.getId()}" class="w-[130px] min-w-[130px] max-w-[130px] h-[200px] rounded-2xl relative overflow-hidden bg-black cursor-pointer shadow-md flex-shrink-0 group hover:scale-102 transition">
-						<video class="w-full h-full object-cover opacity-80">
-							<source src="img/${reel.getFile_name()}" type="video/mp4">
-						</video>
+						<video class="w-full h-full object-cover opacity-80" muted playsinline webkit-playsinline preload="metadata"><source src="img/${reel.getFile_name()}#t=0.1"></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white text-xs shadow"><i class="fa fa-play text-[11px] ml-0.5"></i></div></div>
+
+
 						<div class="absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full border-2 border-blue-500 overflow-hidden shadow">
 							<img src="img/${not empty reel.getProfile_pic() ? reel.getProfile_pic() : 'default.png'}" alt="user" class="reel-owner-pic w-full h-full object-cover" onerror="this.src='img/default.png'">
 						</div>
@@ -891,12 +895,13 @@ header, .navbar {
 						<p class="text-gray-800 leading-relaxed">${fn:escapeXml(post.getContent())}</p>
 						<c:if test="${not empty post.getFile_name()}">
 							<div class="mt-4 rounded-2xl overflow-hidden border border-white/20 shadow-lg bg-gray-100/30">
+								<c:set var="fnLower" value="${post.getFile_name().toLowerCase()}" />
 								<c:choose>
-									<c:when test="${post.getPost_type() == 'video' || post.getFile_name().toLowerCase().endsWith('.webm') || post.getFile_name().toLowerCase().endsWith('.mp4')}">
-										<video src="img/${post.getFile_name()}" controls class="w-full max-h-[500px] object-contain bg-black"></video>
+								<c:when test="${post.getPost_type() == 'video' || fnLower.endsWith('.webm') || fnLower.endsWith('.mp4') || fnLower.endsWith('.mov') || fnLower.endsWith('.m4v')}">
+									<video src="img/${post.getFile_name()}" controls playsinline preload="metadata" class="w-full max-h-[500px] object-contain bg-black rounded-xl"></video>
 									</c:when>
 									<c:otherwise>
-										<img src="img/${post.getFile_name()}" onerror="this.onerror=null;this.parentElement.style.display='none';" class="w-full max-h-[500px] object-cover md:hover:scale-[1.01] transition-transform duration-700">
+									<img src="img/${post.getFile_name()}" onerror="this.onerror=null;this.src='img/default.png';" class="w-full max-h-[500px] object-cover md:hover:scale-[1.01] transition-transform duration-700">
 									</c:otherwise>
 								</c:choose>
 							</div>
@@ -1380,7 +1385,7 @@ header, .navbar {
 								<i class="fa fa-face-smile text-yellow-500 text-xs"></i> <select
 									name="feeling"
 									class="text-[11px] font-bold bg-transparent outline-none cursor-pointer text-gray-600">
-									<option value="">Feeling</option>
+									<option value="${post.getFile_name().toLowerCase()}">Feeling</option>
 									<option value="Happy">&#x1F60A; Happy</option>
 									<option value="Loved">&#x2764;&#xFE0F; Loved</option>
 									<option value="Haha">&#x1F602; Haha</option>
