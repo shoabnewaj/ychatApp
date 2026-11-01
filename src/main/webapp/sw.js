@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v7';
+const CACHE_NAME = 'ychat-app-cache-v8';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -140,6 +140,10 @@ self.addEventListener('push', function (event) {
         requireInteraction: true,
         vibrate: isCall ? [1000, 400, 1000, 400, 1000, 400, 1000] : [200, 100, 200],
         sound: isCall ? ringtoneUrl : undefined,
+        actions: isCall ? [
+            { action: 'answer', title: '📞 Answer' },
+            { action: 'decline', title: '❌ Decline' }
+        ] : [],
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,
@@ -160,20 +164,27 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     const data = event.notification.data || {};
-    const targetUrl = data.url || '/messages.jsp';
+    const caller = data.caller || '';
+    const isCall = data.isCall;
 
     if (event.action === 'decline' || event.action === 'dismiss') {
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+            clientList.forEach(c => {
+                try { c.postMessage({ action: 'declineIncomingCall', caller: caller }); } catch(e) {}
+            });
+        });
         return;
     }
 
+    const targetUrl = data.url || ('/messages.jsp?friend=' + encodeURIComponent(caller) + '&callAction=accept');
     const fullUrl = new URL(targetUrl, self.location.origin).href;
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
             for (let i = 0; i < clientList.length; i++) {
                 const client = clientList[i];
-                if ('navigate' in client && 'focus' in client) {
-                    client.navigate(fullUrl);
+                if (client.url && client.url.includes('messages.jsp') && 'focus' in client) {
+                    try { client.postMessage({ action: 'acceptIncomingCall', caller: caller }); } catch(e) {}
                     return client.focus();
                 }
             }
