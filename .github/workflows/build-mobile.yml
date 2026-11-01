@@ -24,7 +24,7 @@ jobs:
           npm install
           npx cap sync ios
 
-      - name: Build iOS Archive with Xcode
+      - name: Build iOS App with Xcode
         run: |
           cd mobile/ios/App
           pod install
@@ -32,24 +32,26 @@ jobs:
             -scheme App \
             -configuration Debug \
             -destination 'generic/platform=iOS' \
-            -archivePath build/App.xcarchive \
-            archive \
+            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
 
-      - name: Package IPA
+      - name: Package Unsigned IPA
         run: |
           cd mobile/ios/App
-          mkdir -p build/Payload
-          cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
-          cd build
+          mkdir -p Payload
+          APP_PATH=$(find build -name "App.app" -type d | head -n 1)
+          echo "Found app bundle at: $APP_PATH"
+          cp -r "$APP_PATH" Payload/
           zip -r YChat.ipa Payload
 
       - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: YChat-iOS-IPA
-          path: mobile/ios/App/build/YChat.ipa
+          path: mobile/ios/App/YChat.ipa
           retention-days: 14
 
   build-android:
