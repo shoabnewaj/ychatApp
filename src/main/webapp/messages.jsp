@@ -3028,6 +3028,7 @@
             document.getElementById("acceptBtn").style.display = "none";
             document.getElementById("declineBtn").style.display = "none";
             document.getElementById("activeCallControls").style.display = "flex";
+            setLoudspeaker(callType === 'video', false);
             document.getElementById("callStatus").innerText = "Active Call (00:00)";
 
             if (callTimer) clearInterval(callTimer);
@@ -3111,6 +3112,9 @@
             if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
                 try { window.AndroidApp.setSpeakerphoneOn(false); } catch(e) {}
             }
+            if (window.AndroidApp && typeof window.AndroidApp.setCallMode === 'function') {
+                try { window.AndroidApp.setCallMode(false); } catch(e) {}
+            }
 
             const speakerBtn = document.getElementById("toggleSpeakerBtn");
             const speakerIcon = document.getElementById("speakerIcon");
@@ -3164,20 +3168,6 @@
                 camBtn.innerHTML = camOff ? '<i class="fa-solid fa-video-slash"></i>' : '<i class="fa-solid fa-video"></i>';
             }
         }
-
-
-
-        function showSpeakerToast(text, isLoud) {
-            const toast = document.getElementById("callSpeakerToast");
-            if (!toast) return;
-            toast.innerHTML = (isLoud ? '<i class="fa-solid fa-volume-high" style="color:#60a5fa;"></i> ' : '<i class="fa-solid fa-volume-low" style="color:#94a3b8;"></i> ') + text;
-            toast.classList.add("show");
-            if (speakerToastTimer) clearTimeout(speakerToastTimer);
-            speakerToastTimer = setTimeout(() => {
-                toast.classList.remove("show");
-            }, 2000);
-        }
-
 
         function toggleCallFullscreen() {
             const overlay = document.getElementById("callOverlay");
@@ -3287,6 +3277,27 @@
             const remoteAudio = document.getElementById("remoteAudio");
             const remoteVideo = document.getElementById("remoteVideo");
 
+            // Update UI Button and Toast IMMEDIATELY so the user gets instant visual feedback on tap
+            if (loudspeakerOn) {
+                if (btn) {
+                    btn.classList.add("active");
+                    btn.title = "Loudspeaker: ON (Click for Earpiece/Normal)";
+                }
+                if (icon) {
+                    icon.className = "fa-solid fa-volume-high";
+                }
+                if (showToast) showSpeakerToast("Loudspeaker ON", true);
+            } else {
+                if (btn) {
+                    btn.classList.remove("active");
+                    btn.title = "Loudspeaker: OFF (Click for Loudspeaker)";
+                }
+                if (icon) {
+                    icon.className = "fa-solid fa-volume-low";
+                }
+                if (showToast) showSpeakerToast("Loudspeaker OFF (Earpiece/Normal)", false);
+            }
+
             // 1. Android Native App Bridge
             if (window.AndroidApp && typeof window.AndroidApp.setSpeakerphoneOn === 'function') {
                 try {
@@ -3297,22 +3308,26 @@
             }
 
             // 2. Web Audio Gain Booster & Volume
-            if (callGainNode && callAudioCtx) {
-                if (callAudioCtx.state === 'suspended') {
-                    callAudioCtx.resume();
+            try {
+                if (callGainNode && callAudioCtx) {
+                    if (callAudioCtx.state === 'suspended') {
+                        callAudioCtx.resume();
+                    }
+                    const targetGain = loudspeakerOn ? 1.4 : 0.8;
+                    callGainNode.gain.cancelScheduledValues(callAudioCtx.currentTime);
+                    callGainNode.gain.setValueAtTime(callGainNode.gain.value, callAudioCtx.currentTime);
+                    callGainNode.gain.linearRampToValueAtTime(targetGain, callAudioCtx.currentTime + 0.1);
+                } else {
+                    if (remoteAudio) {
+                        remoteAudio.volume = loudspeakerOn ? 1.0 : 0.7;
+                        remoteAudio.muted = false;
+                    }
+                    if (remoteVideo) {
+                        remoteVideo.volume = loudspeakerOn ? 1.0 : 0.7;
+                    }
                 }
-                const targetGain = loudspeakerOn ? 1.4 : 1.0;
-                callGainNode.gain.cancelScheduledValues(callAudioCtx.currentTime);
-                callGainNode.gain.setValueAtTime(callGainNode.gain.value, callAudioCtx.currentTime);
-                callGainNode.gain.linearRampToValueAtTime(targetGain, callAudioCtx.currentTime + 0.1);
-            } else {
-                if (remoteAudio) {
-                    remoteAudio.volume = 1.0;
-                    remoteAudio.muted = false;
-                }
-                if (remoteVideo) {
-                    remoteVideo.volume = 1.0;
-                }
+            } catch (err) {
+                console.warn("Gain booster error:", err);
             }
 
             // 3. Audio Output Device Sink Selection (Chrome/Edge/Android supported)
@@ -3335,6 +3350,7 @@
                             const commDev = audioOutputs.find(d => 
                                 d.label.toLowerCase().includes('earpiece') || 
                                 d.label.toLowerCase().includes('headset') ||
+                                d.label.toLowerCase().includes('receiver') ||
                                 d.label.toLowerCase().includes('communications')
                             ) || audioOutputs[0];
                             if (commDev) {
@@ -3346,27 +3362,6 @@
                 } catch(err) {
                     console.log("Device sink note:", err);
                 }
-            }
-
-            // 4. Update UI Button and Toast
-            if (loudspeakerOn) {
-                if (btn) {
-                    btn.classList.add("active");
-                    btn.title = "Loudspeaker: ON (Click for Earpiece/Normal)";
-                }
-                if (icon) {
-                    icon.className = "fa-solid fa-volume-high";
-                }
-                if (showToast) showSpeakerToast("Loudspeaker ON", true);
-            } else {
-                if (btn) {
-                    btn.classList.remove("active");
-                    btn.title = "Loudspeaker: OFF (Click for Loudspeaker)";
-                }
-                if (icon) {
-                    icon.className = "fa-solid fa-volume-low";
-                }
-                if (showToast) showSpeakerToast("Loudspeaker OFF (Earpiece/Normal)", false);
             }
         }
 
