@@ -1,12 +1,14 @@
 package ychatapp.Servlet;
 
 import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import ychatapp.model.beans.UsersBeans;
 
 @WebServlet({"/aiDashboard", "/AIDashboardServlet", "/AIDashboard"})
@@ -26,9 +28,9 @@ public class AIDashboardServlet extends HttpServlet {
         UsersBeans ub = (UsersBeans) session.getAttribute("ub");
         req.setAttribute("ub", ub);
 
-        // Check if API Key is configured and starts with standard prefix 'AIzaSy'
+        // Check if API Key is configured
         String currentKey = ychatapp.model.bo.GeminiService.getApiKey();
-        boolean isConfigured = (currentKey != null && currentKey.trim().startsWith("AIzaSy"));
+        boolean isConfigured = (currentKey != null && currentKey.trim().length() > 10);
         req.setAttribute("isApiKeyConfigured", isConfigured);
         req.setAttribute("currentApiKey", isConfigured ? currentKey : "");
 
@@ -48,14 +50,9 @@ public class AIDashboardServlet extends HttpServlet {
         }
 
         String apiKey = req.getParameter("apiKey");
-        if (apiKey == null || apiKey.trim().isEmpty()) {
+        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.trim().length() < 10) {
             res.setContentType("application/json");
-            res.getWriter().write("{\"success\":false,\"message\":\"API Key cannot be empty\"}");
-            return;
-        }
-        if (!apiKey.trim().startsWith("AIzaSy")) {
-            res.setContentType("application/json");
-            res.getWriter().write("{\"success\":false,\"message\":\"Invalid API Key! A valid Gemini API Key must start with 'AIzaSy'.\"}");
+            res.getWriter().write("{\"success\":false,\"message\":\"API Key cannot be empty or invalid\"}");
             return;
         }
 
