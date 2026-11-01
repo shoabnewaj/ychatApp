@@ -15,6 +15,7 @@
     let ringInterval = null;
     let ringAudioCtx = null;
     let ringOscillators = [];
+    let ringAudioEl = null;
     let currentIncomingCaller = null;
     let currentCallType = "voice";
 
@@ -64,6 +65,16 @@
     function startRingtone() {
         initRingAudio();
         stopRingtone();
+        try {
+            if (!ringAudioEl) {
+                ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
+                ringAudioEl.loop = true;
+            }
+            ringAudioEl.currentTime = 0;
+            let p = ringAudioEl.play();
+            if (p !== undefined) p.catch(() => {});
+        } catch (e) {}
+
         playMessengerChime();
         ringInterval = setInterval(playMessengerChime, 1400);
 
@@ -73,6 +84,12 @@
     }
 
     function stopRingtone() {
+        if (ringAudioEl) {
+            try {
+                ringAudioEl.pause();
+                ringAudioEl.currentTime = 0;
+            } catch (e) {}
+        }
         if (ringInterval) {
             clearInterval(ringInterval);
             ringInterval = null;

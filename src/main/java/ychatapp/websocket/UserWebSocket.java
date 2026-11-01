@@ -356,13 +356,19 @@ public class UserWebSocket {
 
                 sendMessageToUser(receiver, "CALL_OFFER|" + sender + "|" + content);
 
-                final String targetPushUrl = "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType;
-                final String finalReceiver = receiver.trim();
-                final String finalSender = sender.trim();
-                final String finalCallType = callType;
+                PendingCallInfo reverseCall = pendingCalls.get(sender.trim().toLowerCase());
+                boolean isGlare = (reverseCall != null && reverseCall.caller != null && reverseCall.caller.trim().equalsIgnoreCase(receiver.trim()));
 
-                // Send a single persistent push notification that stays on screen until answered
-                triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
+                // Only send push notification if receiver is not already actively calling sender
+                if (!isGlare) {
+                    final String targetPushUrl = "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType;
+                    final String finalReceiver = receiver.trim();
+                    final String finalSender = sender.trim();
+                    final String finalCallType = callType;
+
+                    // Send a single persistent push notification that stays on screen until answered
+                    triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
+                }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);
                 if (content != null && content.contains("accepted_need_offer")) {

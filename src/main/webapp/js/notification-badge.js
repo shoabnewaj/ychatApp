@@ -181,10 +181,22 @@
 
     let ringtoneInterval = null;
     let globalAudioCtx = null;
+    let globalRingtoneAudio = null;
     let currentIncomingCallBanner = null;
 
     function playGlobalRingtone() {
         stopGlobalRingtone();
+        try {
+            if (!globalRingtoneAudio) {
+                globalRingtoneAudio = new Audio((appContextPath || '') + '/sounds/ringtone.wav');
+                globalRingtoneAudio.loop = true;
+            }
+            globalRingtoneAudio.currentTime = 0;
+            let p = globalRingtoneAudio.play();
+            if (p !== undefined) {
+                p.catch(() => {});
+            }
+        } catch(e) {}
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
@@ -221,6 +233,12 @@
     }
 
     function stopGlobalRingtone() {
+        if (globalRingtoneAudio) {
+            try {
+                globalRingtoneAudio.pause();
+                globalRingtoneAudio.currentTime = 0;
+            } catch(e) {}
+        }
         if (ringtoneInterval) {
             clearInterval(ringtoneInterval);
             ringtoneInterval = null;

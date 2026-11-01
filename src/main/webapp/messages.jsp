@@ -639,6 +639,8 @@
 
         .remote-video-container video {
             width: 100%; height: 100%; object-fit: cover;
+            transform: none !important;
+            -webkit-transform: none !important;
         }
 
         .local-video-container {
@@ -649,6 +651,7 @@
             z-index: 25;
             backdrop-filter: blur(15px);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         @media (max-width: 768px) {
@@ -661,6 +664,8 @@
 
         .local-video-container video {
             width: 100%; height: 100%; object-fit: cover;
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
         }
 
         /* Modern Floating Control Dock */
@@ -1083,17 +1088,20 @@
             <!-- Video Session Grid -->
             <div class="video-grid" id="videoGrid">
                 <div class="remote-video-container">
-                    <video id="remoteVideo" autoplay playsinline></video>
+                    <video id="remoteVideo" autoplay playsinline webkit-playsinline></video>
                     <!-- Fallback simulated remote avatar/canvas if no feed -->
                     <div id="remoteAvatarFallback" style="display: none; position: absolute; font-size: 80px; font-weight: bold; color: rgba(255,255,255,0.2);">Remote</div>
                 </div>
-                <div class="local-video-container">
-                    <video id="localVideo" autoplay playsinline muted></video>
+                <div class="local-video-container" id="localVideoContainer" onclick="switchCameraFacing()" title="Tap to switch camera">
+                    <video id="localVideo" autoplay playsinline webkit-playsinline muted></video>
                 </div>
             </div>
 
             <!-- Dedicated Audio Receiver for Voice & Video Calls -->
             <audio id="remoteAudio" autoplay playsinline style="width:0;height:0;position:absolute;opacity:0.99;pointer-events:none;"></audio>
+            <!-- Ringtone Audio Elements for Incoming & Outgoing Calls -->
+            <audio id="incomingRingtoneAudio" src="sounds/ringtone.wav" loop preload="auto" playsinline style="display:none;"></audio>
+            <audio id="outgoingRingtoneAudio" src="sounds/outgoing.wav" loop preload="auto" playsinline style="display:none;"></audio>
 
             <!-- Toast notification for Loudspeaker Toggle -->
             <div id="callSpeakerToast" class="call-speaker-toast"><i class="fa-solid fa-volume-high"></i> Loudspeaker ON</div>
@@ -1102,6 +1110,7 @@
             <div class="active-call-controls" id="activeCallControls" style="display: none;">
                 <button class="call-btn call-btn-mute" id="muteMicBtn" onclick="toggleMuteMic()" title="Mute/Unmute Mic"><i class="fa-solid fa-microphone"></i></button>
                 <button class="call-btn call-btn-mute" id="toggleCamBtn" onclick="toggleCamera()" title="Turn Camera On/Off"><i class="fa-solid fa-video"></i></button>
+                <button class="call-btn call-btn-mute" id="flipCamBtn" onclick="switchCameraFacing()" title="Flip Camera" style="display:none;"><i class="fa-solid fa-camera-rotate"></i></button>
                 <button class="call-btn call-btn-speaker" id="toggleSpeakerBtn" onclick="toggleLoudspeaker()" title="Loudspeaker: OFF (Click for Loudspeaker)"><i id="speakerIcon" class="fa-solid fa-volume-low"></i></button>
                 <button class="call-btn call-btn-mute" id="dockFullscreenBtn" onclick="toggleCallFullscreen()" title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
                 <button class="call-btn call-btn-decline" onclick="endCall()" title="End Call"><i class="fa-solid fa-phone-slash"></i></button>
@@ -2466,9 +2475,11 @@
         let isCaller = false;
         let peerConnection = null;
         let localStream = null;
-        let callTimer = null;
+        let callRingTimeout = null;
+        let callDurationInterval = null;
         let currentCallFriend = null;
         let callType = 'voice';
+        let currentFacingMode = 'user';
         let ringInterval = null;
         let callStartTime = null;
         let toneOscillators = [];
@@ -2533,6 +2544,15 @@
         function startOutgoingRingtone() {
             initAudio();
             stopRingtone();
+
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) {
+                outAud.currentTime = 0;
+                outAud.volume = 1.0;
+                let p = outAud.play();
+                if (p !== undefined) p.catch(() => {});
+            }
+
             let playTone = () => {
                 if (!audioCtx) return;
                 let osc1 = audioCtx.createOscillator();
@@ -2570,6 +2590,15 @@
         function startIncomingRingtone() {
             initAudio();
             stopRingtone();
+
+            const ringAud = document.getElementById("incomingRingtoneAudio");
+            if (ringAud) {
+                ringAud.currentTime = 0;
+                ringAud.volume = 1.0;
+                let p = ringAud.play();
+                if (p !== undefined) p.catch(() => {});
+            }
+
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(function() {});
             }
@@ -2600,7 +2629,7 @@
                 toneOscillators.push(osc);
                 
                 if (navigator.vibrate) {
-                    try { navigator.vibrate([400, 200, 400]); } catch(e) {}
+                    try { navigator.vibrate([600, 300, 600, 300, 900]); } catch(e) {}
                 }
 
                 setTimeout(() => {
@@ -2613,6 +2642,20 @@
         }
 
         function stopRingtone() {
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) {
+                try {
+                    inAud.pause();
+                    inAud.currentTime = 0;
+                } catch(e) {}
+            }
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) {
+                try {
+                    outAud.pause();
+                    outAud.currentTime = 0;
+                } catch(e) {}
+            }
             if ('Notification' in window && navigator.serviceWorker) {
                 try {
                     navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -2636,6 +2679,9 @@
                 try { osc.stop(); } catch(e) {}
             });
             toneOscillators = [];
+            if (navigator.vibrate) {
+                try { navigator.vibrate(0); } catch(e) {}
+            }
         }
 
         function playConnectedTone() {
@@ -2659,7 +2705,7 @@
             try {
                 return await navigator.mediaDevices.getUserMedia({
                     audio: { echoCancellation: true, noiseSuppression: true },
-                    video: type === 'video' ? { facingMode: "user" } : false
+                    video: type === 'video' ? { facingMode: currentFacingMode } : false
                 });
             } catch (err1) {
                 console.warn("Primary getUserMedia failed, trying minimal constraints:", err1);
@@ -2673,6 +2719,55 @@
                     alert("Microphone/Camera permission is required. Please check your browser or iPhone settings.");
                     return null;
                 }
+            }
+        }
+
+        async function switchCameraFacing() {
+            if (!localStream || callType !== 'video') return;
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            try {
+                let newStream = null;
+                try {
+                    newStream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: { facingMode: { exact: currentFacingMode } }
+                    });
+                } catch(e1) {
+                    newStream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: { facingMode: currentFacingMode }
+                    });
+                }
+                if (!newStream) return;
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                const oldVideoTracks = localStream.getVideoTracks();
+                if (oldVideoTracks && oldVideoTracks.length > 0) {
+                    oldVideoTracks.forEach(t => {
+                        try { t.stop(); } catch(e) {}
+                        localStream.removeTrack(t);
+                    });
+                }
+                localStream.addTrack(newVideoTrack);
+                const lVid = document.getElementById("localVideo");
+                if (lVid) {
+                    lVid.srcObject = localStream;
+                    if (currentFacingMode === 'user') {
+                        lVid.style.transform = 'scaleX(-1)';
+                        lVid.style.webkitTransform = 'scaleX(-1)';
+                    } else {
+                        lVid.style.transform = 'none';
+                        lVid.style.webkitTransform = 'none';
+                    }
+                }
+                if (peerConnection) {
+                    const senders = peerConnection.getSenders();
+                    const vSender = senders.find(s => s.track && s.track.kind === 'video');
+                    if (vSender) {
+                        await vSender.replaceTrack(newVideoTrack);
+                    }
+                }
+            } catch (err) {
+                console.warn("Camera switch failed:", err);
             }
         }
 
@@ -2805,8 +2900,8 @@
                 return;
             }
 
-            if (callTimer) clearTimeout(callTimer);
-            callTimer = setTimeout(() => {
+            if (callRingTimeout) clearTimeout(callRingTimeout);
+            callRingTimeout = setTimeout(() => {
                 if (currentCallFriend === friend && document.getElementById("activeCallControls").style.display === "none") {
                     stopRingtone();
                     document.getElementById("callStatus").innerText = "No Answer";
@@ -2829,11 +2924,77 @@
         };
 
         async function handleCallOffer(sender, offerData) {
+            // Check for Call Glare / Collision (both parties called each other simultaneously)
+            const isCollision = (isCaller && currentCallFriend && currentCallFriend.toLowerCase() === (sender || '').toLowerCase());
+            if (isCollision) {
+                console.log("Call collision (glare) detected between", myName, "and", sender);
+                // Deterministic tie-breaker: the peer with alphabetically greater username yields as polite peer
+                const isPolite = (myName || '').toLowerCase() > (sender || '').toLowerCase();
+                if (isPolite) {
+                    console.log("I am polite peer: yielding local offer, accepting incoming offer as answerer");
+                    if (peerConnection) {
+                        try { peerConnection.close(); } catch(e) {}
+                        peerConnection = null;
+                    }
+                    isCaller = false;
+                    currentCallFriend = sender;
+                    callType = offerData.type || callType || 'voice';
+                    pendingRemoteOffer = offerData.sdp || null;
+                    iceCandidateQueue = [];
+                    stopRingtone();
+                    if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
+
+                    createPeerConnection();
+                    if (localStream) {
+                        localStream.getTracks().forEach(track => {
+                            peerConnection.addTrack(track, localStream);
+                        });
+                    }
+                    if (pendingRemoteOffer) {
+                        try {
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingRemoteOffer));
+                            await flushIceCandidateQueue();
+                            const answer = await peerConnection.createAnswer();
+                            await peerConnection.setLocalDescription(answer);
+                            if (socket && socket.readyState === WebSocket.OPEN) {
+                                socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted", sdp: answer }));
+                            }
+                            playConnectedTone();
+                            switchToActiveCallUI();
+                            return;
+                        } catch(err) {
+                            console.error("Collision answer error:", err);
+                        }
+                    }
+                } else {
+                    console.log("I am impolite peer: ignoring incoming collision offer, awaiting answer from polite peer");
+                    return;
+                }
+            }
+
             if (currentCallFriend && currentCallFriend.toLowerCase() !== (sender || '').toLowerCase()) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send("CALL_REJECT|" + sender + "|busy");
                 }
                 return;
+            }
+
+            // Delayed offer arrival when answering without offer initially
+            if (peerConnection && peerConnection.signalingState === "stable" && !isCaller && currentCallFriend && currentCallFriend.toLowerCase() === (sender || '').toLowerCase() && offerData.sdp) {
+                try {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData.sdp));
+                    await flushIceCandidateQueue();
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted", sdp: answer }));
+                    }
+                    playConnectedTone();
+                    switchToActiveCallUI();
+                    return;
+                } catch(e) {
+                    console.error("Error setting answer to delayed offer:", e);
+                }
             }
 
             initAudio();
@@ -2844,22 +3005,9 @@
             pendingRemoteOffer = offerData.sdp || null;
             iceCandidateQueue = [];
 
-            if (peerConnection && pendingRemoteOffer) {
-                try {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingRemoteOffer));
-                    await flushIceCandidateQueue();
-                    const answer = await peerConnection.createAnswer();
-                    await peerConnection.setLocalDescription(answer);
-
-                    if (socket && socket.readyState === WebSocket.OPEN) {
-                        socket.send("CALL_ANSWER|" + currentCallFriend + "|" + JSON.stringify({ status: "accepted", sdp: answer }));
-                    }
-                    playConnectedTone();
-                    switchToActiveCallUI();
-                    return;
-                } catch (e) {
-                    console.error("Error setting delayed remote offer:", e);
-                }
+            if (peerConnection) {
+                try { peerConnection.close(); } catch(e) {}
+                peerConnection = null;
             }
 
             document.getElementById("callOverlay").style.display = "flex";
@@ -2874,15 +3022,16 @@
 
             startIncomingRingtone();
 
-            if (callTimer) clearTimeout(callTimer);
-            callTimer = setTimeout(() => {
+            if (callRingTimeout) clearTimeout(callRingTimeout);
+            callRingTimeout = setTimeout(() => {
                 declineCall();
             }, 45000);
         }
 
         function declineCall() {
             stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
+            if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
+            if (callDurationInterval) { clearInterval(callDurationInterval); callDurationInterval = null; }
 
             if (currentCallFriend) {
                 if (isCaller) {
@@ -2901,7 +3050,8 @@
 
         function handleCallReject(sender) {
             stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
+            if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
+            if (callDurationInterval) { clearInterval(callDurationInterval); callDurationInterval = null; }
             document.getElementById("callStatus").innerText = "Call Declined";
             setTimeout(() => {
                 resetCallUI();
@@ -2910,13 +3060,14 @@
 
         function handleCallEnd(sender) {
             stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
+            if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
+            if (callDurationInterval) { clearInterval(callDurationInterval); callDurationInterval = null; }
             endCall(true);
         }
 
         async function acceptCall() {
             stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
+            if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
 
             unlockAudioElement();
             document.getElementById("acceptBtn").style.display = "none";
@@ -2963,7 +3114,7 @@
 
         async function handleCallAnswer(sender, answerData) {
             stopRingtone();
-            if (callTimer) clearTimeout(callTimer);
+            if (callRingTimeout) { clearTimeout(callRingTimeout); callRingTimeout = null; }
 
             if (answerData.status === "accepted_need_offer") {
                 if (peerConnection && peerConnection.localDescription && socket && socket.readyState === WebSocket.OPEN) {
@@ -3014,14 +3165,24 @@
         }
 
         function switchToActiveCallUI(simulation = false) {
+            stopRingtone();
+            if (callRingTimeout) {
+                clearTimeout(callRingTimeout);
+                callRingTimeout = null;
+            }
+
             const container = document.getElementById("callContainer");
             if (callType === 'video') {
                 container.classList.add("video-mode");
                 document.getElementById("callTopBar").style.display = "flex";
                 document.getElementById("callTopUsername").innerText = currentCallFriend || "Video Call";
+                const flipBtn = document.getElementById("flipCamBtn");
+                if (flipBtn) flipBtn.style.display = "inline-flex";
             } else {
                 container.classList.remove("video-mode");
                 document.getElementById("callTopBar").style.display = "none";
+                const flipBtn = document.getElementById("flipCamBtn");
+                if (flipBtn) flipBtn.style.display = "none";
             }
 
             document.getElementById("callInfoBox").style.display = callType === 'voice' ? 'block' : 'none';
@@ -3040,9 +3201,12 @@
             }
             document.getElementById("callStatus").innerText = "Active Call (00:00)";
 
-            if (callTimer) clearInterval(callTimer);
+            if (callDurationInterval) {
+                clearInterval(callDurationInterval);
+                callDurationInterval = null;
+            }
             callStartTime = Date.now();
-            callTimer = setInterval(() => {
+            callDurationInterval = setInterval(() => {
                 let elapsed = Math.floor((Date.now() - callStartTime) / 1000);
                 let mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
                 let secs = String(elapsed % 60).padStart(2, '0');
@@ -3067,9 +3231,13 @@
 
         function endCall(byRemote = false) {
             stopRingtone();
-            if (callTimer) {
-                clearInterval(callTimer);
-                callTimer = null;
+            if (callRingTimeout) {
+                clearTimeout(callRingTimeout);
+                callRingTimeout = null;
+            }
+            if (callDurationInterval) {
+                clearInterval(callDurationInterval);
+                callDurationInterval = null;
             }
 
             if (localStream) {

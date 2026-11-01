@@ -1,8 +1,10 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v5';
+const CACHE_NAME = 'ychat-app-cache-v6';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
+    'sounds/ringtone.wav',
+    'sounds/outgoing.wav',
     'js/notification-badge.js',
     'js/global-call-presence.js',
     'js/script.js',
@@ -112,6 +114,8 @@ self.addEventListener('push', function (event) {
     const iconUrl = new URL(payload.icon || 'icons/icon-192.png', self.location.origin).href;
     const badgeUrl = new URL(payload.badge || 'icons/icon-192.png', self.location.origin).href;
 
+    const ringtoneUrl = new URL('sounds/ringtone.wav', self.location.origin).href;
+
     const options = {
         body: payload.body || 'Tap to answer incoming call',
         icon: iconUrl,
@@ -119,7 +123,8 @@ self.addEventListener('push', function (event) {
         tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
         renotify: false,
         requireInteraction: true,
-        vibrate: [500, 250, 500, 250, 500],
+        vibrate: isCall ? [1000, 500, 1000, 500, 1000, 500, 1000, 500, 1000, 500] : [200, 100, 200],
+        sound: isCall ? ringtoneUrl : undefined,
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,
