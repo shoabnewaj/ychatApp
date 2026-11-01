@@ -31,7 +31,7 @@ jobs:
       - name: Pod Install
         run: |
           cd mobile/ios/App
-          pod install --repo-update
+          pod install
 
       - name: Build iOS App with Xcode
         run: |
