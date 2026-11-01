@@ -36,6 +36,7 @@ jobs:
       - name: Build iOS App with Xcode
         run: |
           cd mobile/ios/App
+          set -o pipefail
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Debug \
@@ -44,7 +45,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build
+            build 2>&1 | tee xcodebuild.log || (tail -n 120 xcodebuild.log && exit 1)
 
       - name: Package Unsigned IPA
         run: |

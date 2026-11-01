@@ -13,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CXProviderDelegate, PKPus
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Setup CallKit Provider
-        let config = CXProviderConfiguration()
+        let config = CXProviderConfiguration(localizedName: "YChat")
         config.supportsVideo = true
         config.maximumCallsPerCallGroup = 1
         config.supportedHandleTypes = [.generic]
@@ -29,8 +29,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CXProviderDelegate, PKPus
         return true
     }
 
-    // MARK: - PushKit VoIP Handler
-    func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType) {
+    // MARK: - PushKit VoIP Delegate
+    func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
+        let token = pushCredentials.token.map { String(format: "%02.2hhx", $0) }.joined()
+        print("VoIP Token: \(token)")
+    }
+
+    func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
+        defer { completion() }
         guard type == .voIP else { return }
 
         let dict = payload.dictionaryPayload
