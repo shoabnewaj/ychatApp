@@ -45,7 +45,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build 2>&1 | tee xcodebuild.log || (tail -n 120 xcodebuild.log && exit 1)
+            build
 
       - name: Package Unsigned IPA
         run: |
@@ -99,3 +99,40 @@ jobs:
           name: YChat-Android-APK
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
+
+  release:
+    name: Publish Public GitHub Release
+    needs: [build-ios, build-android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: YChat-iOS-IPA
+
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: YChat-Android-APK
+
+      - name: Create or Update Public Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mobile-latest
+          name: "YChat Mobile App (iOS CallKit & Android Full-Screen Call)"
+          body: |
+            ## 📲 YChat Native Mobile Applications
+
+            ### 🤖 Android:
+            - **Download `app-debug.apk`** and tap to install on any Android phone.
+            - Real-time full-screen incoming call ringing over lock screen.
+
+            ### 🍎 iPhone (iOS):
+            - **Download `YChat.ipa`**.
+            - Install via Sideloadly, AltStore, or Scarlet using your Apple ID.
+            - Integrated with Apple CallKit (`CXProvider`) for native lock screen "Slide to Answer" and phone ringing.
+          files: |
+            YChat.ipa
+            app-debug.apk
