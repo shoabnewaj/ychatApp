@@ -22,12 +22,13 @@ jobs:
         run: |
           cd mobile
           npm install
-          npx cap sync ios
+          npx cap copy ios
+          cd ios/App
+          pod install
 
       - name: Build iOS App with Xcode
         run: |
           cd mobile/ios/App
-          pod install
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Debug \
