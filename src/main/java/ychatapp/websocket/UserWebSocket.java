@@ -64,7 +64,7 @@ public class UserWebSocket {
         return call;
     }
 
-    public static void clearPendingCall(String username) {
+    public static void clearPendingCall(String username, boolean wasAnswered) {
         if (username != null) {
             String key = username.trim().toLowerCase();
             PendingCallInfo call = pendingCalls.remove(key);
@@ -73,12 +73,16 @@ public class UserWebSocket {
                 if (call.pulseTask != null) {
                     try { call.pulseTask.cancel(true); } catch(Exception ignored) {}
                 }
-                dismissCallPush(call.receiver, call.caller);
+                dismissCallPush(call.receiver, call.caller, wasAnswered);
             }
         }
     }
 
-    public static void dismissCallPush(String receiver, String caller) {
+    public static void clearPendingCall(String username) {
+        clearPendingCall(username, false);
+    }
+
+    public static void dismissCallPush(String receiver, String caller, boolean wasAnswered) {
         if (receiver == null || receiver.trim().isEmpty()) return;
         try {
             java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
@@ -86,6 +90,7 @@ public class UserWebSocket {
             payload.addProperty("action", "dismiss_call");
             payload.addProperty("caller", caller != null ? caller : "");
             payload.addProperty("tag", "incoming-call-" + (caller != null ? caller : "active"));
+            payload.addProperty("wasAnswered", wasAnswered);
 
             com.google.gson.JsonObject reqJson = new com.google.gson.JsonObject();
             reqJson.addProperty("username", receiver.trim());
@@ -412,7 +417,7 @@ public class UserWebSocket {
                         public void run() {
                             try {
                                 PendingCallInfo active = pendingCalls.get(finalReceiver.toLowerCase());
-                                if (active == null || active.answered || active.rejected || !finalSender.equalsIgnoreCase(active.caller) || pulseCounter.incrementAndGet() >= 10) {
+                                if (active == null || active.answered || active.rejected || !finalSender.equalsIgnoreCase(active.caller) || pulseCounter.incrementAndGet() >= 6) {
                                     if (thisCall.pulseTask != null) {
                                         thisCall.pulseTask.cancel(false);
                                     }
@@ -421,7 +426,7 @@ public class UserWebSocket {
                                 triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Incoming " + finalCallType + " call (Ringing...)", targetPushUrl, finalSender);
                             } catch (Exception ignored) {}
                         }
-                    }, 3500, 3500, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    }, 7500, 7500, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);
@@ -432,16 +437,16 @@ public class UserWebSocket {
                     }
                     sendMessageToUser(receiver, type + "|" + sender + "|" + content);
                 } else {
-                    clearPendingCall(sender);
-                    clearPendingCall(receiver);
+                    clearPendingCall(sender, true);
+                    clearPendingCall(receiver, true);
                     sendMessageToUser(receiver, type + "|" + sender + "|" + content);
                 }
             } else if ("ICE_CANDIDATE".equalsIgnoreCase(type)) {
                 sendMessageToUser(receiver, "ICE_CANDIDATE|" + sender + "|" + content);
             } else if ("CALL_REJECT".equalsIgnoreCase(type) || "CALL_END".equalsIgnoreCase(type)) {
                 touchUser(sender);
-                clearPendingCall(sender);
-                clearPendingCall(receiver);
+                clearPendingCall(sender, false);
+                clearPendingCall(receiver, false);
                 sendMessageToUser(receiver, type + "|" + sender + "|" + content);
             }
         } catch (Exception e) {

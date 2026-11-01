@@ -1468,8 +1468,19 @@
                             setTimeout(triggerAutoCall, 150);
                         }
                     }
-                    triggerAutoCall();
+                                        triggerAutoCall();
                 }
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('message', function (event) {
+                    if (!event.data) return;
+                    if (event.data.action === 'incomingCallStart') {
+                        if (!currentCallFriend && event.data.caller) {
+                            window.showGlobalIncomingCall(event.data.caller, event.data.callType || 'voice');
+                        }
+                    }
+                });
             }
         };
 

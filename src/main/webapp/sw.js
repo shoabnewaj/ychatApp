@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v7';
+const CACHE_NAME = 'ychat-app-cache-v9';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -92,7 +92,7 @@ self.addEventListener('fetch', function (event) {
     }
 });
 
-// Push Notifications (Compatible with 100% of iOS Safari, Android, and Desktop)
+// Push Notifications (Universal support for Android, iOS PWA, and Desktop)
 self.addEventListener('push', function (event) {
     let payload = {
         title: '📞 Incoming Call',
@@ -112,13 +112,30 @@ self.addEventListener('push', function (event) {
 
     // Dismiss incoming call notification when call answered/declined/cancelled
     if (payload.action === 'dismiss_call' || payload.dismiss) {
+        const callerName = payload.caller || '';
+        const wasAnswered = Boolean(payload.wasAnswered);
         event.waitUntil(
             self.registration.getNotifications().then(function(notifications) {
-                for (var i = 0; i < notifications.length; i++) {
-                    var notif = notifications[i];
-                    if (notif.tag && (notif.tag.includes('incoming-call-') || (payload.caller && notif.tag.includes(payload.caller)))) {
+                let hadIncoming = false;
+                for (let i = 0; i < notifications.length; i++) {
+                    let notif = notifications[i];
+                    if (notif.tag && (notif.tag.includes('incoming-call-') || (callerName && notif.tag.includes(callerName)))) {
                         notif.close();
+                        hadIncoming = true;
                     }
+                }
+                // If the caller cancelled before answer (missed call), display a clear "Missed Call" banner
+                if (!wasAnswered && callerName) {
+                    return self.registration.showNotification('📞 Missed call from ' + callerName, {
+                        body: 'Tap to open chat and call back',
+                        icon: '/icons/icon-192.png',
+                        badge: '/icons/icon-192.png',
+                        tag: 'missed-call-' + callerName,
+                        renotify: true,
+                        data: {
+                            url: '/messages.jsp?friend=' + encodeURIComponent(callerName)
+                        }
+                    });
                 }
             })
         );
@@ -129,7 +146,23 @@ self.addEventListener('push', function (event) {
     const iconUrl = new URL(payload.icon || 'icons/icon-192.png', self.location.origin).href;
     const badgeUrl = new URL(payload.badge || 'icons/icon-192.png', self.location.origin).href;
 
-    const ringtoneUrl = new URL('sounds/ringtone.wav', self.location.origin).href;
+    // Wake up and trigger incoming call UI + full audio ring loop in any open/background tabs
+    if (isCall && payload.caller) {
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+            clientList.forEach(function (c) {
+                try {
+                    c.postMessage({
+                        action: 'incomingCallStart',
+                        caller: payload.caller,
+                        callType: payload.callType || 'voice'
+                    });
+                } catch (e) {}
+            });
+        });
+    }
+
+    // Continuous 15-second vibration pattern: simulates non-stop telephone call vibration
+    const callVibrationPattern = [1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000];
 
     const options = {
         body: payload.body || 'Tap to answer incoming call',
@@ -138,8 +171,7 @@ self.addEventListener('push', function (event) {
         tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
         renotify: isCall ? true : false,
         requireInteraction: true,
-        vibrate: isCall ? [1000, 400, 1000, 400, 1000, 400, 1000] : [200, 100, 200],
-        sound: isCall ? ringtoneUrl : undefined,
+        vibrate: isCall ? callVibrationPattern : [200, 100, 200],
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,
