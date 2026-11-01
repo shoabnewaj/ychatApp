@@ -1100,8 +1100,13 @@
             <!-- Dedicated Audio Receiver for Voice & Video Calls -->
             <audio id="remoteAudio" autoplay playsinline style="width:0;height:0;position:absolute;opacity:0.99;pointer-events:none;"></audio>
             <!-- Ringtone Audio Elements for Incoming & Outgoing Calls -->
-            <audio id="incomingRingtoneAudio" src="sounds/ringtone.wav" loop preload="auto" playsinline style="display:none;"></audio>
-            <audio id="outgoingRingtoneAudio" src="sounds/outgoing.wav" loop preload="auto" playsinline style="display:none;"></audio>
+            <audio id="incomingRingtoneAudio" src="${pageContext.request.contextPath}/sounds/ringtone.wav" loop preload="auto" playsinline style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0.01; pointer-events:none;"></audio>
+            <audio id="outgoingRingtoneAudio" src="${pageContext.request.contextPath}/sounds/outgoing.wav" loop preload="auto" playsinline style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0.01; pointer-events:none;"></audio>
+
+            <!-- Banner for Autoplay Unmute if Browser Blocks Audio -->
+            <div id="tapForSoundBanner" onclick="forcePlayRingtone()" style="display:none; position:absolute; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:#fff; padding:10px 22px; border-radius:30px; font-weight:700; font-size:14px; box-shadow:0 6px 20px rgba(34,197,94,0.5); z-index:100; cursor:pointer;">
+                <i class="fa-solid fa-volume-high"></i> Tap screen for sound
+            </div>
 
             <!-- Toast notification for Loudspeaker Toggle -->
             <div id="callSpeakerToast" class="call-speaker-toast"><i class="fa-solid fa-volume-high"></i> Loudspeaker ON</div>
@@ -2587,6 +2592,39 @@
             ringInterval = setInterval(playTone, 4000);
         }
 
+        let audioEngineUnlocked = false;
+        function unlockAudioEngine() {
+            if (audioEngineUnlocked) return;
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => { audioEngineUnlocked = true; }).catch(() => {});
+            }
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) inAud.load();
+            const outAud = document.getElementById("outgoingRingtoneAudio");
+            if (outAud) outAud.load();
+            const rAud = document.getElementById("remoteAudio");
+            if (rAud) rAud.load();
+        }
+        ['click', 'touchstart', 'touchend', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, unlockAudioEngine, { passive: true });
+        });
+
+        function forcePlayRingtone() {
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            const ringAud = document.getElementById("incomingRingtoneAudio");
+            if (ringAud) {
+                ringAud.currentTime = 0;
+                ringAud.volume = 1.0;
+                ringAud.play().catch(() => {});
+            }
+            const banner = document.getElementById("tapForSoundBanner");
+            if (banner) banner.style.display = "none";
+        }
+
         function startIncomingRingtone() {
             initAudio();
             stopRingtone();
@@ -2596,52 +2634,65 @@
                 ringAud.currentTime = 0;
                 ringAud.volume = 1.0;
                 let p = ringAud.play();
-                if (p !== undefined) p.catch(() => {});
+                if (p !== undefined) {
+                    p.catch(err => {
+                        console.warn("Autoplay audio blocked, displaying user tap trigger:", err);
+                        const banner = document.getElementById("tapForSoundBanner");
+                        if (banner) banner.style.display = "block";
+                        window.addEventListener('click', forcePlayRingtone, { once: true });
+                        window.addEventListener('touchstart', forcePlayRingtone, { once: true });
+                    });
+                }
             }
 
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(function() {});
             }
-            let playRing = () => {
+            let playRingChime = () => {
                 if (!audioCtx) return;
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume().catch(function() {});
                 }
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                
-                osc.type = 'triangle';
-                let now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
-                osc.frequency.setValueAtTime(1046.50, now + 0.45); // C6
-                
-                gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.75, now + 0.05);
-                gain.gain.setValueAtTime(0.75, now + 0.5);
-                gain.gain.linearRampToValueAtTime(0, now + 0.75);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.start();
-                toneOscillators.push(osc);
-                
+                const now = audioCtx.currentTime;
+                // Multi-note marimba chime: C5, E5, G5, C6, E6, C6
+                const chord = [
+                    { f: 523.25, t: 0.00 },
+                    { f: 659.25, t: 0.14 },
+                    { f: 783.99, t: 0.28 },
+                    { f: 1046.50, t: 0.42 },
+                    { f: 1318.51, t: 0.56 },
+                    { f: 1046.50, t: 0.72 }
+                ];
+                chord.forEach(item => {
+                    try {
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(item.f, now + item.t);
+                        gain.gain.setValueAtTime(0.001, now + item.t);
+                        gain.gain.linearRampToValueAtTime(0.75, now + item.t + 0.03);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + item.t + 0.35);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + item.t);
+                        osc.stop(now + item.t + 0.36);
+                        toneOscillators.push(osc);
+                    } catch(e) {}
+                });
+
                 if (navigator.vibrate) {
                     try { navigator.vibrate([600, 300, 600, 300, 900]); } catch(e) {}
                 }
-
-                setTimeout(() => {
-                    try { osc.stop(); } catch(e) {}
-                }, 800);
             };
-            
-            playRing();
-            ringInterval = setInterval(playRing, 1500);
+
+            playRingChime();
+            ringInterval = setInterval(playRingChime, 1500);
         }
 
         function stopRingtone() {
+            const banner = document.getElementById("tapForSoundBanner");
+            if (banner) banner.style.display = "none";
+
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) {
                 try {

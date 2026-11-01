@@ -22,7 +22,7 @@ public class UserWebSocket {
     private static final ConcurrentHashMap<String, Set<Session>> clients = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> lastActiveMap = new ConcurrentHashMap<>();
     private static final java.util.concurrent.ScheduledExecutorService callScheduler = 
-        java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+        java.util.concurrent.Executors.newScheduledThreadPool(4);
 
     public static class PendingCallInfo {
         public String caller;
@@ -30,8 +30,9 @@ public class UserWebSocket {
         public String type = "voice";
         public String sdpJson;
         public long timestamp;
-        public boolean answered = false;
-        public boolean rejected = false;
+        public volatile boolean answered = false;
+        public volatile boolean rejected = false;
+        public java.util.concurrent.ScheduledFuture<?> pulseTask = null;
     }
     private static final ConcurrentHashMap<String, PendingCallInfo> pendingCalls = new ConcurrentHashMap<>();
 
@@ -54,6 +55,9 @@ public class UserWebSocket {
         if (call != null) {
             if (System.currentTimeMillis() - call.timestamp > 45000 || call.answered || call.rejected) {
                 pendingCalls.remove(key);
+                if (call.pulseTask != null) {
+                    try { call.pulseTask.cancel(true); } catch(Exception ignored) {}
+                }
                 return null;
             }
         }
@@ -62,8 +66,39 @@ public class UserWebSocket {
 
     public static void clearPendingCall(String username) {
         if (username != null) {
-            pendingCalls.remove(username.trim().toLowerCase());
+            String key = username.trim().toLowerCase();
+            PendingCallInfo call = pendingCalls.remove(key);
+            if (call != null) {
+                call.answered = true;
+                if (call.pulseTask != null) {
+                    try { call.pulseTask.cancel(true); } catch(Exception ignored) {}
+                }
+                dismissCallPush(call.receiver, call.caller);
+            }
         }
+    }
+
+    public static void dismissCallPush(String receiver, String caller) {
+        if (receiver == null || receiver.trim().isEmpty()) return;
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            com.google.gson.JsonObject payload = new com.google.gson.JsonObject();
+            payload.addProperty("action", "dismiss_call");
+            payload.addProperty("caller", caller != null ? caller : "");
+            payload.addProperty("tag", "incoming-call-" + (caller != null ? caller : "active"));
+
+            com.google.gson.JsonObject reqJson = new com.google.gson.JsonObject();
+            reqJson.addProperty("username", receiver.trim());
+            reqJson.add("payload", payload);
+
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://172.17.0.1:3001/notify-user"))
+                .header("Content-Type", "application/json")
+                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(reqJson.toString()))
+                .timeout(java.time.Duration.ofSeconds(3))
+                .build();
+            client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.discarding());
+        } catch (Exception ignored) {}
     }
  
     public static void triggerWebPush(String receiver, String title, String body, String url, String caller) {
@@ -366,8 +401,27 @@ public class UserWebSocket {
                     final String finalSender = sender.trim();
                     final String finalCallType = callType;
 
-                    // Send a single persistent push notification that stays on screen until answered
+                    // Send initial call push
                     triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Tap to answer incoming " + finalCallType + " call", targetPushUrl, finalSender);
+
+                    // Pulse push alert every 3.5 seconds so receiver phone continuously rings and vibrates until answered or cancelled
+                    final java.util.concurrent.atomic.AtomicInteger pulseCounter = new java.util.concurrent.atomic.AtomicInteger(0);
+                    final PendingCallInfo thisCall = call;
+                    thisCall.pulseTask = callScheduler.scheduleAtFixedRate(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                PendingCallInfo active = pendingCalls.get(finalReceiver.toLowerCase());
+                                if (active == null || active.answered || active.rejected || !finalSender.equalsIgnoreCase(active.caller) || pulseCounter.incrementAndGet() >= 10) {
+                                    if (thisCall.pulseTask != null) {
+                                        thisCall.pulseTask.cancel(false);
+                                    }
+                                    return;
+                                }
+                                triggerWebPush(finalReceiver, "📞 " + finalSender + " is calling...", "Incoming " + finalCallType + " call (Ringing...)", targetPushUrl, finalSender);
+                            } catch (Exception ignored) {}
+                        }
+                    }, 3500, 3500, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);

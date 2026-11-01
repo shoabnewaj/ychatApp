@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v6';
+const CACHE_NAME = 'ychat-app-cache-v7';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -110,7 +110,22 @@ self.addEventListener('push', function (event) {
         }
     }
 
-    const isCall = (payload.title && (payload.title.includes('calling') || payload.title.includes('Call')));
+    // Dismiss incoming call notification when call answered/declined/cancelled
+    if (payload.action === 'dismiss_call' || payload.dismiss) {
+        event.waitUntil(
+            self.registration.getNotifications().then(function(notifications) {
+                for (var i = 0; i < notifications.length; i++) {
+                    var notif = notifications[i];
+                    if (notif.tag && (notif.tag.includes('incoming-call-') || (payload.caller && notif.tag.includes(payload.caller)))) {
+                        notif.close();
+                    }
+                }
+            })
+        );
+        return;
+    }
+
+    const isCall = Boolean(payload.isCall || (payload.title && (payload.title.includes('calling') || payload.title.includes('Call'))));
     const iconUrl = new URL(payload.icon || 'icons/icon-192.png', self.location.origin).href;
     const badgeUrl = new URL(payload.badge || 'icons/icon-192.png', self.location.origin).href;
 
@@ -121,9 +136,9 @@ self.addEventListener('push', function (event) {
         icon: iconUrl,
         badge: badgeUrl,
         tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
-        renotify: false,
+        renotify: isCall ? true : false,
         requireInteraction: true,
-        vibrate: isCall ? [1000, 500, 1000, 500, 1000, 500, 1000, 500, 1000, 500] : [200, 100, 200],
+        vibrate: isCall ? [1000, 400, 1000, 400, 1000, 400, 1000] : [200, 100, 200],
         sound: isCall ? ringtoneUrl : undefined,
         data: {
             url: payload.url || '/messages.jsp',
