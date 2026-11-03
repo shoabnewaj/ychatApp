@@ -26,11 +26,27 @@
         if (ringAudioCtx && ringAudioCtx.state === "suspended") {
             ringAudioCtx.resume().catch(function () {});
         }
+        if (ringAudioCtx && globalRingtoneBuffer) {
+            try {
+                globalActiveRingNode = ringAudioCtx.createBufferSource();
+                globalActiveRingNode.buffer = globalRingtoneBuffer;
+                globalActiveRingNode.loop = true;
+                const gGain = ringAudioCtx.createGain();
+                gGain.gain.setValueAtTime(0.95, ringAudioCtx.currentTime);
+                globalActiveRingNode.connect(gGain);
+                gGain.connect(ringAudioCtx.destination);
+                globalActiveRingNode.start(0);
+            } catch(e) {}
+        }
         if (!ringAudioEl) {
             try {
                 ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
                 ringAudioEl.loop = true;
             } catch (e) {}
+        }
+        if (globalActiveRingNode) {
+            try { globalActiveRingNode.stop(); globalActiveRingNode.disconnect(); } catch(e) {}
+            globalActiveRingNode = null;
         }
         if (ringAudioEl) {
             ringAudioEl.play().then(function() {
@@ -90,7 +106,19 @@
         initRingAudio();
         stopRingtone();
         try {
-            if (!ringAudioEl) {
+            if (ringAudioCtx && globalRingtoneBuffer) {
+            try {
+                globalActiveRingNode = ringAudioCtx.createBufferSource();
+                globalActiveRingNode.buffer = globalRingtoneBuffer;
+                globalActiveRingNode.loop = true;
+                const gGain = ringAudioCtx.createGain();
+                gGain.gain.setValueAtTime(0.95, ringAudioCtx.currentTime);
+                globalActiveRingNode.connect(gGain);
+                gGain.connect(ringAudioCtx.destination);
+                globalActiveRingNode.start(0);
+            } catch(e) {}
+        }
+        if (!ringAudioEl) {
                 ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
                 ringAudioEl.loop = true;
             }
@@ -117,6 +145,10 @@
     }
 
     function stopRingtone() {
+        if (globalActiveRingNode) {
+            try { globalActiveRingNode.stop(); globalActiveRingNode.disconnect(); } catch(e) {}
+            globalActiveRingNode = null;
+        }
         if (ringAudioEl) {
             try {
                 ringAudioEl.pause();
