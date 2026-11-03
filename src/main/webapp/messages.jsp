@@ -2634,6 +2634,40 @@
             }
             const banner = document.getElementById("tapForSoundBanner");
             if (banner) banner.style.display = "none";
+
+            if (vibrateCallInterval) {
+                clearInterval(vibrateCallInterval);
+                vibrateCallInterval = null;
+            }
+        }
+
+        let vibrateCallInterval = null;
+
+        // Auto-unlock iOS & Android audio on very first user gesture
+        function unlockAudioEngineOnFirstTouch() {
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(function() {});
+            }
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) {
+                inAud.play().then(() => {
+                    inAud.pause();
+                    inAud.currentTime = 0;
+                }).catch(() => {});
+            }
+        }
+        ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, unlockAudioEngineOnFirstTouch, { once: true, passive: true });
+        });
+
+        function triggerContinuousVibration() {
+            if (navigator.vibrate) {
+                try { navigator.vibrate([1000, 400, 1000, 400]); } catch(e) {}
+            }
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+                try { window.Capacitor.Plugins.Haptics.vibrate({ duration: 1000 }); } catch(e) {}
+            }
         }
 
         function startIncomingRingtone() {
@@ -2697,12 +2731,21 @@
             };
 
             playRingChime();
-            ringInterval = setInterval(playRingChime, 1500);
+            ringInterval = setInterval(playRingChime, 1800);
+
+            // Continuous vibration loop until answered or declined (Android & iOS)
+            triggerContinuousVibration();
+            vibrateCallInterval = setInterval(triggerContinuousVibration, 2800);
         }
 
         function stopRingtone() {
             const banner = document.getElementById("tapForSoundBanner");
             if (banner) banner.style.display = "none";
+
+            if (vibrateCallInterval) {
+                clearInterval(vibrateCallInterval);
+                vibrateCallInterval = null;
+            }
 
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) {

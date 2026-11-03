@@ -61,10 +61,21 @@ app.post('/notify-user', async (req, res) => {
   const results = await Promise.allSettled(
     subs.map(async sub => {
       try {
-        const r = await webpush.sendNotification(sub, JSON.stringify(payload), {
+        const isApple = sub.endpoint && sub.endpoint.includes('apple.com');
+        const options = {
           TTL: 60,
           urgency: 'high'
-        });
+        };
+        if (isApple) {
+          options.headers = {
+            'apns-push-type': 'alert',
+            'apns-priority': '10'
+          };
+          if (payload && payload.caller) {
+            options.headers['apns-collapse-id'] = 'call-' + payload.caller;
+          }
+        }
+        const r = await webpush.sendNotification(sub, JSON.stringify(payload), options);
         console.log('Push sent successfully to ' + username + ' endpoint, status:', r.statusCode);
         return r;
       } catch (err) {

@@ -16,8 +16,32 @@
     let ringAudioCtx = null;
     let ringOscillators = [];
     let ringAudioEl = null;
+    let vibrateInterval = null;
     let currentIncomingCaller = null;
     let currentCallType = "voice";
+
+    // 🔊 iOS & Android Audio Autoplay Unlocking on first user gesture
+    function unlockAudioEngine() {
+        initRingAudio();
+        if (ringAudioCtx && ringAudioCtx.state === "suspended") {
+            ringAudioCtx.resume().catch(function () {});
+        }
+        if (!ringAudioEl) {
+            try {
+                ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
+                ringAudioEl.loop = true;
+            } catch (e) {}
+        }
+        if (ringAudioEl) {
+            ringAudioEl.play().then(function() {
+                ringAudioEl.pause();
+                ringAudioEl.currentTime = 0;
+            }).catch(function() {});
+        }
+    }
+    ['touchstart', 'touchend', 'click', 'keydown'].forEach(function(evt) {
+        window.addEventListener(evt, unlockAudioEngine, { once: true, passive: true });
+    });
 
     // 1. Audio Ringtone Synthesis (Facebook Messenger Chime)
     function initRingAudio() {
@@ -71,16 +95,25 @@
                 ringAudioEl.loop = true;
             }
             ringAudioEl.currentTime = 0;
+            ringAudioEl.volume = 1.0;
             let p = ringAudioEl.play();
             if (p !== undefined) p.catch(() => {});
         } catch (e) {}
 
         playMessengerChime();
-        ringInterval = setInterval(playMessengerChime, 1400);
+        ringInterval = setInterval(playMessengerChime, 1800);
 
-        if (navigator.vibrate) {
-            try { navigator.vibrate([300, 200, 300, 200, 500]); } catch (e) {}
-        }
+        // Continuous vibration loop until call answered or rejected (Android & iOS Haptics)
+        const triggerVibration = () => {
+            if (navigator.vibrate) {
+                try { navigator.vibrate([1000, 400, 1000, 400]); } catch (e) {}
+            }
+            if (window.Capacitor?.Plugins?.Haptics) {
+                try { window.Capacitor.Plugins.Haptics.vibrate({ duration: 1000 }); } catch (e) {}
+            }
+        };
+        triggerVibration();
+        vibrateInterval = setInterval(triggerVibration, 2800);
     }
 
     function stopRingtone() {
@@ -93,6 +126,10 @@
         if (ringInterval) {
             clearInterval(ringInterval);
             ringInterval = null;
+        }
+        if (vibrateInterval) {
+            clearInterval(vibrateInterval);
+            vibrateInterval = null;
         }
         ringOscillators.forEach(function (osc) {
             try { osc.stop(); } catch (e) {}
