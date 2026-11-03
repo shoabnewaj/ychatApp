@@ -73,7 +73,9 @@ public class UserWebSocket {
                 if (call.pulseTask != null) {
                     try { call.pulseTask.cancel(true); } catch(Exception ignored) {}
                 }
-                dismissCallPush(call.receiver, call.caller, wasAnswered);
+                if (!wasAnswered && call.receiver != null && call.caller != null) {
+                    dismissCallPush(call.receiver, call.caller, false);
+                }
             }
         }
     }
@@ -87,10 +89,18 @@ public class UserWebSocket {
         try {
             java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
             com.google.gson.JsonObject payload = new com.google.gson.JsonObject();
-            payload.addProperty("action", "dismiss_call");
-            payload.addProperty("caller", caller != null ? caller : "");
-            payload.addProperty("tag", "incoming-call-" + (caller != null ? caller : "active"));
-            payload.addProperty("wasAnswered", wasAnswered);
+            if (!wasAnswered && caller != null && !caller.trim().isEmpty()) {
+                payload.addProperty("title", "📞 Missed Call");
+                payload.addProperty("body", "Missed call from " + caller + " • Tap to call back");
+                payload.addProperty("url", "/messages.jsp?friend=" + java.net.URLEncoder.encode(caller, java.nio.charset.StandardCharsets.UTF_8));
+                payload.addProperty("tag", "missed-call-" + caller);
+                payload.addProperty("caller", caller);
+            } else {
+                payload.addProperty("action", "dismiss_call");
+                payload.addProperty("caller", caller != null ? caller : "");
+                payload.addProperty("tag", "incoming-call-" + (caller != null ? caller : "active"));
+                payload.addProperty("wasAnswered", wasAnswered);
+            }
 
             com.google.gson.JsonObject reqJson = new com.google.gson.JsonObject();
             reqJson.addProperty("username", receiver.trim());
@@ -396,18 +406,39 @@ public class UserWebSocket {
 
                 sendMessageToUser(receiver, "CALL_OFFER|" + sender + "|" + content);
 
-                PendingCallInfo reverseCall = pendingCalls.get(sender.trim().toLowerCase());
-                boolean isGlare = (reverseCall != null && reverseCall.caller != null && reverseCall.caller.trim().equalsIgnoreCase(receiver.trim()));
+                PendingCallInfo reverseCall = getPendingCall(sender);
+                boolean isGlare = (reverseCall != null && !reverseCall.answered && !reverseCall.rejected && 
+                                   reverseCall.caller != null && reverseCall.caller.trim().equalsIgnoreCase(receiver.trim()) &&
+                                   (System.currentTimeMillis() - reverseCall.timestamp < 35000));
 
-                // Only send push notification if receiver is not already actively calling sender
+                // Send push notification if receiver is not already actively calling sender
                 if (!isGlare) {
                     final String targetPushUrl = "/messages.jsp?friend=" + java.net.URLEncoder.encode(sender, java.nio.charset.StandardCharsets.UTF_8) + "&callAction=accept&callType=" + callType;
                     final String finalReceiver = receiver.trim();
                     final String finalSender = sender.trim();
                     final String finalCallType = callType;
 
-                    // Send single high-priority call push alert (no spamming repeated notifications)
+                    // Initial high-priority push alert
                     triggerWebPush(finalReceiver, "📞 Incoming " + (finalCallType.equalsIgnoreCase("video") ? "Video" : "Voice") + " Call", finalSender + " is calling you... Tap to answer", targetPushUrl, finalSender);
+
+                    // Pulse push alert every 5 seconds so receiver phone continuously rings and vibrates until answered or cancelled (up to 30s)
+                    final java.util.concurrent.atomic.AtomicInteger pulseCounter = new java.util.concurrent.atomic.AtomicInteger(0);
+                    final PendingCallInfo thisCall = call;
+                    thisCall.pulseTask = callScheduler.scheduleAtFixedRate(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                PendingCallInfo active = getPendingCall(finalReceiver);
+                                if (active == null || active.answered || active.rejected || !finalSender.equalsIgnoreCase(active.caller) || pulseCounter.incrementAndGet() >= 6) {
+                                    if (thisCall.pulseTask != null) {
+                                        thisCall.pulseTask.cancel(false);
+                                    }
+                                    return;
+                                }
+                                triggerWebPush(finalReceiver, "📞 Incoming " + (finalCallType.equalsIgnoreCase("video") ? "Video" : "Voice") + " Call", finalSender + " is calling you... (Ringing)", targetPushUrl, finalSender);
+                            } catch (Exception ignored) {}
+                        }
+                    }, 5000, 5000, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);

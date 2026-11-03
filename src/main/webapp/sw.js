@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v11';
+const CACHE_NAME = 'ychat-app-cache-v12';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -163,7 +163,7 @@ self.addEventListener('push', function (event) {
         body: payload.body || 'Tap to answer incoming call',
         icon: iconUrl,
         badge: badgeUrl,
-        tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
+        tag: isCall ? ('incoming-call-' + (payload.caller || 'active') + '-' + Date.now()) : ('ychat-' + (payload.tag || 'general')),
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,
@@ -193,6 +193,18 @@ self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     const data = event.notification.data || {};
     const targetUrl = data.url || '/messages.jsp';
+
+    // Dismiss any remaining incoming call notifications
+    if (self.registration && self.registration.getNotifications) {
+        self.registration.getNotifications().then(function(notifications) {
+            for (let i = 0; i < notifications.length; i++) {
+                let n = notifications[i];
+                if (n.tag && n.tag.includes('incoming-call-')) {
+                    n.close();
+                }
+            }
+        }).catch(function() {});
+    }
 
     if (event.action === 'decline' || event.action === 'dismiss') {
         return;
