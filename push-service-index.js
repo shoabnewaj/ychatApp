@@ -71,9 +71,6 @@ app.post('/notify-user', async (req, res) => {
             'apns-push-type': 'alert',
             'apns-priority': '10'
           };
-          if (payload && payload.caller) {
-            options.headers['apns-collapse-id'] = 'call-' + payload.caller;
-          }
         }
         const r = await webpush.sendNotification(sub, JSON.stringify(payload), options);
         console.log('Push sent successfully to ' + username + ' endpoint, status:', r.statusCode);

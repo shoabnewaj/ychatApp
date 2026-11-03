@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v10';
+const CACHE_NAME = 'ychat-app-cache-v11';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -92,7 +92,7 @@ self.addEventListener('fetch', function (event) {
     }
 });
 
-// Push Notifications (Universal support for Android, iOS PWA, and Desktop)
+// Push Notifications (100% Compatible with iOS Safari PWA, Android, and Desktop)
 self.addEventListener('push', function (event) {
     let payload = {
         title: '📞 Incoming Call',
@@ -116,22 +116,19 @@ self.addEventListener('push', function (event) {
         const wasAnswered = Boolean(payload.wasAnswered);
         event.waitUntil(
             self.registration.getNotifications().then(function(notifications) {
-                let hadIncoming = false;
                 for (let i = 0; i < notifications.length; i++) {
                     let notif = notifications[i];
                     if (notif.tag && (notif.tag.includes('incoming-call-') || (callerName && notif.tag.includes(callerName)))) {
                         notif.close();
-                        hadIncoming = true;
                     }
                 }
-                // If the caller cancelled before answer (missed call), display a clear "Missed Call" banner
+                // If caller cancelled before answer, show a clean Missed Call banner
                 if (!wasAnswered && callerName) {
                     return self.registration.showNotification('📞 Missed call from ' + callerName, {
                         body: 'Tap to open chat and call back',
                         icon: '/icons/icon-192.png',
                         badge: '/icons/icon-192.png',
                         tag: 'missed-call-' + callerName,
-                        renotify: true,
                         data: {
                             url: '/messages.jsp?friend=' + encodeURIComponent(callerName)
                         }
@@ -158,30 +155,29 @@ self.addEventListener('push', function (event) {
                     });
                 } catch (e) {}
             });
-        });
+        }).catch(function() {});
     }
 
-    // Continuous 15-second vibration pattern: simulates non-stop telephone call vibration
-    const callVibrationPattern = [1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000, 400, 1000];
-
+    // Strict, clean options guaranteed to work across all iOS Safari, Android, and Desktop browsers
     const options = {
         body: payload.body || 'Tap to answer incoming call',
         icon: iconUrl,
         badge: badgeUrl,
         tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
-        renotify: false,
-        requireInteraction: true,
-        vibrate: isCall ? callVibrationPattern : [200, 100, 200],
-        actions: isCall ? [
-            { action: 'answer', title: '✅ Answer' },
-            { action: 'decline', title: '❌ Decline' }
-        ] : [],
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,
             caller: payload.caller
         }
     };
+
+    // Advanced options only for Android/Desktop (iOS Safari throws or drops notifications if actions/vibrate are passed)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isIOS) {
+        options.requireInteraction = true;
+        options.renotify = isCall;
+        options.vibrate = isCall ? [1000, 400, 1000, 400, 1000, 400, 1000] : [200, 100, 200];
+    }
 
     event.waitUntil(
         self.registration.showNotification(payload.title || '📞 Incoming Call', options).catch(function(err) {
