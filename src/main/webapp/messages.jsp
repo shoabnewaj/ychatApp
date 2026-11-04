@@ -2560,6 +2560,7 @@
         function startOutgoingRingtone() {
             initAudio();
             stopRingtone();
+            if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; } catch(e) {} }
 
             const outAud = document.getElementById("outgoingRingtoneAudio");
             if (outAud) {
@@ -2673,6 +2674,7 @@
         function startIncomingRingtone() {
             initAudio();
             stopRingtone();
+            if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; } catch(e) {} }
 
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
