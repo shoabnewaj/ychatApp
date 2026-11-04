@@ -2610,16 +2610,12 @@
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().then(() => { audioEngineUnlocked = true; }).catch(() => {});
             }
-            if (activeWebAudioRingtone) {
-                try { activeWebAudioRingtone.stop(); activeWebAudioRingtone.disconnect(); } catch(e) {}
-                activeWebAudioRingtone = null;
-            }
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) inAud.load();
             const outAud = document.getElementById("outgoingRingtoneAudio");
             if (outAud) outAud.load();
             const rAud = document.getElementById("remoteAudio");
-            if (rAud) rAud.load();
+            if (rAud && !rAud.srcObject) rAud.load();
         }
         ['click', 'touchstart', 'touchend', 'keydown'].forEach(evt => {
             document.addEventListener(evt, unlockAudioEngine, { passive: true });
@@ -2629,19 +2625,6 @@
             initAudio();
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(() => {});
-            }
-            // Play decoded WebAudio buffer (bypasses iOS Safari autoplay block completely)
-            if (audioCtx && ringtoneAudioBuffer) {
-                try {
-                    activeWebAudioRingtone = audioCtx.createBufferSource();
-                    activeWebAudioRingtone.buffer = ringtoneAudioBuffer;
-                    activeWebAudioRingtone.loop = true;
-                    const rGain = audioCtx.createGain();
-                    rGain.gain.setValueAtTime(0.95, audioCtx.currentTime);
-                    activeWebAudioRingtone.connect(rGain);
-                    rGain.connect(audioCtx.destination);
-                    activeWebAudioRingtone.start(0);
-                } catch(e) {}
             }
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
@@ -2659,40 +2642,23 @@
         }
 
         let vibrateCallInterval = null;
-        let iosAudioUnlocked = false;
-        let silentOscillator = null;
-        let ringtoneAudioBuffer = null;
-        let activeWebAudioRingtone = null;
 
-        // Permanent iOS & Android Audio Engine Unlocking with inaudible keep-alive
+        // Auto-unlock iOS & Android audio on very first user gesture
         function unlockAudioEngineOnFirstTouch() {
             initAudio();
-            if (!audioCtx) return;
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(() => {});
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(function() {});
             }
-            if (!iosAudioUnlocked) {
-                try {
-                    silentOscillator = audioCtx.createOscillator();
-                    const silentGain = audioCtx.createGain();
-                    silentGain.gain.setValueAtTime(0.00001, audioCtx.currentTime);
-                    silentOscillator.connect(silentGain);
-                    silentGain.connect(audioCtx.destination);
-                    silentOscillator.start();
-                    iosAudioUnlocked = true;
-                } catch(e) {}
-            }
-            // Preload ringtone buffer for instant WebAudio playback on iOS
-            if (!ringtoneAudioBuffer) {
-                fetch('/sounds/ringtone.wav')
-                    .then(res => res.arrayBuffer())
-                    .then(buf => audioCtx.decodeAudioData(buf))
-                    .then(decoded => { ringtoneAudioBuffer = decoded; })
-                    .catch(() => {});
+            const inAud = document.getElementById("incomingRingtoneAudio");
+            if (inAud) {
+                inAud.play().then(() => {
+                    inAud.pause();
+                    inAud.currentTime = 0;
+                }).catch(() => {});
             }
         }
         ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, unlockAudioEngineOnFirstTouch, { passive: true });
+            window.addEventListener(evt, unlockAudioEngineOnFirstTouch, { once: true, passive: true });
         });
 
         function triggerContinuousVibration() {
@@ -2708,19 +2674,6 @@
             initAudio();
             stopRingtone();
 
-            // Play decoded WebAudio buffer (bypasses iOS Safari autoplay block completely)
-            if (audioCtx && ringtoneAudioBuffer) {
-                try {
-                    activeWebAudioRingtone = audioCtx.createBufferSource();
-                    activeWebAudioRingtone.buffer = ringtoneAudioBuffer;
-                    activeWebAudioRingtone.loop = true;
-                    const rGain = audioCtx.createGain();
-                    rGain.gain.setValueAtTime(0.95, audioCtx.currentTime);
-                    activeWebAudioRingtone.connect(rGain);
-                    rGain.connect(audioCtx.destination);
-                    activeWebAudioRingtone.start(0);
-                } catch(e) {}
-            }
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
                 ringAud.currentTime = 0;
@@ -2794,10 +2747,6 @@
                 vibrateCallInterval = null;
             }
 
-            if (activeWebAudioRingtone) {
-                try { activeWebAudioRingtone.stop(); activeWebAudioRingtone.disconnect(); } catch(e) {}
-                activeWebAudioRingtone = null;
-            }
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) {
                 try {
