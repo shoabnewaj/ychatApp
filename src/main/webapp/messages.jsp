@@ -2563,15 +2563,18 @@
             if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; } catch(e) {} }
 
             const outAud = document.getElementById("outgoingRingtoneAudio");
+            let playedOutAudio = false;
             if (outAud) {
                 outAud.currentTime = 0;
-                outAud.volume = 1.0;
+                outAud.volume = 0.25; // Gentle, comfortable ringback volume (prevents loud blaring)
                 let p = outAud.play();
-                if (p !== undefined) p.catch(() => {});
+                if (p !== undefined) {
+                    p.then(() => { playedOutAudio = true; }).catch(() => {});
+                }
             }
 
             let playTone = () => {
-                if (!audioCtx) return;
+                if (playedOutAudio || !audioCtx) return;
                 let osc1 = audioCtx.createOscillator();
                 let osc2 = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
@@ -2582,9 +2585,9 @@
                 osc2.frequency.setValueAtTime(480, audioCtx.currentTime);
                 
                 gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime + 1.5);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.0);
+                gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime + 1.2);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.6);
                 
                 osc1.connect(gain);
                 osc2.connect(gain);
@@ -2597,11 +2600,15 @@
                 
                 setTimeout(() => {
                     try { osc1.stop(); osc2.stop(); } catch(e) {}
-                }, 2000);
+                }, 1700);
             };
             
-            playTone();
-            ringInterval = setInterval(playTone, 4000);
+            setTimeout(() => {
+                if (!playedOutAudio) {
+                    playTone();
+                    ringInterval = setInterval(playTone, 3500);
+                }
+            }, 300);
         }
 
         let audioEngineUnlocked = false;
@@ -2676,13 +2683,17 @@
             stopRingtone();
             if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; } catch(e) {} }
 
+            let incomingFilePlaying = false;
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
                 ringAud.currentTime = 0;
-                ringAud.volume = 1.0;
+                ringAud.volume = 0.8;
                 let p = ringAud.play();
                 if (p !== undefined) {
-                    p.catch(err => {
+                    p.then(() => {
+                        incomingFilePlaying = true;
+                        if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+                    }).catch(err => {
                         console.warn("Autoplay audio blocked, displaying user tap trigger:", err);
                         const banner = document.getElementById("tapForSoundBanner");
                         if (banner) banner.style.display = "block";
@@ -2732,8 +2743,10 @@
                 }
             };
 
-            playRingChime();
-            ringInterval = setInterval(playRingChime, 1800);
+            if (!incomingFilePlaying) {
+                playRingChime();
+                ringInterval = setInterval(playRingChime, 1800);
+            }
 
             // Continuous vibration loop until answered or declined (Android & iOS)
             triggerContinuousVibration();
