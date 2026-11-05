@@ -26,18 +26,6 @@
         if (ringAudioCtx && ringAudioCtx.state === "suspended") {
             ringAudioCtx.resume().catch(function () {});
         }
-        if (!ringAudioEl) {
-            try {
-                ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
-                ringAudioEl.loop = true;
-            } catch (e) {}
-        }
-        if (ringAudioEl) {
-            ringAudioEl.play().then(function() {
-                ringAudioEl.pause();
-                ringAudioEl.currentTime = 0;
-            }).catch(function() {});
-        }
     }
     ['touchstart', 'touchend', 'click', 'keydown'].forEach(function(evt) {
         window.addEventListener(evt, unlockAudioEngine, { once: true, passive: true });
@@ -89,17 +77,6 @@
     function startRingtone() {
         initRingAudio();
         stopRingtone();
-        try {
-            if (!ringAudioEl) {
-                ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
-                ringAudioEl.loop = true;
-            }
-            ringAudioEl.currentTime = 0;
-            ringAudioEl.volume = 1.0;
-            let p = ringAudioEl.play();
-            if (p !== undefined) p.catch(() => {});
-        } catch (e) {}
-
         playMessengerChime();
         ringInterval = setInterval(playMessengerChime, 1800);
 
