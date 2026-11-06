@@ -418,27 +418,8 @@ public class UserWebSocket {
                     final String finalSender = sender.trim();
                     final String finalCallType = callType;
 
-                    // Initial high-priority push alert
+                    // Single high-priority incoming call push alert
                     triggerWebPush(finalReceiver, "📞 Incoming " + (finalCallType.equalsIgnoreCase("video") ? "Video" : "Voice") + " Call", finalSender + " is calling you... Tap to answer", targetPushUrl, finalSender);
-
-                    // Pulse push alert every 5 seconds so receiver phone continuously rings and vibrates until answered or cancelled (up to 30s)
-                    final java.util.concurrent.atomic.AtomicInteger pulseCounter = new java.util.concurrent.atomic.AtomicInteger(0);
-                    final PendingCallInfo thisCall = call;
-                    thisCall.pulseTask = callScheduler.scheduleAtFixedRate(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                PendingCallInfo active = getPendingCall(finalReceiver);
-                                if (active == null || active.answered || active.rejected || !finalSender.equalsIgnoreCase(active.caller) || pulseCounter.incrementAndGet() >= 6) {
-                                    if (thisCall.pulseTask != null) {
-                                        thisCall.pulseTask.cancel(false);
-                                    }
-                                    return;
-                                }
-                                triggerWebPush(finalReceiver, "📞 Incoming " + (finalCallType.equalsIgnoreCase("video") ? "Video" : "Voice") + " Call", finalSender + " is calling you... (Ringing)", targetPushUrl, finalSender);
-                            } catch (Exception ignored) {}
-                        }
-                    }, 5000, 5000, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             } else if ("CALL_ANSWER".equalsIgnoreCase(type)) {
                 touchUser(sender);

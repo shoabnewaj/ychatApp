@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v15';
+const CACHE_NAME = 'ychat-app-cache-v16';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -163,7 +163,7 @@ self.addEventListener('push', function (event) {
         body: payload.body || 'Tap to answer incoming call',
         icon: iconUrl,
         badge: badgeUrl,
-        tag: isCall ? ('incoming-call-' + (payload.caller || 'active') + '-' + Date.now()) : ('ychat-' + (payload.tag || 'general')),
+        tag: isCall ? ('incoming-call-' + (payload.caller || 'active')) : ('ychat-' + (payload.tag || 'general')),
         data: {
             url: payload.url || '/messages.jsp',
             isCall: isCall,

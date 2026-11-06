@@ -409,6 +409,19 @@
         document.removeEventListener("touchstart", unlockAudio);
     }, { once: true, passive: true });
 
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', function (event) {
+            if (!event.data) return;
+            if (event.data.action === 'incomingCallStart') {
+                if (event.data.caller && event.data.caller !== currentIncomingCaller) {
+                    showIncomingCall(event.data.caller, event.data.callType || 'voice');
+                }
+            } else if (event.data.action === 'dismiss_call') {
+                hideIncomingCall();
+            }
+        });
+    }
+
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", init);
     } else {
