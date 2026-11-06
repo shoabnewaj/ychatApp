@@ -2630,23 +2630,53 @@
             document.addEventListener(evt, unlockAudioEngine, { passive: true });
         });
 
+        let ringtoneAudioBuffer = null;
+        let activeWebAudioRingtone = null;
+        function preloadRingtoneBuffer() {
+            initAudio();
+            if (!audioCtx || ringtoneAudioBuffer) return;
+            const basePath = cleanContextPath || "";
+            fetch(basePath + "/sounds/ringtone.wav")
+                .then(res => res.arrayBuffer())
+                .then(buf => audioCtx.decodeAudioData(buf))
+                .then(decoded => { ringtoneAudioBuffer = decoded; })
+                .catch(() => {});
+        }
+
         function forcePlayRingtone() {
             initAudio();
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(() => {});
             }
+            preloadRingtoneBuffer();
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
+                ringAud.loop = true;
                 ringAud.currentTime = 0;
                 ringAud.volume = 1.0;
+                ringAud.onended = function() {
+                    try { this.currentTime = 0; this.play().catch(function() {}); } catch(e) {}
+                };
                 ringAud.play().catch(() => {});
+            }
+            if (audioCtx && ringtoneAudioBuffer && !activeWebAudioRingtone) {
+                try {
+                    activeWebAudioRingtone = audioCtx.createBufferSource();
+                    activeWebAudioRingtone.buffer = ringtoneAudioBuffer;
+                    activeWebAudioRingtone.loop = true;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+                    activeWebAudioRingtone.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    activeWebAudioRingtone.start(0);
+                } catch(e) {}
             }
             const banner = document.getElementById("tapForSoundBanner");
             if (banner) banner.style.display = "none";
 
-            if (vibrateCallInterval) {
-                clearInterval(vibrateCallInterval);
-                vibrateCallInterval = null;
+            if (!vibrateCallInterval) {
+                triggerContinuousVibration();
+                vibrateCallInterval = setInterval(triggerContinuousVibration, 2800);
             }
         }
 
@@ -2658,6 +2688,7 @@
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(function() {});
             }
+            preloadRingtoneBuffer();
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) {
                 inAud.play().then(() => {
@@ -2684,18 +2715,24 @@
             stopRingtone();
             if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; } catch(e) {} }
 
-            let incomingFilePlaying = false;
+            preloadRingtoneBuffer();
+
+            // 1. Primary HTML5 Audio Element playback with automatic explicit restart on 'ended'
             const ringAud = document.getElementById("incomingRingtoneAudio");
             if (ringAud) {
+                ringAud.loop = true;
                 ringAud.currentTime = 0;
-                ringAud.volume = 0.8;
+                ringAud.volume = 0.85;
+                ringAud.onended = function() {
+                    try {
+                        this.currentTime = 0;
+                        this.play().catch(function() {});
+                    } catch(e) {}
+                };
                 let p = ringAud.play();
                 if (p !== undefined) {
-                    p.then(() => {
-                        incomingFilePlaying = true;
-                        if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
-                    }).catch(err => {
-                        console.warn("Autoplay audio blocked, displaying user tap trigger:", err);
+                    p.catch(err => {
+                        console.warn("Autoplay blocked, showing tap prompt:", err);
                         const banner = document.getElementById("tapForSoundBanner");
                         if (banner) banner.style.display = "block";
                         window.addEventListener('click', forcePlayRingtone, { once: true });
@@ -2704,16 +2741,36 @@
                 }
             }
 
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(function() {});
+            // 2. Web Audio Buffer Source (impervious to off-screen power saving)
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(function() {});
+                }
+                if (ringtoneAudioBuffer) {
+                    try {
+                        activeWebAudioRingtone = audioCtx.createBufferSource();
+                        activeWebAudioRingtone.buffer = ringtoneAudioBuffer;
+                        activeWebAudioRingtone.loop = true;
+                        const gain = audioCtx.createGain();
+                        gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+                        activeWebAudioRingtone.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        activeWebAudioRingtone.start(0);
+                    } catch(e) {}
+                }
             }
+
+            // 3. Persistent watchdog loop every 1.8 seconds (plays fallback chime if audio is silent, and re-triggers HTML audio)
             let playRingChime = () => {
+                const isHtmlPlaying = ringAud && !ringAud.paused && ringAud.currentTime > 0;
+                const isBufferPlaying = Boolean(activeWebAudioRingtone);
+                if (isHtmlPlaying || isBufferPlaying) return;
+
                 if (!audioCtx) return;
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume().catch(function() {});
                 }
                 const now = audioCtx.currentTime;
-                // Multi-note marimba chime: C5, E5, G5, C6, E6, C6
                 const chord = [
                     { f: 523.25, t: 0.00 },
                     { f: 659.25, t: 0.14 },
@@ -2739,15 +2796,14 @@
                     } catch(e) {}
                 });
 
-                if (navigator.vibrate) {
-                    try { navigator.vibrate([600, 300, 600, 300, 900]); } catch(e) {}
+                if (ringAud && ringAud.paused) {
+                    ringAud.currentTime = 0;
+                    ringAud.play().catch(function() {});
                 }
             };
 
-            if (!incomingFilePlaying) {
-                playRingChime();
-                ringInterval = setInterval(playRingChime, 1800);
-            }
+            playRingChime();
+            ringInterval = setInterval(playRingChime, 1800);
 
             // Continuous vibration loop until answered or declined (Android & iOS)
             triggerContinuousVibration();
@@ -2763,9 +2819,15 @@
                 vibrateCallInterval = null;
             }
 
+            if (activeWebAudioRingtone) {
+                try { activeWebAudioRingtone.stop(); activeWebAudioRingtone.disconnect(); } catch(e) {}
+                activeWebAudioRingtone = null;
+            }
+
             const inAud = document.getElementById("incomingRingtoneAudio");
             if (inAud) {
                 try {
+                    inAud.onended = null;
                     inAud.pause();
                     inAud.currentTime = 0;
                 } catch(e) {}

@@ -94,8 +94,12 @@
                 ringAudioEl = new Audio((contextPath || '') + '/sounds/ringtone.wav');
                 ringAudioEl.loop = true;
             }
+            ringAudioEl.loop = true;
             ringAudioEl.currentTime = 0;
             ringAudioEl.volume = 1.0;
+            ringAudioEl.onended = function() {
+                try { this.currentTime = 0; this.play().catch(function() {}); } catch(e) {}
+            };
             let p = ringAudioEl.play();
             if (p !== undefined) p.catch(() => {});
         } catch (e) {}
@@ -119,6 +123,7 @@
     function stopRingtone() {
         if (ringAudioEl) {
             try {
+                ringAudioEl.onended = null;
                 ringAudioEl.pause();
                 ringAudioEl.currentTime = 0;
             } catch (e) {}

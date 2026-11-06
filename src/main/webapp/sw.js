@@ -1,5 +1,5 @@
 // YChat Service Worker: Fast App Shell Caching & Reliable Incoming Call Push
-const CACHE_NAME = 'ychat-app-cache-v17';
+const CACHE_NAME = 'ychat-app-cache-v18';
 const STATIC_ASSETS = [
     'icons/icon-192.png',
     'icons/icon-512.png',
