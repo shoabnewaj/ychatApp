@@ -1434,6 +1434,7 @@
                 window.targetToOpen = null;
                 const autoCallAction = urlParams.get('callAction');
                 const autoCallType = urlParams.get('callType') || 'voice';
+                if (autoCallAction) { try { const cleanUrl = new URL(window.location.href); cleanUrl.searchParams.delete('callAction'); cleanUrl.searchParams.delete('callType'); window.history.replaceState({}, document.title, cleanUrl.toString()); } catch(e) {} }
                 if (autoCallAction === 'accept') {
                     let acceptAttempts = 0;
                     function triggerAutoAccept() {

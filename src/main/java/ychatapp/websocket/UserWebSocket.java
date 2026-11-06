@@ -53,11 +53,9 @@ public class UserWebSocket {
         String key = username.trim().toLowerCase();
         PendingCallInfo call = pendingCalls.get(key);
         if (call != null) {
-            if (System.currentTimeMillis() - call.timestamp > 45000 || call.answered || call.rejected) {
+            boolean callerOnline = (call.caller != null && clients.containsKey(call.caller.trim()));
+            if (System.currentTimeMillis() - call.timestamp > 20000 || call.answered || call.rejected || !callerOnline) {
                 pendingCalls.remove(key);
-                if (call.pulseTask != null) {
-                    try { call.pulseTask.cancel(true); } catch(Exception ignored) {}
-                }
                 return null;
             }
         }
@@ -457,6 +455,18 @@ public class UserWebSocket {
             if (userSessions.isEmpty()) {
                 clients.remove(username);
                 System.out.println("User Offline: " + username);
+
+                // Cancel and purge any pending call initiated by or intended for this disconnected user
+                for (java.util.Map.Entry<String, PendingCallInfo> entry : pendingCalls.entrySet()) {
+                    PendingCallInfo p = entry.getValue();
+                    if (p != null && (username.equalsIgnoreCase(p.caller) || username.equalsIgnoreCase(p.receiver))) {
+                        pendingCalls.remove(entry.getKey());
+                        if (p.receiver != null && !username.equalsIgnoreCase(p.receiver)) {
+                            sendMessageToUser(p.receiver, "CALL_END|" + username + "|cancelled");
+                            dismissCallPush(p.receiver, username, false);
+                        }
+                    }
+                }
                 
                 LiveManager.endStream(username);
                 for (LiveManager.LiveStreamInfo info : LiveManager.getActiveStreams()) {
