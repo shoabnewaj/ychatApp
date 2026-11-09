@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Long Floppy Fluffy White Ears (Flying outward) -->
+    <path d="M46,65 C20,50 2,75 5,90 C12,105 32,85 45,78 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+    <path d="M114,65 C140,50 158,75 155,90 C148,105 128,85 115,78 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+    <!-- Round Chubby White Puppy Head -->
+    <ellipse cx="80" cy="78" rx="46" ry="34" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+    <!-- Soft Blue Baby Eyes with Sparkle -->
+    <ellipse cx="60" cy="74" rx="6" ry="8" fill="#38bdf8"/>
+    <circle cx="58" cy="71" r="2.5" fill="#ffffff"/>
+    <ellipse cx="100" cy="74" rx="6" ry="8" fill="#38bdf8"/>
+    <circle cx="98" cy="71" r="2.5" fill="#ffffff"/>
+    <!-- Soft Blushing Pink Cheeks -->
+    <ellipse cx="48" cy="84" rx="8" ry="4.5" fill="#f43f5e" opacity="0.65"/>
+    <ellipse cx="112" cy="84" rx="8" ry="4.5" fill="#f43f5e" opacity="0.65"/>
+    <!-- Cute W-shaped Puppy Mouth -->
+    <path d="M72,82 Q76,86 80,82 Q84,86 88,82" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Little Paws tucked under chin -->
+    <ellipse cx="68" cy="108" rx="8" ry="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+    <ellipse cx="92" cy="108" rx="8" ry="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+    <!-- Floating Soft Stars/Clouds -->
+    <circle cx="28" cy="40" r="4" fill="#7dd3fc" opacity="0.8"/>
+    <circle cx="132" cy="40" r="4" fill="#7dd3fc" opacity="0.8"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="900" fill="#ffffff" text-anchor="middle">CINNAMOROLL! ☁️</text>
+  </g>
+</svg>

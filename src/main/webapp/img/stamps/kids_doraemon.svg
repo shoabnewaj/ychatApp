@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="doraBlue" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Round Blue Cat Head -->
+    <circle cx="80" cy="74" r="50" fill="url(#doraBlue)"/>
+    <!-- White Oval Face Mask -->
+    <ellipse cx="80" cy="84" rx="42" ry="36" fill="#ffffff"/>
+    <!-- Big Oval White Eyes Touching Each Other -->
+    <ellipse cx="72" cy="52" rx="9" ry="13" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="74" cy="52" r="3" fill="#0f172a"/>
+    <circle cx="75" cy="50" r="1" fill="#ffffff"/>
+    <ellipse cx="88" cy="52" rx="9" ry="13" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="86" cy="52" r="3" fill="#0f172a"/>
+    <circle cx="85" cy="50" r="1" fill="#ffffff"/>
+    <!-- Red Round Nose & Long Vertical Whisker Bridge -->
+    <circle cx="80" cy="65" r="6" fill="#ef4444" stroke="#dc2626" stroke-width="1"/>
+    <circle cx="78" cy="63" r="1.5" fill="#ffffff"/>
+    <line x1="80" y1="71" x2="80" y2="92" stroke="#0f172a" stroke-width="2"/>
+    <!-- 6 Whiskers (3 on each side) -->
+    <line x1="46" y1="72" x2="70" y2="76" stroke="#0f172a" stroke-width="2"/>
+    <line x1="44" y1="80" x2="68" y2="81" stroke="#0f172a" stroke-width="2"/>
+    <line x1="46" y1="88" x2="70" y2="86" stroke="#0f172a" stroke-width="2"/>
+    <line x1="90" y1="76" x2="114" y2="72" stroke="#0f172a" stroke-width="2"/>
+    <line x1="92" y1="81" x2="116" y2="80" stroke="#0f172a" stroke-width="2"/>
+    <line x1="90" y1="86" x2="114" y2="88" stroke="#0f172a" stroke-width="2"/>
+    <!-- Giant Happy Open Smile -->
+    <path d="M54,92 Q80,122 106,92 Z" fill="#dc2626" stroke="#0f172a" stroke-width="2"/>
+    <path d="M68,105 Q80,98 92,105 Q80,120 68,105 Z" fill="#fb7185"/>
+    <!-- Red Collar & Golden Bell -->
+    <rect x="52" y="118" width="56" height="8" rx="4" fill="#ef4444"/>
+    <circle cx="80" cy="126" r="6" fill="#eab308" stroke="#ca8a04" stroke-width="1.2"/>
+    <circle cx="80" cy="128" r="1.5" fill="#0f172a"/>
+    <!-- Eating Dorayaki Pancake -->
+    <ellipse cx="32" cy="115" rx="14" ry="10" fill="#b45309" stroke="#78350f" stroke-width="1.2"/>
+    <ellipse cx="32" cy="115" rx="10" ry="2" fill="#451a03"/>
+    <!-- Banner -->
+    <rect x="20" y="134" width="120" height="22" rx="11" fill="#0284c7" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">DORAEMON! 🔔</text>
+  </g>
+</svg>

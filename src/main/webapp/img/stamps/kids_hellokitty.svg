@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Pointy White Cat Ears -->
+    <polygon points="46,45 32,20 58,28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+    <polygon points="114,45 128,20 102,28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+    <!-- The Famous Red Bow on Left Ear -->
+    <circle cx="56" cy="36" r="7" fill="#ef4444" stroke="#0f172a" stroke-width="2"/>
+    <ellipse cx="44" cy="32" rx="10" ry="7" fill="#ef4444" stroke="#0f172a" stroke-width="2" transform="rotate(-20 44 32)"/>
+    <ellipse cx="68" cy="36" rx="10" ry="7" fill="#ef4444" stroke="#0f172a" stroke-width="2" transform="rotate(20 68 36)"/>
+    <!-- Wide Oval White Head -->
+    <ellipse cx="80" cy="74" rx="52" ry="40" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+    <!-- Two Simple Black Oval Eyes (Spaced apart) -->
+    <ellipse cx="58" cy="74" rx="4" ry="6" fill="#0f172a"/>
+    <ellipse cx="102" cy="74" rx="4" ry="6" fill="#0f172a"/>
+    <!-- Yellow Oval Button Nose (No mouth - Hello Kitty's signature!) -->
+    <ellipse cx="80" cy="82" rx="6" ry="4.5" fill="#facc15" stroke="#0f172a" stroke-width="1.8"/>
+    <!-- 6 Whiskers (3 on each side) -->
+    <line x1="30" y1="72" x2="48" y2="74" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="28" y1="80" x2="46" y2="80" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="30" y1="88" x2="48" y2="86" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="112" y1="74" x2="130" y2="72" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="114" y1="80" x2="132" y2="80" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="112" y1="86" x2="130" y2="88" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Blue Overalls Collar -->
+    <path d="M52,112 L40,140 L120,140 L108,112 Z" fill="#3b82f6" stroke="#0f172a" stroke-width="2"/>
+    <circle cx="62" cy="124" r="3" fill="#facc15"/>
+    <circle cx="98" cy="124" r="3" fill="#facc15"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#ef4444" stroke="#fbcfe8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">HELLO KITTY! 🎀</text>
+  </g>
+</svg>

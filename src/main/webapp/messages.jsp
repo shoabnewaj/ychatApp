@@ -925,14 +925,15 @@
             <!-- Character category tabs -->
             <div id="stampCategoryTabs" style="display:flex; gap:6px; padding:8px 12px; background:#f8fafc; border-bottom:1px solid #f1f5f9; overflow-x:auto;">
                 <button type="button" class="stamp-tab-btn active" onclick="filterStamps('all', this)">All</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('kids', this)">Kids Favorites</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('sanrio', this)">Sanrio &amp; Kawaii</button>
                 <button type="button" class="stamp-tab-btn" onclick="filterStamps('shonen', this)">Shonen</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('cute', this)">Anya &amp; Cute</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('anya', this)">Anya &amp; Cute</button>
                 <button type="button" class="stamp-tab-btn" onclick="filterStamps('reactions', this)">Reactions</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('ghibli', this)">Ghibli &amp; Poke</button>
             </div>
             <!-- Search bar -->
             <div style="padding:8px 12px; background:#ffffff; border-bottom:1px solid #f1f5f9;">
-                <input type="text" id="chatStampSearchInput" placeholder="Search anime (e.g. naruto, anya, luffy, gojo)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
+                <input type="text" id="chatStampSearchInput" placeholder="Search (anpanman, doraemon, shinchan, naruto, anya, chiikawa)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
             </div>
             <!-- Stamp items grid -->
             <div id="chatStampGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:10px; max-height:240px; overflow-y:auto; background:#f8fafc;">

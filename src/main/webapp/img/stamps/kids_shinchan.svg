@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="shinSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fed7aa"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Buzzcut Cropped Black Hair -->
+    <path d="M42,65 C40,30 115,25 118,65 Z" fill="#0f172a"/>
+    <!-- The Iconic Chubby Potato/Squash Shaped Head (Sagging Right Cheek) -->
+    <path d="M45,65 C40,90 42,105 60,118 C80,128 118,125 125,102 C132,80 120,65 118,65 Z" fill="url(#shinSkin)"/>
+    <!-- Left Ear sticking out -->
+    <ellipse cx="40" cy="85" rx="8" ry="12" fill="url(#shinSkin)"/>
+    <!-- THE FAMOUS THICK SHIN-CHAN EYEBROWS (Huge Curved Black Caterpillars) -->
+    <path d="M48,56 Q62,40 76,54" stroke="#0f172a" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M86,54 Q100,40 114,56" stroke="#0f172a" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Round Innocent Black Dot Eyes with Big White Sparkle -->
+    <ellipse cx="62" cy="72" rx="7" ry="9" fill="#0f172a"/>
+    <circle cx="64" cy="70" r="3" fill="#ffffff"/>
+    <ellipse cx="102" cy="72" rx="7" ry="9" fill="#0f172a"/>
+    <circle cx="104" cy="70" r="3" fill="#ffffff"/>
+    <!-- Rosy Blushing Cheeks -->
+    <ellipse cx="48" cy="94" rx="8" ry="5" fill="#f43f5e" opacity="0.6"/>
+    <ellipse cx="120" cy="94" rx="8" ry="5" fill="#f43f5e" opacity="0.6"/>
+    <!-- Wavy Cheeky Mischievous Smile -->
+    <path d="M72,96 Q82,108 94,96" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Classic Red Shirt & Yellow Shorts Collar -->
+    <path d="M48,120 L35,142 L125,142 L112,120 Z" fill="#ef4444"/>
+    <rect x="68" y="120" width="24" height="22" fill="#eab308"/>
+    <!-- Banner -->
+    <rect x="20" y="134" width="120" height="22" rx="11" fill="#ef4444" stroke="#fef08a" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">SHIN-CHAN! 🖍️</text>
+  </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="baikinSkin" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Purple Bacteria Horns with Spheres -->
+    <path d="M55,42 Q40,20 32,15" stroke="#7e22ce" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <circle cx="30" cy="14" r="8" fill="#a855f7"/>
+    <path d="M105,42 Q120,20 128,15" stroke="#7e22ce" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <circle cx="130" cy="14" r="8" fill="#a855f7"/>
+    <!-- Black Round Germ Head -->
+    <circle cx="80" cy="74" r="46" fill="url(#baikinSkin)"/>
+    <!-- Triangular Purple Demon Nose -->
+    <polygon points="80,68 72,80 88,80" fill="#a855f7"/>
+    <!-- Narrow White Eyes with Red Pupils -->
+    <ellipse cx="58" cy="62" rx="9" ry="7" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <circle cx="60" cy="62" r="3" fill="#dc2626"/>
+    <ellipse cx="102" cy="62" rx="9" ry="7" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <circle cx="100" cy="62" r="3" fill="#dc2626"/>
+    <!-- THE FAMOUS GIANT TOOTHY WHITE GRIN -->
+    <path d="M46,84 Q80,118 114,84 Z" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+    <line x1="56" y1="87" x2="60" y2="99" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="68" y1="90" x2="70" y2="105" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="80" y1="91" x2="80" y2="108" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="92" y1="90" x2="90" y2="105" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="104" y1="87" x2="100" y2="99" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="48" y1="92" x2="112" y2="92" stroke="#0f172a" stroke-width="1.5"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#581c87" stroke="#c084fc" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="900" fill="#ffffff" text-anchor="middle">HA-HI-HU-HE-HO! 😈</text>
+  </g>
+</svg>

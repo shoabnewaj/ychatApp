@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="anpanBread" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#ea580c"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Superhero Cape (Brown/Black behind) -->
+    <path d="M40,90 L20,135 L140,135 L120,90 Z" fill="#78350f"/>
+    <!-- Big Round Freshly-Baked Red-Bean Bread Head -->
+    <circle cx="80" cy="74" r="48" fill="url(#anpanBread)"/>
+    <!-- The Iconic 3 Big Shiny Round Cheeks & Nose -->
+    <circle cx="50" cy="80" r="14" fill="#ef4444" stroke="#dc2626" stroke-width="1.5"/>
+    <ellipse cx="46" cy="76" rx="4" ry="2" fill="#ffffff" opacity="0.8"/>
+    <circle cx="110" cy="80" r="14" fill="#ef4444" stroke="#dc2626" stroke-width="1.5"/>
+    <ellipse cx="106" cy="76" rx="4" ry="2" fill="#ffffff" opacity="0.8"/>
+    <circle cx="80" cy="76" r="15" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/>
+    <ellipse cx="76" cy="72" rx="4" ry="2" fill="#ffffff" opacity="0.8"/>
+    <!-- Simple Round Dot Eyes with Curved Brows -->
+    <ellipse cx="60" cy="58" rx="4" ry="6" fill="#0f172a"/>
+    <ellipse cx="100" cy="58" rx="4" ry="6" fill="#0f172a"/>
+    <path d="M52,50 Q60,44 68,50" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M92,50 Q100,44 108,50" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Big Friendly Smile below nose -->
+    <path d="M68,96 Q80,108 92,96" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Red Superhero Suit with Yellow Belt -->
+    <path d="M50,116 L42,140 L118,140 L110,116 Z" fill="#dc2626"/>
+    <circle cx="80" cy="124" r="8" fill="#eab308"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#ef4444" stroke="#fef08a" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">ANPANMAN! 🍞</text>
+  </g>
+</svg>
