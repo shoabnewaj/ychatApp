@@ -1,0 +1,37 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="catHead" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#fed7aa"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Ears -->
+    <polygon points="35,22 18,65 58,52" fill="#ea580c"/>
+    <polygon points="35,29 23,62 53,52" fill="#fda4af"/>
+    <polygon points="125,22 102,52 142,65" fill="#ea580c"/>
+    <polygon points="125,29 107,52 137,62" fill="#fda4af"/>
+    <!-- Head -->
+    <ellipse cx="80" cy="74" rx="56" ry="46" fill="url(#catHead)"/>
+    <!-- Cheeks Blush -->
+    <ellipse cx="44" cy="80" rx="12" ry="7" fill="#f43f5e" opacity="0.55"/>
+    <ellipse cx="116" cy="80" rx="12" ry="7" fill="#f43f5e" opacity="0.55"/>
+    <!-- Curved Happy Eyes ^^ -->
+    <path d="M46,65 Q58,50 70,65" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+    <path d="M90,65 Q102,50 114,65" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+    <!-- Nose & Happy Open Mouth :D -->
+    <polygon points="80,72 75,68 85,68" fill="#f43f5e"/>
+    <path d="M72,76 Q80,82 80,76 Q80,82 88,76" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M74,80 Q80,100 86,80 Z" fill="#e11d48"/>
+    <ellipse cx="80" cy="90" rx="4" ry="3" fill="#fda4af"/>
+    <!-- Paws in the air -->
+    <ellipse cx="32" cy="50" rx="11" ry="13" fill="#fff" stroke="#fed7aa" stroke-width="2"/>
+    <circle cx="32" cy="46" r="4" fill="#fda4af"/>
+    <ellipse cx="128" cy="50" rx="11" ry="13" fill="#fff" stroke="#fed7aa" stroke-width="2"/>
+    <circle cx="128" cy="46" r="4" fill="#fda4af"/>
+    <!-- Sparkles -->
+    <path d="M22,30 L25,20 L28,30 L38,33 L28,36 L25,46 L22,36 L12,33 Z" fill="#fbbf24"/>
+    <path d="M138,30 L141,20 L144,30 L154,33 L144,36 L141,46 L138,36 L128,33 Z" fill="#fbbf24"/>
+    <!-- Banner -->
+    <rect x="35" y="130" width="90" height="24" rx="12" fill="#f59e0b"/>
+    <text x="80" y="146" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">YAY! 脂</text>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="catHead" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#fbcfe8"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Ears -->
+    <polygon points="35,22 18,65 58,52" fill="#db2777"/>
+    <polygon points="125,22 102,52 142,65" fill="#db2777"/>
+    <!-- Head tilted -->
+    <ellipse cx="80" cy="74" rx="55" ry="46" fill="url(#catHead)" transform="rotate(6 80 74)"/>
+    <!-- Musical Notes -->
+    <text x="20" y="40" font-size="18" fill="#ec4899">七</text>
+    <text x="130" y="45" font-size="22" fill="#a855f7">叱</text>
+    <!-- Wink Eye & Sparkle Eye -->
+    <path d="M46,65 Q58,54 70,65" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="104" cy="62" r="10" fill="#1e293b"/>
+    <circle cx="102" cy="59" r="4" fill="#ffffff"/>
+    <circle cx="107" cy="65" r="2" fill="#ffffff"/>
+    <!-- Cute Blush -->
+    <ellipse cx="44" cy="78" rx="10" ry="6" fill="#f43f5e" opacity="0.6"/>
+    <ellipse cx="116" cy="78" rx="10" ry="6" fill="#f43f5e" opacity="0.6"/>
+    <!-- Cute open smile -->
+    <path d="M74,78 Q80,94 86,78 Z" fill="#e11d48"/>
+    <!-- Dancing Paws -->
+    <circle cx="35" cy="100" r="10" fill="#fff" stroke="#fbcfe8" stroke-width="2"/>
+    <circle cx="125" cy="100" r="10" fill="#fff" stroke="#fbcfe8" stroke-width="2"/>
+    <!-- Banner -->
+    <rect x="35" y="130" width="90" height="24" rx="12" fill="#ec4899"/>
+    <text x="80" y="146" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">PARTY! 茶</text>
+  </g>
+</svg>

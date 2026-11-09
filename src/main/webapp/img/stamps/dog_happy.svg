@@ -1,0 +1,37 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="shibaGold" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Shiba Triangular Ears -->
+    <polygon points="40,20 20,60 55,52" fill="#b45309"/>
+    <polygon points="40,28 26,56 50,50" fill="#fef3c7"/>
+    <polygon points="120,20 105,52 140,60" fill="#b45309"/>
+    <polygon points="120,28 110,50 134,56" fill="#fef3c7"/>
+    <!-- Head -->
+    <ellipse cx="80" cy="74" rx="55" ry="48" fill="url(#shibaGold)"/>
+    <!-- White Shiba Cheeks & Muzzle -->
+    <ellipse cx="50" cy="84" rx="20" ry="18" fill="#ffffff"/>
+    <ellipse cx="110" cy="84" rx="20" ry="18" fill="#ffffff"/>
+    <ellipse cx="80" cy="88" rx="26" ry="20" fill="#ffffff"/>
+    <!-- Eyebrows (White dots) -->
+    <circle cx="58" cy="50" r="5" fill="#ffffff"/>
+    <circle cx="102" cy="50" r="5" fill="#ffffff"/>
+    <!-- Happy curved eyes -->
+    <path d="M52,64 Q62,54 72,64" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+    <path d="M88,64 Q98,54 108,64" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+    <!-- Black Nose -->
+    <ellipse cx="80" cy="78" rx="7" ry="5" fill="#1e293b"/>
+    <!-- Happy Tongue -->
+    <path d="M74,84 Q80,88 86,84" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+    <path d="M76,86 C76,102 84,102 84,86 Z" fill="#f43f5e"/>
+    <line x1="80" y1="87" x2="80" y2="96" stroke="#be123c" stroke-width="1.5"/>
+    <!-- Red Scarf / Collar -->
+    <path d="M50,116 Q80,128 110,116" stroke="#dc2626" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="80" cy="124" r="5" fill="#fbbf24"/>
+    <!-- Banner -->
+    <rect x="35" y="132" width="90" height="22" rx="11" fill="#d97706"/>
+    <text x="80" y="147" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">HELLO! 生</text>
+  </g>
+</svg>

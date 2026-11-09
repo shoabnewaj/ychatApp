@@ -1,0 +1,42 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="catWhite" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#f1f5f9"/></radialGradient>
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff4b72"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Ears -->
+    <polygon points="40,25 22,65 60,55" fill="#f97316"/>
+    <polygon points="40,32 27,62 55,54" fill="#fda4af"/>
+    <polygon points="120,25 100,55 138,65" fill="#f97316"/>
+    <polygon points="120,32 105,54 133,62" fill="#fda4af"/>
+    <!-- Head -->
+    <ellipse cx="80" cy="72" rx="55" ry="46" fill="url(#catWhite)"/>
+    <!-- Orange Tabby Patches -->
+    <path d="M40,35 Q55,48 48,60 Q32,50 40,35" fill="#fb923c"/>
+    <path d="M120,35 Q105,48 112,60 Q128,50 120,35" fill="#fb923c"/>
+    <!-- Cheeks Blush -->
+    <ellipse cx="46" cy="78" rx="10" ry="6" fill="#f472b6" opacity="0.6"/>
+    <ellipse cx="114" cy="78" rx="10" ry="6" fill="#f472b6" opacity="0.6"/>
+    <!-- Eyes: Big Heart Eyes -->
+    <path d="M58,62 C58,54 48,52 48,60 C48,68 58,74 58,74 C58,74 68,68 68,60 C68,52 58,54 58,62 Z" fill="#e11d48"/>
+    <path d="M102,62 C102,54 92,52 92,60 C92,68 102,74 102,74 C102,74 112,68 112,60 C112,52 102,54 102,62 Z" fill="#e11d48"/>
+    <!-- Nose & Mouth -->
+    <polygon points="80,75 76,71 84,71" fill="#f43f5e"/>
+    <path d="M74,78 Q80,84 80,78 Q80,84 86,78" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Whiskers -->
+    <line x1="28" y1="73" x2="12" y2="70" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="78" x2="10" y2="80" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <line x1="132" y1="73" x2="148" y2="70" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <line x1="132" y1="78" x2="150" y2="80" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <!-- Huge Hugged Heart -->
+    <path d="M80,95 C60,65 25,85 45,115 C60,135 80,145 80,145 C80,145 100,135 115,115 C135,85 100,65 80,95 Z" fill="url(#heartGrad)"/>
+    <ellipse cx="60" cy="95" rx="7" ry="12" fill="#fff" opacity="0.3" transform="rotate(-30 60 95)"/>
+    <!-- Paws on Heart -->
+    <ellipse cx="50" cy="105" rx="9" ry="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <ellipse cx="110" cy="105" rx="9" ry="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <!-- Banner -->
+    <rect x="25" y="132" width="110" height="22" rx="11" fill="#e11d48"/>
+    <text x="80" y="147" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">LOVE YOU 笶､・・/text>
+  </g>
+</svg>

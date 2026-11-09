@@ -1,0 +1,28 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="shibaGold" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Ears -->
+    <polygon points="40,20 20,60 55,52" fill="#b45309"/>
+    <polygon points="120,20 105,52 140,60" fill="#b45309"/>
+    <!-- Head -->
+    <ellipse cx="80" cy="74" rx="55" ry="48" fill="url(#shibaGold)"/>
+    <ellipse cx="80" cy="88" rx="26" ry="20" fill="#ffffff"/>
+    <!-- Pink Cheeks -->
+    <ellipse cx="46" cy="80" rx="10" ry="7" fill="#f43f5e" opacity="0.6"/>
+    <ellipse cx="114" cy="80" rx="10" ry="7" fill="#f43f5e" opacity="0.6"/>
+    <!-- Heart Eyes -->
+    <path d="M60,62 C60,54 50,52 50,60 C50,68 60,74 60,74 C60,74 70,68 70,60 C70,52 60,54 60,62 Z" fill="#e11d48"/>
+    <path d="M100,62 C100,54 90,52 90,60 C90,68 100,74 100,74 C100,74 110,68 110,60 C110,52 100,54 100,62 Z" fill="#e11d48"/>
+    <ellipse cx="80" cy="78" rx="6" ry="4" fill="#1e293b"/>
+    <path d="M74,84 Q80,92 86,84" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+    <!-- Floating Hearts -->
+    <text x="25" y="45" font-size="20" fill="#e11d48">猪</text>
+    <text x="120" y="40" font-size="22" fill="#e11d48">瀦</text>
+    <!-- Banner -->
+    <rect x="30" y="130" width="100" height="24" rx="12" fill="#e11d48"/>
+    <text x="80" y="146" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">FOR YOU 猪</text>
+  </g>
+</svg>
