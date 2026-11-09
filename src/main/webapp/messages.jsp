@@ -102,6 +102,7 @@
     <link rel="icon" type="image/png" href="<%=request.getContextPath()%>/icons/icon-192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="<%=request.getContextPath()%>/js/notification-badge.js" data-context-path="<%=request.getContextPath()%>" defer></script>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/chat-stamps.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -421,90 +422,6 @@
             background: rgba(255, 255, 255, 0.08);
             border-left-color: #22d3ee;
             color: #e2e8f0;
-        }
-
-                /* ==========================================
-           CHARACTER STAMP & STICKER STYLES
-        ========================================== */
-        .stamp-tab-btn {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #64748b;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .stamp-tab-btn.active, .stamp-tab-btn:hover {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-        .chat-stamp-card {
-            background: white;
-            border-radius: 14px;
-            padding: 8px 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-            border: 1px solid #f1f5f9;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .chat-stamp-card:hover {
-            transform: translateY(-4px) scale(1.06);
-            box-shadow: 0 10px 20px rgba(37,99,235,0.18);
-            border-color: #bfdbfe;
-        }
-        .chat-stamp-card img {
-            width: 72px;
-            height: 72px;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        .chat-stamp-card span {
-            font-size: 10px;
-            font-weight: 700;
-            color: #475569;
-            margin-top: 4px;
-            text-align: center;
-            max-width: 85px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .msg.is-stamp {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-        }
-        .chat-stamp-bubble {
-            display: inline-block;
-            padding: 4px;
-        }
-        .chat-stamp-img {
-            width: 140px;
-            height: 140px;
-            max-width: 100%;
-            object-fit: contain;
-            cursor: pointer;
-            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.16));
-            animation: stampPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transition: transform 0.2s ease;
-        }
-        .chat-stamp-img:hover {
-            transform: scale(1.08);
-        }
-        @keyframes stampPopIn {
-            0% { transform: scale(0.3) rotate(-8deg); opacity: 0; }
-            70% { transform: scale(1.1) rotate(2deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         .input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; }
@@ -1001,27 +918,27 @@
             <div style="padding:10px 14px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(135deg, #eff6ff, #faf5ff);">
                 <span style="font-weight:700; font-size:13px; color:#1e293b; display:flex; align-items:center; gap:6px;">
                     <span style="background:#2563eb; color:white; font-size:10px; font-weight:900; padding:2px 5px; border-radius:4px;">STAMP</span>
-                    Character Stamps & Stickers
+                    Character Stamps &amp; Stickers
                 </span>
                 <button type="button" onclick="toggleChatStampPicker()" style="background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <!-- Character category tabs -->
-            <div style="display:flex; gap:5px; padding:6px 10px; background:#f8fafc; border-bottom:1px solid #f1f5f9; overflow-x:auto;" id="stampCategoryTabs">
-                <button type="button" class="stamp-tab-btn active" onclick="filterStamps('all', this)">検 All</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('cat', this)">棲 Cats</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('dog', this)">生 Dogs</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('panda', this)">西 Pandas</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('bunny', this)">晴 Bunnies</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('anime', this)">息 Anime</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('meme', this)">料 Memes</button>
+            <div id="stampCategoryTabs" style="display:flex; gap:6px; padding:8px 12px; background:#f8fafc; border-bottom:1px solid #f1f5f9; overflow-x:auto;">
+                <button type="button" class="stamp-tab-btn active" onclick="filterStamps('all', this)">All</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('cat', this)">Cats</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('dog', this)">Dogs</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('panda', this)">Pandas</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('bunny', this)">Bunnies</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('anime', this)">Anime</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('meme', this)">Memes</button>
             </div>
-            <!-- Search input -->
-            <div style="padding:6px 10px; background:#ffffff; border-bottom:1px solid #f1f5f9;">
-                <input type="text" id="chatStampSearchInput" placeholder="Search stamps (e.g. love, happy, cry, cool)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
+            <!-- Search bar -->
+            <div style="padding:8px 12px; background:#ffffff; border-bottom:1px solid #f1f5f9;">
+                <input type="text" id="chatStampSearchInput" placeholder="Search stamps (e.g. love, sad, happy)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
             </div>
-            <!-- Stamp Grid -->
-            <div id="chatStampGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:10px; max-height:260px; overflow-y:auto; background:#fafafa;">
-                <!-- Populated by JS -->
+            <!-- Stamp items grid -->
+            <div id="chatStampGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:10px; max-height:240px; overflow-y:auto; background:#f8fafc;">
+                <!-- Populated dynamically by chat-stamps.js -->
             </div>
         </div>
 
@@ -1055,8 +972,8 @@
             <button type="button" id="voiceBtn" onclick="toggleVoiceRecording()" title="Record Voice Note" style="background:none; border:none; color:#a855f7; font-size:18px; cursor:pointer; padding:0 8px;"><i class="fa fa-microphone"></i></button>
             <input type="file" id="chatFileInput" style="display:none;" onchange="uploadChatAttachment(this)">
             <button type="button" onclick="document.getElementById('chatFileInput').click()" style="background:none; border:none; color:#64748b; font-size:18px; cursor:pointer; padding:0 8px;" title="Attach File / Image"><i class="fa fa-paperclip"></i></button>
-                        <button type="button" onclick="toggleChatStampPicker()" id="chatStampBtn" style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; font-size:11px; font-weight:800; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px; display:inline-flex; align-items:center; gap:3px;" title="Send Character Stamps & Stickers"><i class="fa-solid fa-icons" style="font-size:12px;"></i> STAMP</button>
                         <button type="button" onclick="toggleChatGifPicker()" style="background:#fce7f3; border:1px solid #fbcfe8; color:#db2777; font-size:11px; font-weight:900; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px;" title="Send animated GIF">GIF</button>
+                        <button type="button" id="stampPickerBtn" onclick="toggleChatStampPicker()" style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; font-size:11px; font-weight:900; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px;" title="Send Character Stamp / Sticker">STAMP</button>
             <input type="text" id="messageText" placeholder="Type a message or @gemini to ask AI..." oninput="notifyTyping()" onkeypress="if(event.key==='Enter') sendToFriend()">
             <button class="btn-send" onclick="sendToFriend()">Send</button>
             <div id="recordingBadge" style="display:none; position:absolute; left:50px; top:-40px; background:#ef4444; color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold; align-items:center; gap:8px; shadow:0 4px 12px rgba(239,68,68,0.4);">
@@ -2139,23 +2056,13 @@
             }
 
             // Normalize [FILE:path] prefix if present
+            let isStamp = false;
+            if (data.message && data.message.startsWith("[STAMP:") && data.message.endsWith("]")) {
+                data.message = data.message.slice(7, -1);
+                isStamp = true;
+            }
             if (data.message && data.message.startsWith("[FILE:") && data.message.endsWith("]")) {
                 data.message = data.message.slice(6, -1);
-            }
-            // Normalize [STAMP:path] prefix
-            let isStamp = false;
-            let stampSrc = "";
-            if (data.message && (data.message.startsWith("[STAMP:") || data.message.includes("img/stamps/"))) {
-                isStamp = true;
-                if (data.message.startsWith("[STAMP:") && data.message.endsWith("]")) {
-                    stampSrc = data.message.slice(7, -1);
-                } else {
-                    stampSrc = data.message;
-                }
-                const basePath = cleanContextPath || "";
-                if (!stampSrc.startsWith("http://") && !stampSrc.startsWith("https://") && !stampSrc.startsWith("/")) {
-                    stampSrc = basePath + "/" + stampSrc;
-                }
             }
             const isAudio = data.message && (data.message.endsWith(".webm") || data.message.endsWith(".mp3") || data.message.endsWith(".wav") || data.message.endsWith(".ogg") || data.message.startsWith("img/voice_"));
             const isImg = data.message && (
@@ -2166,7 +2073,7 @@
             const row = document.createElement("div");
             row.className = "msg-row " + type;
             row.id = "msg-row-" + data.id;
-            row.dataset.messageType = (isAudio || isImg) ? 'media' : 'text';
+            row.dataset.messageType = (isAudio || isImg || isStamp) ? 'media' : 'text';
 
             // Action toolbar for reaction, quote, edit, delete
             let actionsHtml = "";
@@ -2228,14 +2135,14 @@
 
             if (data.isDeleted) {
                 bubbleHtml += '<span class="msg-deleted"><i class="fa-solid fa-ban"></i> This message was deleted</span>';
+            } else if (isStamp) {
+                bubbleHtml += '<div class="chat-stamp-bubble">' +
+                    '<img src="' + data.message + '" class="chat-stamp-img" alt="Stamp" onclick="window.open(\'' + data.message + '\', \'_blank\')">' +
+                '</div>';
             } else if (isAudio) {
                 bubbleHtml += '<div style="display:flex; align-items:center; gap:8px;">' +
                     '<i class="fa fa-microphone" style="color:#a855f7;"></i>' +
                     '<audio controls src="' + data.message + '" style="max-width:200px; height:32px; border-radius:16px;" onplay="this.volume=0.75;"></audio>' +
-                '</div>';
-                        } else if (isStamp) {
-                bubbleHtml += '<div class="chat-stamp-bubble">' +
-                    '<img src="' + stampSrc + '" class="chat-stamp-img" alt="Stamp" loading="lazy" onclick="window.open(\'' + stampSrc + '\', \'_blank\')">' +
                 '</div>';
             } else if (isImg) {
                 bubbleHtml += '<img src="' + data.message + '" style="max-width:220px; max-height:220px; border-radius:12px; cursor:pointer;" onclick="window.open(\'' + data.message + '\', \'_blank\')">';
@@ -3727,135 +3634,6 @@
             }, 2000);
         }
 
-        // ==========================================
-        // CHARACTER STAMPS & STICKERS ENGINE
-        // ==========================================
-        const STAMP_CATALOG = [
-            // Cats
-            { id: 'cat_love', cat: 'cat', title: 'Love You 笶､・・, tags: 'love heart kiss cute cat', file: 'img/stamps/cat_love.svg' },
-            { id: 'cat_happy', cat: 'cat', title: 'YAY! 脂', tags: 'happy yay joy celebrate cat', file: 'img/stamps/cat_happy.svg' },
-            { id: 'cat_cry', cat: 'cat', title: 'So Sad 亊', tags: 'sad cry tears sorry cat', file: 'img/stamps/cat_cry.svg' },
-            { id: 'cat_shock', cat: 'cat', title: 'OMG!! 亞', tags: 'omg shock what wow cat', file: 'img/stamps/cat_shock.svg' },
-            { id: 'cat_thumbsup', cat: 'cat', title: 'Nice! 総', tags: 'nice ok yes thumbs up like cat', file: 'img/stamps/cat_thumbsup.svg' },
-            { id: 'cat_sleep', cat: 'cat', title: 'Good Night 嫌', tags: 'sleep night tired zzz cat', file: 'img/stamps/cat_sleep.svg' },
-            { id: 'cat_angry', cat: 'cat', title: 'Angry! 弔', tags: 'angry hmph mad hate cat', file: 'img/stamps/cat_angry.svg' },
-            { id: 'cat_dance', cat: 'cat', title: 'Party! 茶', tags: 'party dance music happy cat', file: 'img/stamps/cat_dance.svg' },
-
-            // Dogs
-            { id: 'dog_happy', cat: 'dog', title: 'Hello! 生', tags: 'hello hi doge happy wag dog', file: 'img/stamps/dog_happy.svg' },
-            { id: 'dog_salute', cat: 'dog', title: 'Yes Boss! ｫ｡', tags: 'yes boss salute respect officer dog', file: 'img/stamps/dog_salute.svg' },
-            { id: 'dog_love', cat: 'dog', title: 'For You 猪', tags: 'love heart for you cute kiss dog', file: 'img/stamps/dog_love.svg' },
-            { id: 'dog_please', cat: 'dog', title: 'Please! ･ｺ', tags: 'please beg puppy eyes forgive dog', file: 'img/stamps/dog_please.svg' },
-            { id: 'dog_cool', cat: 'dog', title: 'So Cool ・', tags: 'cool swag glasses boss chill dog', file: 'img/stamps/dog_cool.svg' },
-            { id: 'dog_celebrate', cat: 'dog', title: 'Congrats! ･ｳ', tags: 'congrats party celebrate birthday dog', file: 'img/stamps/dog_celebrate.svg' },
-
-            // Pandas
-            { id: 'panda_love', cat: 'panda', title: 'Hug Me! 西', tags: 'hug love panda cute heart', file: 'img/stamps/panda_love.svg' },
-            { id: 'panda_bamboo', cat: 'panda', title: 'Nom Nom 視', tags: 'food eat nom bamboo hungry panda', file: 'img/stamps/panda_bamboo.svg' },
-            { id: 'panda_cry', cat: 'panda', title: 'Huhu... 亊', tags: 'cry sad tears panda sorry', file: 'img/stamps/panda_cry.svg' },
-
-            // Bunnies
-            { id: 'bunny_heart', cat: 'bunny', title: 'So Cute! 晴', tags: 'bunny rabbit cute love heart', file: 'img/stamps/bunny_heart.svg' },
-            { id: 'bunny_carrot', cat: 'bunny', title: 'Mine! ･・, tags: 'carrot food mine hungry rabbit bunny', file: 'img/stamps/bunny_carrot.svg' },
-            { id: 'bunny_dance', cat: 'bunny', title: 'So Happy! 減', tags: 'happy dance joy spring flowers bunny rabbit', file: 'img/stamps/bunny_dance.svg' },
-
-            // Anime
-            { id: 'anime_sugoi', cat: 'anime', title: 'Sugoi! 検', tags: 'sugoi anime sparkle amazing wow chibi', file: 'img/stamps/anime_sugoi.svg' },
-            { id: 'anime_peace', cat: 'anime', title: 'Peace! 笨鯉ｸ・, tags: 'peace victory cool win boy anime', file: 'img/stamps/anime_peace.svg' },
-            { id: 'anime_heart', cat: 'anime', title: 'Saranghae 猪', tags: 'saranghae love heart kpop anime girl', file: 'img/stamps/anime_heart.svg' },
-            { id: 'anime_cry', cat: 'anime', title: 'Gomen! 刧', tags: 'gomen sorry cry tears anime girl', file: 'img/stamps/anime_cry.svg' },
-
-            // Memes
-            { id: 'meme_gigachad', cat: 'meme', title: 'Chad 料', tags: 'chad gigachad sigma based meme', file: 'img/stamps/meme_gigachad.svg' },
-            { id: 'meme_doge', cat: 'meme', title: 'Much Wow 枢', tags: 'doge much wow such cool meme', file: 'img/stamps/meme_doge.svg' },
-            { id: 'meme_fire', cat: 'meme', title: 'This Is Fine 櫨', tags: 'fire this is fine ok coffee meme', file: 'img/stamps/meme_fire.svg' },
-            { id: 'meme_troll', cat: 'meme', title: 'Problem? ・', tags: 'troll problem trollface funny meme', file: 'img/stamps/meme_troll.svg' },
-            { id: 'meme_tea', cat: 'meme', title: 'Not My Biz 笘・, tags: 'tea kermit none of my business meme', file: 'img/stamps/meme_tea.svg' }
-        ];
-
-        let currentStampCategory = 'all';
-        let chatStampSearchTimeout = null;
-
-        function toggleChatStampPicker(forceState) {
-            const picker = document.getElementById("chatStampPicker");
-            if (!picker) return;
-            const gifPicker = document.getElementById("chatGifPicker");
-            if (gifPicker) gifPicker.style.display = "none";
-
-            const shouldShow = typeof forceState === 'boolean' ? forceState : (picker.style.display === "none" || picker.style.display === "");
-            picker.style.display = shouldShow ? "flex" : "none";
-            if (shouldShow) {
-                renderStampGrid();
-            }
-        }
-
-        function filterStamps(category, btnEl) {
-            currentStampCategory = category || 'all';
-            document.querySelectorAll("#stampCategoryTabs .stamp-tab-btn").forEach(b => b.classList.remove("active"));
-            if (btnEl) btnEl.classList.add("active");
-            const searchVal = document.getElementById("chatStampSearchInput")?.value || "";
-            renderStampGrid(searchVal);
-        }
-
-        function debounceChatStampSearch(query) {
-            clearTimeout(chatStampSearchTimeout);
-            chatStampSearchTimeout = setTimeout(() => {
-                renderStampGrid(query);
-            }, 200);
-        }
-
-        function renderStampGrid(searchQuery = "") {
-            const grid = document.getElementById("chatStampGrid");
-            if (!grid) return;
-            const q = (searchQuery || "").trim().toLowerCase();
-
-            const filtered = STAMP_CATALOG.filter(s => {
-                const matchCat = (currentStampCategory === 'all' || s.cat === currentStampCategory);
-                const matchQuery = !q || s.title.toLowerCase().includes(q) || s.tags.toLowerCase().includes(q);
-                return matchCat && matchQuery;
-            });
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No character stamps found</div>';
-                return;
-            }
-
-            const basePath = cleanContextPath || "";
-            let html = "";
-            filtered.forEach(s => {
-                const fullSrc = basePath + "/" + s.file;
-                html += '<div class="chat-stamp-card" onclick="sendStampToFriend(\'' + s.file + '\')" title="' + escapeHtml(s.title) + '">' +
-                    '<img src="' + fullSrc + '" alt="' + escapeHtml(s.title) + '" loading="lazy">' +
-                    '<span>' + escapeHtml(s.title) + '</span>' +
-                '</div>';
-            });
-            grid.innerHTML = html;
-        }
-
-        function sendStampToFriend(stampFile) {
-            var friend = document.getElementById("targetFriendName").value;
-            if (friend === "None" || !friend) {
-                alert("Please select a friend first to send a Stamp!");
-                return;
-            }
-            const stampMsg = "[STAMP:" + stampFile + "]";
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send("CHAT|" + friend + "|" + stampMsg);
-                displayMessage({
-                    id: "temp_" + Date.now(),
-                    sender: myName,
-                    message: stampMsg,
-                    isRead: false,
-                    isEdited: false,
-                    isDeleted: false
-                }, 'sent');
-                toggleChatStampPicker(false);
-            } else {
-                alert("Chat server connecting, please retry in a moment...");
-                initWebSocket();
-            }
-        }
-
         function toggleLoudspeaker() {
             setLoudspeaker(!loudspeakerOn, true);
         }
@@ -3969,135 +3747,6 @@
                     isDeleted: false
                 }, 'sent');
                 toggleChatGifPicker();
-            } else {
-                alert("Chat server connecting, please retry in a moment...");
-                initWebSocket();
-            }
-        }
-
-        // ==========================================
-        // CHARACTER STAMPS & STICKERS ENGINE
-        // ==========================================
-        const STAMP_CATALOG = [
-            // Cats
-            { id: 'cat_love', cat: 'cat', title: 'Love You 笶､・・, tags: 'love heart kiss cute cat', file: 'img/stamps/cat_love.svg' },
-            { id: 'cat_happy', cat: 'cat', title: 'YAY! 脂', tags: 'happy yay joy celebrate cat', file: 'img/stamps/cat_happy.svg' },
-            { id: 'cat_cry', cat: 'cat', title: 'So Sad 亊', tags: 'sad cry tears sorry cat', file: 'img/stamps/cat_cry.svg' },
-            { id: 'cat_shock', cat: 'cat', title: 'OMG!! 亞', tags: 'omg shock what wow cat', file: 'img/stamps/cat_shock.svg' },
-            { id: 'cat_thumbsup', cat: 'cat', title: 'Nice! 総', tags: 'nice ok yes thumbs up like cat', file: 'img/stamps/cat_thumbsup.svg' },
-            { id: 'cat_sleep', cat: 'cat', title: 'Good Night 嫌', tags: 'sleep night tired zzz cat', file: 'img/stamps/cat_sleep.svg' },
-            { id: 'cat_angry', cat: 'cat', title: 'Angry! 弔', tags: 'angry hmph mad hate cat', file: 'img/stamps/cat_angry.svg' },
-            { id: 'cat_dance', cat: 'cat', title: 'Party! 茶', tags: 'party dance music happy cat', file: 'img/stamps/cat_dance.svg' },
-
-            // Dogs
-            { id: 'dog_happy', cat: 'dog', title: 'Hello! 生', tags: 'hello hi doge happy wag dog', file: 'img/stamps/dog_happy.svg' },
-            { id: 'dog_salute', cat: 'dog', title: 'Yes Boss! ｫ｡', tags: 'yes boss salute respect officer dog', file: 'img/stamps/dog_salute.svg' },
-            { id: 'dog_love', cat: 'dog', title: 'For You 猪', tags: 'love heart for you cute kiss dog', file: 'img/stamps/dog_love.svg' },
-            { id: 'dog_please', cat: 'dog', title: 'Please! ･ｺ', tags: 'please beg puppy eyes forgive dog', file: 'img/stamps/dog_please.svg' },
-            { id: 'dog_cool', cat: 'dog', title: 'So Cool ・', tags: 'cool swag glasses boss chill dog', file: 'img/stamps/dog_cool.svg' },
-            { id: 'dog_celebrate', cat: 'dog', title: 'Congrats! ･ｳ', tags: 'congrats party celebrate birthday dog', file: 'img/stamps/dog_celebrate.svg' },
-
-            // Pandas
-            { id: 'panda_love', cat: 'panda', title: 'Hug Me! 西', tags: 'hug love panda cute heart', file: 'img/stamps/panda_love.svg' },
-            { id: 'panda_bamboo', cat: 'panda', title: 'Nom Nom 視', tags: 'food eat nom bamboo hungry panda', file: 'img/stamps/panda_bamboo.svg' },
-            { id: 'panda_cry', cat: 'panda', title: 'Huhu... 亊', tags: 'cry sad tears panda sorry', file: 'img/stamps/panda_cry.svg' },
-
-            // Bunnies
-            { id: 'bunny_heart', cat: 'bunny', title: 'So Cute! 晴', tags: 'bunny rabbit cute love heart', file: 'img/stamps/bunny_heart.svg' },
-            { id: 'bunny_carrot', cat: 'bunny', title: 'Mine! ･・, tags: 'carrot food mine hungry rabbit bunny', file: 'img/stamps/bunny_carrot.svg' },
-            { id: 'bunny_dance', cat: 'bunny', title: 'So Happy! 減', tags: 'happy dance joy spring flowers bunny rabbit', file: 'img/stamps/bunny_dance.svg' },
-
-            // Anime
-            { id: 'anime_sugoi', cat: 'anime', title: 'Sugoi! 検', tags: 'sugoi anime sparkle amazing wow chibi', file: 'img/stamps/anime_sugoi.svg' },
-            { id: 'anime_peace', cat: 'anime', title: 'Peace! 笨鯉ｸ・, tags: 'peace victory cool win boy anime', file: 'img/stamps/anime_peace.svg' },
-            { id: 'anime_heart', cat: 'anime', title: 'Saranghae 猪', tags: 'saranghae love heart kpop anime girl', file: 'img/stamps/anime_heart.svg' },
-            { id: 'anime_cry', cat: 'anime', title: 'Gomen! 刧', tags: 'gomen sorry cry tears anime girl', file: 'img/stamps/anime_cry.svg' },
-
-            // Memes
-            { id: 'meme_gigachad', cat: 'meme', title: 'Chad 料', tags: 'chad gigachad sigma based meme', file: 'img/stamps/meme_gigachad.svg' },
-            { id: 'meme_doge', cat: 'meme', title: 'Much Wow 枢', tags: 'doge much wow such cool meme', file: 'img/stamps/meme_doge.svg' },
-            { id: 'meme_fire', cat: 'meme', title: 'This Is Fine 櫨', tags: 'fire this is fine ok coffee meme', file: 'img/stamps/meme_fire.svg' },
-            { id: 'meme_troll', cat: 'meme', title: 'Problem? ・', tags: 'troll problem trollface funny meme', file: 'img/stamps/meme_troll.svg' },
-            { id: 'meme_tea', cat: 'meme', title: 'Not My Biz 笘・, tags: 'tea kermit none of my business meme', file: 'img/stamps/meme_tea.svg' }
-        ];
-
-        let currentStampCategory = 'all';
-        let chatStampSearchTimeout = null;
-
-        function toggleChatStampPicker(forceState) {
-            const picker = document.getElementById("chatStampPicker");
-            if (!picker) return;
-            const gifPicker = document.getElementById("chatGifPicker");
-            if (gifPicker) gifPicker.style.display = "none";
-
-            const shouldShow = typeof forceState === 'boolean' ? forceState : (picker.style.display === "none" || picker.style.display === "");
-            picker.style.display = shouldShow ? "flex" : "none";
-            if (shouldShow) {
-                renderStampGrid();
-            }
-        }
-
-        function filterStamps(category, btnEl) {
-            currentStampCategory = category || 'all';
-            document.querySelectorAll("#stampCategoryTabs .stamp-tab-btn").forEach(b => b.classList.remove("active"));
-            if (btnEl) btnEl.classList.add("active");
-            const searchVal = document.getElementById("chatStampSearchInput")?.value || "";
-            renderStampGrid(searchVal);
-        }
-
-        function debounceChatStampSearch(query) {
-            clearTimeout(chatStampSearchTimeout);
-            chatStampSearchTimeout = setTimeout(() => {
-                renderStampGrid(query);
-            }, 200);
-        }
-
-        function renderStampGrid(searchQuery = "") {
-            const grid = document.getElementById("chatStampGrid");
-            if (!grid) return;
-            const q = (searchQuery || "").trim().toLowerCase();
-
-            const filtered = STAMP_CATALOG.filter(s => {
-                const matchCat = (currentStampCategory === 'all' || s.cat === currentStampCategory);
-                const matchQuery = !q || s.title.toLowerCase().includes(q) || s.tags.toLowerCase().includes(q);
-                return matchCat && matchQuery;
-            });
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No character stamps found</div>';
-                return;
-            }
-
-            const basePath = cleanContextPath || "";
-            let html = "";
-            filtered.forEach(s => {
-                const fullSrc = basePath + "/" + s.file;
-                html += '<div class="chat-stamp-card" onclick="sendStampToFriend(\'' + s.file + '\')" title="' + escapeHtml(s.title) + '">' +
-                    '<img src="' + fullSrc + '" alt="' + escapeHtml(s.title) + '" loading="lazy">' +
-                    '<span>' + escapeHtml(s.title) + '</span>' +
-                '</div>';
-            });
-            grid.innerHTML = html;
-        }
-
-        function sendStampToFriend(stampFile) {
-            var friend = document.getElementById("targetFriendName").value;
-            if (friend === "None" || !friend) {
-                alert("Please select a friend first to send a Stamp!");
-                return;
-            }
-            const stampMsg = "[STAMP:" + stampFile + "]";
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send("CHAT|" + friend + "|" + stampMsg);
-                displayMessage({
-                    id: "temp_" + Date.now(),
-                    sender: myName,
-                    message: stampMsg,
-                    isRead: false,
-                    isEdited: false,
-                    isDeleted: false
-                }, 'sent');
-                toggleChatStampPicker(false);
             } else {
                 alert("Chat server connecting, please retry in a moment...");
                 initWebSocket();
@@ -4277,6 +3926,6 @@
         </a>
     </nav>
 
-    <script src="js/theme.js?v=20261029-safari-v7"></script><script src="js/ychat-pro-features.js?v=20261029-safari-v7"></script>
+    <script src="js/theme.js?v=20261029-safari-v7"></script><script src="js/ychat-pro-features.js?v=20261029-safari-v7"></script><script src="js/chat-stamps.js"></script>
 </body>
 </html>
