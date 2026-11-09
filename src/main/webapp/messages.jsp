@@ -917,24 +917,22 @@
         <div id="chatStampPicker" style="display:none; position:absolute; bottom:65px; left:12px; width:340px; max-height:410px; background:white; border:1px solid #e2e8f0; border-radius:18px; box-shadow:0 20px 45px rgba(0,0,0,0.18); z-index:9999; flex-direction:column; overflow:hidden;">
             <div style="padding:10px 14px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(135deg, #eff6ff, #faf5ff);">
                 <span style="font-weight:700; font-size:13px; color:#1e293b; display:flex; align-items:center; gap:6px;">
-                    <span style="background:#2563eb; color:white; font-size:10px; font-weight:900; padding:2px 5px; border-radius:4px;">STAMP</span>
-                    Character Stamps &amp; Stickers
+                    <span style="background:#2563eb; color:white; font-size:10px; font-weight:900; padding:2px 5px; border-radius:4px;">ANIME</span>
+                    Japanese Anime Stamps &amp; Stickers
                 </span>
                 <button type="button" onclick="toggleChatStampPicker()" style="background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <!-- Character category tabs -->
             <div id="stampCategoryTabs" style="display:flex; gap:6px; padding:8px 12px; background:#f8fafc; border-bottom:1px solid #f1f5f9; overflow-x:auto;">
                 <button type="button" class="stamp-tab-btn active" onclick="filterStamps('all', this)">All</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('cat', this)">Cats</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('dog', this)">Dogs</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('panda', this)">Pandas</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('bunny', this)">Bunnies</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('anime', this)">Anime</button>
-                <button type="button" class="stamp-tab-btn" onclick="filterStamps('meme', this)">Memes</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('shonen', this)">Shonen</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('cute', this)">Anya &amp; Cute</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('reactions', this)">Reactions</button>
+                <button type="button" class="stamp-tab-btn" onclick="filterStamps('ghibli', this)">Ghibli &amp; Poke</button>
             </div>
             <!-- Search bar -->
             <div style="padding:8px 12px; background:#ffffff; border-bottom:1px solid #f1f5f9;">
-                <input type="text" id="chatStampSearchInput" placeholder="Search stamps (e.g. love, sad, happy)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
+                <input type="text" id="chatStampSearchInput" placeholder="Search anime (e.g. naruto, anya, luffy, gojo)..." oninput="debounceChatStampSearch(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:12px; border:1px solid #cbd5e1; border-radius:10px; outline:none;">
             </div>
             <!-- Stamp items grid -->
             <div id="chatStampGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:10px; max-height:240px; overflow-y:auto; background:#f8fafc;">
@@ -973,7 +971,7 @@
             <input type="file" id="chatFileInput" style="display:none;" onchange="uploadChatAttachment(this)">
             <button type="button" onclick="document.getElementById('chatFileInput').click()" style="background:none; border:none; color:#64748b; font-size:18px; cursor:pointer; padding:0 8px;" title="Attach File / Image"><i class="fa fa-paperclip"></i></button>
                         <button type="button" onclick="toggleChatGifPicker()" style="background:#fce7f3; border:1px solid #fbcfe8; color:#db2777; font-size:11px; font-weight:900; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px;" title="Send animated GIF">GIF</button>
-                        <button type="button" id="stampPickerBtn" onclick="toggleChatStampPicker()" style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; font-size:11px; font-weight:900; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px;" title="Send Character Stamp / Sticker">STAMP</button>
+                        <button type="button" id="stampPickerBtn" onclick="toggleChatStampPicker()" style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; font-size:11px; font-weight:900; border-radius:8px; padding:3px 7px; cursor:pointer; margin-right:4px;" title="Japanese Animation Stamps &amp; Stickers">STAMP</button>
             <input type="text" id="messageText" placeholder="Type a message or @gemini to ask AI..." oninput="notifyTyping()" onkeypress="if(event.key==='Enter') sendToFriend()">
             <button class="btn-send" onclick="sendToFriend()">Send</button>
             <div id="recordingBadge" style="display:none; position:absolute; left:50px; top:-40px; background:#ef4444; color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold; align-items:center; gap:8px; shadow:0 4px 12px rgba(239,68,68,0.4);">

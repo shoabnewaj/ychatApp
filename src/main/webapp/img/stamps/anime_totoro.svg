@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="totoroGrey" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#475569"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Pointy Bunny-like Grey Ears -->
+    <ellipse cx="60" cy="30" rx="9" ry="22" fill="url(#totoroGrey)"/>
+    <ellipse cx="100" cy="30" rx="9" ry="22" fill="url(#totoroGrey)"/>
+    <!-- Green Leaf perched on head -->
+    <path d="M72,40 C65,30 75,18 80,15 C85,18 95,30 88,40 Z" fill="#22c55e"/>
+    <line x1="80" y1="15" x2="80" y2="40" stroke="#15803d" stroke-width="1.2"/>
+    <!-- Giant Round Fluffy Body -->
+    <ellipse cx="80" cy="88" rx="55" ry="48" fill="url(#totoroGrey)"/>
+    <!-- Cream White Belly -->
+    <ellipse cx="80" cy="115" rx="42" ry="28" fill="#fef3c7"/>
+    <!-- Grey Chevron marks on chest (V shapes) -->
+    <path d="M68,102 L74,97 L80,102" stroke="#475569" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M80,102 L86,97 L92,102" stroke="#475569" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- Round Staring Eyes -->
+    <circle cx="56" cy="62" r="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <circle cx="56" cy="62" r="3" fill="#0f172a"/>
+    <circle cx="104" cy="62" r="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <circle cx="104" cy="62" r="3" fill="#0f172a"/>
+    <!-- Tiny Triangular Black Nose -->
+    <polygon points="80,68 76,72 84,72" fill="#0f172a"/>
+    <!-- THE FAMOUS GIANT TOTORO WIDE TEETH GRIN -->
+    <path d="M50,78 Q80,95 110,78 Q80,72 50,78 Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="58" y1="76" x2="58" y2="82" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="66" y1="75" x2="66" y2="84" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="74" y1="74" x2="74" y2="85" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="80" y1="74" x2="80" y2="85" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="86" y1="74" x2="86" y2="85" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="94" y1="75" x2="94" y2="84" stroke="#0f172a" stroke-width="1.5"/>
+    <line x1="102" y1="76" x2="102" y2="82" stroke="#0f172a" stroke-width="1.5"/>
+    <!-- Whiskers (3 on each cheek) -->
+    <line x1="28" y1="68" x2="44" y2="70" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="26" y1="74" x2="42" y2="74" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="28" y1="80" x2="44" y2="78" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="116" y1="70" x2="132" y2="68" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="118" y1="74" x2="134" y2="74" stroke="#0f172a" stroke-width="1.8"/>
+    <line x1="116" y1="78" x2="132" y2="80" stroke="#0f172a" stroke-width="1.8"/>
+    <!-- Banner -->
+    <rect x="25" y="134" width="110" height="22" rx="11" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">TOTORO 🍃</text>
+  </g>
+</svg>

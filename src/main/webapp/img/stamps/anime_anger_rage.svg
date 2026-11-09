@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="chibiSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fca5a5"/></radialGradient>
+    <linearGradient id="fireHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#dc2626"/><stop offset="100%" stop-color="#7f1d1d"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Spiky Fiery Red Hair -->
+    <polygon points="35,55 15,30 38,26 28,5 55,16 68,0 80,14 92,0 105,16 132,5 122,26 145,30 125,55" fill="url(#fireHair)"/>
+    <!-- Face (Furious Red Glow) -->
+    <ellipse cx="80" cy="85" rx="38" ry="34" fill="url(#chibiSkin)"/>
+    <path d="M42,62 Q80,50 118,62 Q105,74 95,64 Q80,75 68,62 Q55,75 42,62 Z" fill="url(#fireHair)"/>
+    <!-- THE ICONIC 4-PRONGED RED ANIME ANGER VEIN MARK (💢) -->
+    <g transform="translate(112, 42)">
+      <path d="M0,8 L20,8 M8,0 L8,20" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+      <path d="M4,4 L16,16 M4,16 L16,4" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <!-- Fierce Triangle Angry Eyes with Fire -->
+    <polygon points="52,75 70,82 56,86" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="62" cy="81" r="3" fill="#dc2626"/>
+    <polygon points="108,75 90,82 104,86" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="98" cy="81" r="3" fill="#dc2626"/>
+    <!-- Angry V Brows -->
+    <line x1="48" y1="72" x2="72" y2="82" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="112" y1="72" x2="88" y2="82" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Shark Teeth Open Screaming Mouth ("NANI?! BAKA!!") -->
+    <path d="M58,95 Q80,120 102,95 Z" fill="#7f1d1d" stroke="#0f172a" stroke-width="2"/>
+    <polygon points="62,96 66,102 70,96 74,102 78,96 82,102 86,96 90,102 94,96 98,102" fill="#ffffff"/>
+    <polygon points="64,112 68,106 72,112 76,106 80,112 84,106 88,112 92,106 96,112" fill="#ffffff"/>
+    <!-- Steam / Puffs of Smoke out of cheeks -->
+    <ellipse cx="34" cy="98" rx="6" ry="4" fill="#cbd5e1" opacity="0.8"/>
+    <ellipse cx="126" cy="98" rx="6" ry="4" fill="#cbd5e1" opacity="0.8"/>
+    <!-- Banner -->
+    <rect x="22" y="134" width="116" height="22" rx="11" fill="#dc2626" stroke="#fecaca" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">BAKA!! 💢</text>
+  </g>
+</svg>

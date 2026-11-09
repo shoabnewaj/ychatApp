@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="pikaYellow" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#facc15"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Long Pointy Yellow Ears with Black Tips -->
+    <polygon points="35,55 5,5 25,2 52,38" fill="url(#pikaYellow)"/>
+    <polygon points="12,12 5,5 25,2 20,10" fill="#0f172a"/>
+    <polygon points="125,55 155,5 135,2 108,38" fill="url(#pikaYellow)"/>
+    <polygon points="148,12 155,5 135,2 140,10" fill="#0f172a"/>
+    <!-- Round Chubby Pikachu Head -->
+    <ellipse cx="80" cy="85" rx="46" ry="42" fill="url(#pikaYellow)"/>
+    <!-- Iconic Rosy Red Cheeks -->
+    <circle cx="44" cy="94" r="10" fill="#ef4444"/>
+    <circle cx="116" cy="94" r="10" fill="#ef4444"/>
+    <!-- Shocked Round Wide Eyes -->
+    <circle cx="58" cy="78" r="9" fill="#0f172a"/>
+    <circle cx="56" cy="75" r="3.5" fill="#ffffff"/>
+    <circle cx="102" cy="78" r="9" fill="#0f172a"/>
+    <circle cx="100" cy="75" r="3.5" fill="#ffffff"/>
+    <!-- Tiny Cute Nose Dot -->
+    <polygon points="80,82 78,85 82,85" fill="#0f172a"/>
+    <!-- THE ICONIC OPEN OVAL SHOCKED MOUTH ("Surprised Pikachu Meme") -->
+    <ellipse cx="80" cy="102" rx="14" ry="16" fill="#0f172a"/>
+    <ellipse cx="80" cy="106" rx="9" ry="10" fill="#f43f5e"/>
+    <!-- Little Paws held up in disbelief -->
+    <ellipse cx="50" cy="125" rx="8" ry="12" fill="url(#pikaYellow)" stroke="#ca8a04" stroke-width="1.2"/>
+    <ellipse cx="110" cy="125" rx="8" ry="12" fill="url(#pikaYellow)" stroke="#ca8a04" stroke-width="1.2"/>
+    <!-- Banner -->
+    <rect x="22" y="134" width="116" height="22" rx="11" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#78350f" text-anchor="middle">PIKA?! ⚡</text>
+  </g>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fed7aa"/></radialGradient>
+    <linearGradient id="burgundyHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#881337"/><stop offset="100%" stop-color="#4c0519"/></linearGradient>
+    <linearGradient id="waterFlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Swept-back Burgundy Hair -->
+    <polygon points="35,55 18,30 38,28 32,8 55,20 68,5 82,18 98,5 110,22 128,8 122,28 142,30 125,55" fill="url(#burgundyHair)"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="80" rx="38" ry="40" fill="url(#skin)"/>
+    <!-- Red Flame Mark Scar on Upper Right Forehead -->
+    <path d="M54,52 Q58,64 62,56 Q66,70 56,66 Q50,62 54,52 Z" fill="#b91c1c"/>
+    <!-- Big Determined Burgundy Eyes -->
+    <ellipse cx="60" cy="78" rx="10" ry="12" fill="#881337"/>
+    <circle cx="58" cy="74" r="3.5" fill="#ffffff"/>
+    <circle cx="63" cy="82" r="1.5" fill="#ffffff"/>
+    <ellipse cx="100" cy="78" rx="10" ry="12" fill="#881337"/>
+    <circle cx="98" cy="74" r="3.5" fill="#ffffff"/>
+    <circle cx="103" cy="82" r="1.5" fill="#ffffff"/>
+    <!-- Kind, Determined Eyebrows -->
+    <path d="M50,68 Q62,64 72,70" stroke="#4c0519" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    <path d="M110,68 Q98,64 88,70" stroke="#4c0519" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    <!-- Hanafuda Earrings hanging from ears -->
+    <rect x="30" y="86" width="8" height="16" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/>
+    <circle cx="34" cy="92" r="2" fill="#dc2626"/>
+    <rect x="122" y="86" width="8" height="16" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/>
+    <circle cx="126" cy="92" r="2" fill="#dc2626"/>
+    <!-- Confident Smile -->
+    <path d="M70,98 Q80,108 90,98" stroke="#4c0519" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    <!-- Green & Black Checkered Haori Collar -->
+    <path d="M42,120 L30,140 L130,140 L118,120 Z" fill="#15803d"/>
+    <rect x="62" y="120" width="16" height="12" fill="#0f172a"/>
+    <rect x="82" y="120" width="16" height="12" fill="#0f172a"/>
+    <!-- Water Breathing Swirl -->
+    <path d="M15,110 Q50,70 70,120 Q90,140 145,100" stroke="url(#waterFlow)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <!-- Banner -->
+    <rect x="16" y="134" width="128" height="22" rx="11" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">WATER BREATHING 🌊</text>
+  </g>
+</svg>

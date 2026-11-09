@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff0e6"/><stop offset="100%" stop-color="#f8ded0"/></radialGradient>
+    <linearGradient id="silverHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Spiky Silver Hair tilted to the left -->
+    <polygon points="30,48 5,30 25,22 15,2 42,14 48,-2 72,12 85,0 98,15 115,8 120,24 135,20 125,52" fill="url(#silverHair)"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="80" rx="38" ry="42" fill="url(#skin)"/>
+    <!-- Dark Blue Face Mask (covers lower half of face) -->
+    <path d="M44,82 Q80,88 116,82 L112,120 Q80,128 48,120 Z" fill="#1e293b"/>
+    <!-- Tilted Headband (Covers left eye) -->
+    <polygon points="40,54 120,44 122,64 42,74" fill="#1e3a8a"/>
+    <polygon points="56,54 102,48 104,64 58,70" fill="#94a3b8" stroke="#334155" stroke-width="1.2"/>
+    <!-- Leaf village emblem on plate -->
+    <circle cx="80" cy="58" r="4" fill="none" stroke="#1e293b" stroke-width="1.5"/>
+    <!-- Right Eye (Curved happy eye smile) -->
+    <path d="M90,75 Q98,70 106,75" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Eye wrinkle / relaxed expression -->
+    <path d="M92,80 Q98,78 104,80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    <!-- Jonin Green Vest Collar -->
+    <path d="M40,124 L60,140 L100,140 L120,124 Z" fill="#15803d"/>
+    <!-- Peace sign hand gesture (✌️) -->
+    <rect x="18" y="85" width="22" height="26" rx="6" fill="url(#skin)" stroke="#fcd5be" stroke-width="1.2"/>
+    <rect x="16" y="62" width="7" height="25" rx="3.5" fill="url(#skin)"/>
+    <rect x="25" y="60" width="7" height="27" rx="3.5" fill="url(#skin)"/>
+    <!-- Banner -->
+    <rect x="22" y="134" width="116" height="22" rx="11" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">YO! KAKASHI</text>
+  </g>
+</svg>

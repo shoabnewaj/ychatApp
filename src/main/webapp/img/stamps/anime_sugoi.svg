@@ -1,4 +1,4 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
   <defs>
     <radialGradient id="animeSkin" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#fff1f2"/><stop offset="100%" stop-color="#fecdd3"/></radialGradient>
     <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7e22ce"/></linearGradient>
@@ -17,20 +17,20 @@
     <!-- Giant Starry Eyes (Sugoi!) -->
     <ellipse cx="58" cy="78" rx="14" ry="16" fill="#7e22ce"/>
     <circle cx="58" cy="78" r="6" fill="#fbbf24"/>
-    <path d="M58,70 L60,76 L66,78 L60,80 L58,86 L56,80 L50,78 L56,76 Z" fill="#ffffff"/>
+    <polygon points="58,68 60,75 67,78 60,81 58,88 56,81 49,78 56,75" fill="#ffffff"/>
     <ellipse cx="102" cy="78" rx="14" ry="16" fill="#7e22ce"/>
     <circle cx="102" cy="78" r="6" fill="#fbbf24"/>
-    <path d="M102,70 L104,76 L110,78 L104,80 L102,86 L100,80 L94,78 L100,76 Z" fill="#ffffff"/>
+    <polygon points="102,68 104,75 111,78 104,81 102,88 100,81 93,78 100,75" fill="#ffffff"/>
     <!-- Blush -->
     <ellipse cx="44" cy="94" rx="10" ry="5" fill="#f43f5e" opacity="0.6"/>
     <ellipse cx="116" cy="94" rx="10" ry="5" fill="#f43f5e" opacity="0.6"/>
     <!-- Happy open mouth -->
     <path d="M74,94 Q80,104 86,94 Z" fill="#e11d48"/>
     <!-- Sparkles in air -->
-    <text x="18" y="40" font-size="18" fill="#fbbf24">笨ｨ</text>
-    <text x="128" y="40" font-size="18" fill="#fbbf24">検</text>
+    <polygon points="20,40 22,44 26,45 22,46 20,50 18,46 14,45 18,44" fill="#fbbf24"/>
+    <polygon points="140,40 142,44 146,45 142,46 140,50 138,46 134,45 138,44" fill="#fbbf24"/>
     <!-- Banner -->
     <rect x="25" y="130" width="110" height="24" rx="12" fill="#9333ea"/>
-    <text x="80" y="146" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">SUGOI! 検</text>
+    <text x="80" y="146" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">SUGOI! ✨</text>
   </g>
 </svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#f8dfd0"/></radialGradient>
+    <linearGradient id="darkHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Sasuke Ducktail Dark Hair (Back) -->
+    <polygon points="40,50 15,20 38,28 35,5 58,22 68,5 82,18 95,5 106,22 125,5 122,28 145,20 120,50" fill="url(#darkHair)"/>
+    <!-- Face -->
+    <polygon points="45,60 80,122 115,60" fill="url(#skin)"/>
+    <ellipse cx="80" cy="74" rx="36" ry="32" fill="url(#skin)"/>
+    <!-- High Ninja Collar (Navy/Black) -->
+    <path d="M42,108 L32,136 L65,138 L72,120 Z" fill="#1e1b4b"/>
+    <path d="M118,108 L128,136 L95,138 L88,120 Z" fill="#1e1b4b"/>
+    <!-- Front Hair Bangs covering sides -->
+    <polygon points="35,45 42,92 56,60" fill="url(#darkHair)"/>
+    <polygon points="125,45 118,92 104,60" fill="url(#darkHair)"/>
+    <polygon points="70,45 76,72 82,45" fill="url(#darkHair)"/>
+    <!-- Left Eye (Sharingan glowing red) -->
+    <circle cx="62" cy="75" r="9" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
+    <circle cx="62" cy="75" r="3" fill="#000000"/>
+    <!-- 3 Tomoe swirls in Sharingan -->
+    <circle cx="62" cy="69" r="1.5" fill="#000000"/>
+    <circle cx="57" cy="79" r="1.5" fill="#000000"/>
+    <circle cx="67" cy="79" r="1.5" fill="#000000"/>
+    <!-- Right Eye (Cool dark onyx) -->
+    <ellipse cx="98" cy="75" rx="8" ry="7" fill="#0f172a"/>
+    <circle cx="96" cy="73" r="2.5" fill="#ffffff"/>
+    <!-- Eyebrows (Focused/Intense) -->
+    <line x1="53" y1="67" x2="71" y2="70" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="107" y1="67" x2="89" y2="70" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Smirk -->
+    <path d="M74,96 Q82,97 88,93" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+    <!-- Blue Chidori Lightning sparks -->
+    <path d="M22,95 L30,90 L26,82 L38,80" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M138,95 L130,90 L134,82 L122,80" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Banner -->
+    <rect x="22" y="134" width="116" height="22" rx="11" fill="#1e1b4b" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#38bdf8" text-anchor="middle">CHIDORI ⚡</text>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="anyaSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5f5"/><stop offset="100%" stop-color="#fecdd3"/></radialGradient>
+    <linearGradient id="anyaPinkHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbcfe8"/><stop offset="100%" stop-color="#f472b6"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Back Pink Hair -->
+    <ellipse cx="80" cy="74" rx="52" ry="48" fill="url(#anyaPinkHair)"/>
+    <!-- Horn Cones -->
+    <polygon points="36,44 22,16 48,30" fill="#0f172a"/><polygon points="26,22 36,30 28,32" fill="#eab308"/>
+    <polygon points="124,44 138,16 112,30" fill="#0f172a"/><polygon points="134,22 124,30 132,32" fill="#eab308"/>
+    <!-- Face (Shaded with dramatic purple gloom) -->
+    <ellipse cx="80" cy="85" rx="38" ry="34" fill="url(#anyaSkin)"/>
+    <path d="M42,65 Q80,55 118,65 L118,85 Q80,75 42,85 Z" fill="#6366f1" opacity="0.25"/>
+    <!-- Front Hair Bangs -->
+    <path d="M38,58 Q80,48 122,58 Q115,75 106,62 Q95,78 80,60 Q65,78 54,62 Q45,75 38,58 Z" fill="url(#anyaPinkHair)"/>
+    <!-- Shocked Horizontal Pupils / White horrified eyes -->
+    <ellipse cx="58" cy="82" rx="10" ry="8" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+    <circle cx="58" cy="82" r="3" fill="#0f172a"/>
+    <ellipse cx="102" cy="82" rx="10" ry="8" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+    <circle cx="102" cy="82" r="3" fill="#0f172a"/>
+    <!-- Shocked Wavy Mouth -->
+    <path d="M64,104 Q70,96 76,104 Q82,112 88,104 Q94,96 98,104" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Massive Sweating Drops -->
+    <path d="M124,68 C124,60 132,52 132,52 C132,52 140,60 140,68 C140,74 134,78 132,78 C130,78 124,74 124,68 Z" fill="#38bdf8"/>
+    <path d="M22,72 C22,66 28,60 28,60 C28,60 34,66 34,72 C34,76 30,80 28,80 C26,80 22,76 22,72 Z" fill="#38bdf8"/>
+    <!-- Banner -->
+    <rect x="24" y="134" width="112" height="22" rx="11" fill="#4338ca" stroke="#c7d2fe" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">SHOCK!! 😱</text>
+  </g>
+</svg>

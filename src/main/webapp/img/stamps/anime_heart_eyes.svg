@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="girlSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff1f2"/><stop offset="100%" stop-color="#fecdd3"/></radialGradient>
+    <linearGradient id="purpleTwintails" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7e22ce"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Long Anime Twintails -->
+    <path d="M25,50 C5,75 5,115 25,128 C32,110 28,80 35,55 Z" fill="url(#purpleTwintails)"/>
+    <path d="M135,50 C155,75 155,115 135,128 C128,110 132,80 125,55 Z" fill="url(#purpleTwintails)"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="80" rx="38" ry="36" fill="url(#girlSkin)"/>
+    <!-- Front Hair Bangs with cute clips -->
+    <path d="M38,55 Q80,45 122,55 Q114,70 106,60 Q95,72 80,58 Q65,72 54,60 Q46,70 38,55 Z" fill="url(#purpleTwintails)"/>
+    <rect x="42" y="52" width="10" height="4" rx="2" fill="#f43f5e"/>
+    <rect x="108" y="52" width="10" height="4" rx="2" fill="#f43f5e"/>
+    <!-- GIANT PULSING HEART EYES (Daisuki / In Love!) -->
+    <path d="M50,72 C50,66 56,62 61,66 C66,62 72,66 72,72 C72,80 61,88 61,88 C61,88 50,80 50,72 Z" fill="#e11d48"/>
+    <path d="M88,72 C88,66 94,62 99,66 C104,62 110,66 110,72 C110,80 99,88 99,88 C99,88 88,80 88,72 Z" fill="#e11d48"/>
+    <!-- Intense Rosy Blushing Cheeks -->
+    <ellipse cx="44" cy="88" rx="10" ry="6" fill="#f43f5e" opacity="0.8"/>
+    <line x1="39" y1="86" x2="49" y2="90" stroke="#be123c" stroke-width="1.2"/>
+    <ellipse cx="116" cy="88" rx="10" ry="6" fill="#f43f5e" opacity="0.8"/>
+    <line x1="111" y1="86" x2="121" y2="90" stroke="#be123c" stroke-width="1.2"/>
+    <!-- Happy Cute Open Smile -->
+    <path d="M72,94 Q80,106 88,94 Z" fill="#e11d48"/>
+    <!-- Hands Clapped to Cheeks -->
+    <ellipse cx="40" cy="98" rx="8" ry="10" fill="url(#girlSkin)" stroke="#fecdd3" stroke-width="1.2" transform="rotate(25 40 98)"/>
+    <ellipse cx="120" cy="98" rx="8" ry="10" fill="url(#girlSkin)" stroke="#fecdd3" stroke-width="1.2" transform="rotate(-25 120 98)"/>
+    <!-- Floating Pink Sparkles -->
+    <polygon points="22,40 25,45 30,47 25,49 22,54 19,49 14,47 19,45" fill="#f472b6"/>
+    <polygon points="138,40 141,45 146,47 141,49 138,54 135,49 130,47 135,45" fill="#f472b6"/>
+    <!-- Banner -->
+    <rect x="20" y="134" width="120" height="22" rx="11" fill="#ec4899" stroke="#fbcfe8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">DAISUKI! ❤️</text>
+  </g>
+</svg>

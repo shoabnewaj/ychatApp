@@ -1,47 +1,42 @@
 // ==========================================
-// CHARACTER STAMPS & STICKERS ENGINE
+// JAPANESE ANIMATION (ANIME & MANGA) STAMPS ENGINE
 // ==========================================
 const STAMP_CATALOG = [
-    // Cats
-    { id: 'cat_love', cat: 'cat', title: 'Love You', tags: 'love heart kiss cute cat', file: 'img/stamps/cat_love.svg' },
-    { id: 'cat_happy', cat: 'cat', title: 'YAY!', tags: 'happy yay joy celebrate cat', file: 'img/stamps/cat_happy.svg' },
-    { id: 'cat_cry', cat: 'cat', title: 'So Sad', tags: 'sad cry tears sorry cat', file: 'img/stamps/cat_cry.svg' },
-    { id: 'cat_shock', cat: 'cat', title: 'OMG!!', tags: 'omg shock what wow cat', file: 'img/stamps/cat_shock.svg' },
-    { id: 'cat_thumbsup', cat: 'cat', title: 'Nice!', tags: 'nice ok yes thumbs up like cat', file: 'img/stamps/cat_thumbsup.svg' },
-    { id: 'cat_sleep', cat: 'cat', title: 'Good Night', tags: 'sleep night tired zzz cat', file: 'img/stamps/cat_sleep.svg' },
-    { id: 'cat_angry', cat: 'cat', title: 'Angry!', tags: 'angry hmph mad hate cat', file: 'img/stamps/cat_angry.svg' },
-    { id: 'cat_dance', cat: 'cat', title: 'Party!', tags: 'party dance music happy cat', file: 'img/stamps/cat_dance.svg' },
+    // --- SHONEN HEROES & RIVALS ---
+    { id: 'anime_naruto', cat: 'shonen', title: 'Naruto - Dattebayo!', tags: 'naruto uzumaki dattebayo leaf ninja shonen', file: 'img/stamps/anime_naruto.svg' },
+    { id: 'anime_sasuke', cat: 'shonen', title: 'Sasuke - Chidori', tags: 'sasuke uchiha sharingan chidori cool ninja', file: 'img/stamps/anime_sasuke.svg' },
+    { id: 'anime_kakashi', cat: 'shonen', title: 'Kakashi - Yo!', tags: 'kakashi hatake peace masked ninja sensei', file: 'img/stamps/anime_kakashi.svg' },
+    { id: 'anime_luffy', cat: 'shonen', title: 'Luffy - Sugeee!', tags: 'luffy monkey d straw hat meat laugh one piece', file: 'img/stamps/anime_luffy.svg' },
+    { id: 'anime_zoro', cat: 'shonen', title: 'Zoro - Lost Again?!', tags: 'zoro roronoa lost confused bandana swordsman', file: 'img/stamps/anime_zoro.svg' },
+    { id: 'anime_goku_ssj', cat: 'shonen', title: 'Goku - Kamehameha!', tags: 'goku super saiyan ssj kamehameha dragon ball aura', file: 'img/stamps/anime_goku_ssj.svg' },
+    { id: 'anime_vegeta', cat: 'shonen', title: 'Vegeta - Over 9000!', tags: 'vegeta saiyan pride over 9000 dragon ball smirk', file: 'img/stamps/anime_vegeta.svg' },
+    { id: 'anime_tanjiro', cat: 'shonen', title: 'Tanjiro - Water Breathing', tags: 'tanjiro kamado water breathing hanafuda demon slayer', file: 'img/stamps/anime_tanjiro.svg' },
+    { id: 'anime_gojo', cat: 'shonen', title: 'Gojo - Domain Expansion', tags: 'gojo satoru six eyes domain expansion jujutsu kaisen', file: 'img/stamps/anime_gojo.svg' },
+    { id: 'anime_sukuna', cat: 'shonen', title: 'Sukuna - Evil Grin', tags: 'sukuna ryomen curse demon evil jujutsu kaisen', file: 'img/stamps/anime_sukuna.svg' },
 
-    // Dogs
-    { id: 'dog_happy', cat: 'dog', title: 'Hello!', tags: 'hello hi doge happy wag dog', file: 'img/stamps/dog_happy.svg' },
-    { id: 'dog_salute', cat: 'dog', title: 'Yes Boss!', tags: 'yes boss salute respect officer dog', file: 'img/stamps/dog_salute.svg' },
-    { id: 'dog_love', cat: 'dog', title: 'For You', tags: 'love heart for you cute kiss dog', file: 'img/stamps/dog_love.svg' },
-    { id: 'dog_please', cat: 'dog', title: 'Please!', tags: 'please beg puppy eyes forgive dog', file: 'img/stamps/dog_please.svg' },
-    { id: 'dog_cool', cat: 'dog', title: 'So Cool', tags: 'cool swag glasses boss chill dog', file: 'img/stamps/dog_cool.svg' },
-    { id: 'dog_celebrate', cat: 'dog', title: 'Congrats!', tags: 'congrats party celebrate birthday dog', file: 'img/stamps/dog_celebrate.svg' },
+    // --- ANYA & KAWAII HEROINES ---
+    { id: 'anime_anya_smug', cat: 'cute', title: 'Anya - Heh (Smug)', tags: 'anya forger spy x family heh smug smirk meme', file: 'img/stamps/anime_anya_smug.svg' },
+    { id: 'anime_anya_waku', cat: 'cute', title: 'Anya - Waku Waku!', tags: 'anya forger waku waku sparkle excited spy x family', file: 'img/stamps/anime_anya_waku.svg' },
+    { id: 'anime_nezuko', cat: 'cute', title: 'Nezuko - Cute Muzzle', tags: 'nezuko kamado bamboo cute pink demon slayer', file: 'img/stamps/anime_nezuko.svg' },
+    { id: 'anime_chopper', cat: 'cute', title: 'Chopper - Baka Yarou~', tags: 'chopper tony tony reindeer pink hat blush cute one piece', file: 'img/stamps/anime_chopper.svg' },
+    { id: 'anime_pikachu_love', cat: 'cute', title: 'Pikachu - Pika Pika!', tags: 'pikachu love heart pika pika pokemon cute wink', file: 'img/stamps/anime_pikachu_love.svg' },
+    { id: 'anime_heart_eyes', cat: 'cute', title: 'Anime Girl - Daisuki!', tags: 'daisuki love heart eyes kawaii blush anime girl', file: 'img/stamps/anime_heart_eyes.svg' },
+    { id: 'anime_sugoi', cat: 'cute', title: 'Chibi - Sugoi!', tags: 'sugoi sparkle star eyes chibi anime girl wow', file: 'img/stamps/anime_sugoi.svg' },
+    { id: 'anime_heart', cat: 'cute', title: 'Chibi - Kawaii <3', tags: 'kawaii finger heart love kpop anime girl', file: 'img/stamps/anime_heart.svg' },
 
-    // Pandas
-    { id: 'panda_love', cat: 'panda', title: 'Hug Me!', tags: 'hug love panda cute heart', file: 'img/stamps/panda_love.svg' },
-    { id: 'panda_bamboo', cat: 'panda', title: 'Nom Nom', tags: 'food eat nom bamboo hungry panda', file: 'img/stamps/panda_bamboo.svg' },
-    { id: 'panda_cry', cat: 'panda', title: 'Huhu...', tags: 'cry sad tears panda sorry', file: 'img/stamps/panda_cry.svg' },
+    // --- ANIME REACTIONS & MEMES ---
+    { id: 'anime_pikachu_shock', cat: 'reactions', title: 'Pikachu - Shocked Meme', tags: 'surprised pikachu shocked open mouth pokemon meme', file: 'img/stamps/anime_pikachu_shock.svg' },
+    { id: 'anime_anya_shock', cat: 'reactions', title: 'Anya - Horrified Shock', tags: 'anya shock crying scream scared spy x family meme', file: 'img/stamps/anime_anya_shock.svg' },
+    { id: 'anime_zenitsu', cat: 'reactions', title: 'Zenitsu - Tasukete! (Cry)', tags: 'zenitsu cry panic tears help scream demon slayer', file: 'img/stamps/anime_zenitsu.svg' },
+    { id: 'anime_anger_rage', cat: 'reactions', title: 'Chibi - Baka!! (Rage)', tags: 'baka anger vein rage mad scream fangs anime', file: 'img/stamps/anime_anger_rage.svg' },
+    { id: 'anime_sweatdrop', cat: 'reactions', title: 'Chibi - Ehhhhh?!', tags: 'sweatdrop ehh shocked confused awkward anime', file: 'img/stamps/anime_sweatdrop.svg' },
+    { id: 'anime_cry', cat: 'reactions', title: 'Chibi - Gomen! (Tears)', tags: 'gomen sorry cry tears weeping sad chibi', file: 'img/stamps/anime_cry.svg' },
+    { id: 'anime_peace', cat: 'reactions', title: 'Chibi - Peace! V', tags: 'peace victory win boy cool anime', file: 'img/stamps/anime_peace.svg' },
 
-    // Bunnies
-    { id: 'bunny_heart', cat: 'bunny', title: 'So Cute!', tags: 'bunny rabbit cute love heart', file: 'img/stamps/bunny_heart.svg' },
-    { id: 'bunny_carrot', cat: 'bunny', title: 'Mine!', tags: 'carrot food mine hungry rabbit bunny', file: 'img/stamps/bunny_carrot.svg' },
-    { id: 'bunny_dance', cat: 'bunny', title: 'So Happy!', tags: 'happy dance joy spring flowers bunny rabbit', file: 'img/stamps/bunny_dance.svg' },
-
-    // Anime
-    { id: 'anime_sugoi', cat: 'anime', title: 'Sugoi!', tags: 'sugoi anime sparkle amazing wow chibi', file: 'img/stamps/anime_sugoi.svg' },
-    { id: 'anime_peace', cat: 'anime', title: 'Peace!', tags: 'peace victory cool win boy anime', file: 'img/stamps/anime_peace.svg' },
-    { id: 'anime_heart', cat: 'anime', title: 'Saranghae', tags: 'saranghae love heart kpop anime girl', file: 'img/stamps/anime_heart.svg' },
-    { id: 'anime_cry', cat: 'anime', title: 'Gomen!', tags: 'gomen sorry cry tears anime girl', file: 'img/stamps/anime_cry.svg' },
-
-    // Memes
-    { id: 'meme_gigachad', cat: 'meme', title: 'Chad', tags: 'chad gigachad sigma based meme', file: 'img/stamps/meme_gigachad.svg' },
-    { id: 'meme_doge', cat: 'meme', title: 'Much Wow', tags: 'doge much wow such cool meme', file: 'img/stamps/meme_doge.svg' },
-    { id: 'meme_fire', cat: 'meme', title: 'This Is Fine', tags: 'fire this is fine ok coffee meme', file: 'img/stamps/meme_fire.svg' },
-    { id: 'meme_troll', cat: 'meme', title: 'Problem?', tags: 'troll problem trollface funny meme', file: 'img/stamps/meme_troll.svg' },
-    { id: 'meme_tea', cat: 'meme', title: 'Not My Biz', tags: 'tea kermit none of my business meme', file: 'img/stamps/meme_tea.svg' }
+    // --- GHIBLI & POKEMON ---
+    { id: 'anime_totoro', cat: 'ghibli', title: 'Totoro - Big Smile', tags: 'totoro my neighbor ghibli leaf smile teeth cute', file: 'img/stamps/anime_totoro.svg' },
+    { id: 'anime_noface', cat: 'ghibli', title: 'No-Face - Ah... Ah...', tags: 'kaonashi no face spirited away ghibli gold shy', file: 'img/stamps/anime_noface.svg' },
+    { id: 'anime_psyduck', cat: 'ghibli', title: 'Psyduck - Headache', tags: 'psyduck headache confused dizzy pokemon duck', file: 'img/stamps/anime_psyduck.svg' }
 ];
 
 let currentStampCategory = 'all';
@@ -91,7 +86,7 @@ function renderStampGrid(searchQuery) {
     });
 
     if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No stamps found</div>';
+        grid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No anime stamps found</div>';
         return;
     }
 

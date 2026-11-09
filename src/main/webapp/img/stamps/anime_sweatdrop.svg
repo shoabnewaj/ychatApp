@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="chibiSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fecdd3"/></radialGradient>
+    <linearGradient id="brownHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350f"/><stop offset="100%" stop-color="#451a03"/></linearGradient>
+    <linearGradient id="sweatBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Hair -->
+    <ellipse cx="80" cy="70" rx="48" ry="42" fill="url(#brownHair)"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="85" rx="38" ry="34" fill="url(#chibiSkin)"/>
+    <path d="M42,62 Q80,50 118,62 Q105,74 95,64 Q80,75 68,62 Q55,75 42,62 Z" fill="url(#brownHair)"/>
+    <!-- GIANT ICONIC ANIME SWEATDROP on temple -->
+    <path d="M112,42 C112,30 128,12 128,12 C128,12 144,30 144,42 C144,54 134,62 128,62 C122,62 112,54 112,42 Z" fill="url(#sweatBlue)" stroke="#0369a1" stroke-width="1.8"/>
+    <ellipse cx="124" cy="38" rx="3" ry="8" fill="#ffffff" opacity="0.75" transform="rotate(-15 124 38)"/>
+    <!-- Slanted / Squinted Deadpan Bewildered Eyes (> <) -->
+    <path d="M52,78 L66,84 L52,90" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M108,78 L94,84 L108,90" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Squiggly Bewildered Mouth -->
+    <path d="M68,102 Q74,96 80,102 Q86,108 92,102" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Three vertical shock lines on cheek -->
+    <line x1="44" y1="88" x2="44" y2="102" stroke="#6366f1" stroke-width="2"/>
+    <line x1="48" y1="88" x2="48" y2="102" stroke="#6366f1" stroke-width="2"/>
+    <line x1="52" y1="88" x2="52" y2="102" stroke="#6366f1" stroke-width="2"/>
+    <!-- Banner -->
+    <rect x="22" y="134" width="116" height="22" rx="11" fill="#0284c7" stroke="#7dd3fc" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">EHHHHH?! 💧</text>
+  </g>
+</svg>

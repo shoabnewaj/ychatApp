@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="chopperFur" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#b45309"/></radialGradient>
+    <linearGradient id="pinkHat" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#db2777"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Reindeer Antlers -->
+    <path d="M42,42 C30,30 25,15 28,12 C30,10 40,25 46,32" stroke="#78350f" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M118,42 C130,30 135,15 132,12 C130,10 120,25 114,32" stroke="#78350f" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <!-- Giant Pink Top Hat -->
+    <ellipse cx="80" cy="52" rx="55" ry="16" fill="url(#pinkHat)"/>
+    <path d="M42,50 C42,20 118,20 118,50 Z" fill="url(#pinkHat)"/>
+    <!-- White X on Hat -->
+    <line x1="72" y1="28" x2="88" y2="44" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="88" y1="28" x2="72" y2="44" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Chubby Face -->
+    <ellipse cx="80" cy="84" rx="42" ry="36" fill="url(#chopperFur)"/>
+    <!-- Cute Round Blue Nose -->
+    <circle cx="80" cy="80" r="7" fill="#0284c7"/>
+    <circle cx="78" cy="78" r="2" fill="#ffffff"/>
+    <!-- Giant Kawaii Sparkle Eyes -->
+    <ellipse cx="58" cy="74" rx="9" ry="12" fill="#1e1b4b"/>
+    <circle cx="56" cy="70" r="4" fill="#ffffff"/>
+    <circle cx="62" cy="78" r="2" fill="#ffffff"/>
+    <ellipse cx="102" cy="74" rx="9" ry="12" fill="#1e1b4b"/>
+    <circle cx="100" cy="70" r="4" fill="#ffffff"/>
+    <circle cx="106" cy="78" r="2" fill="#ffffff"/>
+    <!-- Deep Blushing Wavy Cheeks (Chopper cannot take a compliment!) -->
+    <ellipse cx="44" cy="88" rx="10" ry="6" fill="#f43f5e" opacity="0.75"/>
+    <line x1="39" y1="86" x2="49" y2="90" stroke="#be123c" stroke-width="1.2"/>
+    <ellipse cx="116" cy="88" rx="10" ry="6" fill="#f43f5e" opacity="0.75"/>
+    <line x1="111" y1="86" x2="121" y2="90" stroke="#be123c" stroke-width="1.2"/>
+    <!-- Happy Wavy Mouth ("Calling me great doesn't make me happy, you jerk~!") -->
+    <path d="M68,94 Q74,90 80,94 Q86,90 92,94 Q80,108 68,94 Z" fill="#e11d48"/>
+    <!-- Little Hooves Dancing -->
+    <ellipse cx="32" cy="115" rx="8" ry="10" fill="#78350f" transform="rotate(-25 32 115)"/>
+    <ellipse cx="128" cy="115" rx="8" ry="10" fill="#78350f" transform="rotate(25 128 115)"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#db2777" stroke="#fbcfe8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="900" fill="#ffffff" text-anchor="middle">BAKA YAROU~ ❤️</text>
+  </g>
+</svg>

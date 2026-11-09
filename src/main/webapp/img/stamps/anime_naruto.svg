@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff0e6"/><stop offset="100%" stop-color="#fcd5be"/></radialGradient>
+    <linearGradient id="yellowHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffe600"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+    <linearGradient id="metalPlate" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="50%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Spiky Yellow Hair (Back) -->
+    <polygon points="35,50 15,28 42,32 50,10 70,28 80,5 95,28 115,10 120,32 145,28 128,52" fill="url(#yellowHair)"/>
+    <!-- Head / Face -->
+    <ellipse cx="80" cy="80" rx="42" ry="44" fill="url(#skin)"/>
+    <!-- Ears -->
+    <ellipse cx="38" cy="82" rx="7" ry="12" fill="url(#skin)"/>
+    <ellipse cx="122" cy="82" rx="7" ry="12" fill="url(#skin)"/>
+    <!-- Blue Headband Cloth -->
+    <path d="M38,48 Q80,44 122,48 L124,66 Q80,62 36,66 Z" fill="#1e3a8a"/>
+    <!-- Metal Plate -->
+    <rect x="52" y="47" width="56" height="18" rx="4" fill="url(#metalPlate)" stroke="#334155" stroke-width="1.5"/>
+    <circle cx="56" cy="51" r="1.5" fill="#334155"/><circle cx="104" cy="51" r="1.5" fill="#334155"/>
+    <circle cx="56" cy="61" r="1.5" fill="#334155"/><circle cx="104" cy="61" r="1.5" fill="#334155"/>
+    <!-- Leaf Village Symbol (Konoha swirl) -->
+    <path d="M78,54 C74,54 73,57 76,58 C80,59 84,56 83,53 C81,49 71,51 72,59 C73,63 81,64 84,60" fill="none" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="86" y1="53" x2="89" y2="50" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Hair Spikes in Front -->
+    <polygon points="46,65 52,78 58,65" fill="url(#yellowHair)"/>
+    <polygon points="102,65 108,78 114,65" fill="url(#yellowHair)"/>
+    <!-- Eyes (Big Confident Grin) -->
+    <path d="M54,80 Q64,74 72,80" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+    <path d="M88,80 Q96,74 106,80" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+    <!-- Whiskers (3 on each cheek) -->
+    <line x1="45" y1="84" x2="60" y2="86" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="44" y1="89" x2="59" y2="89" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="46" y1="94" x2="60" y2="92" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="100" y1="86" x2="115" y2="84" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="101" y1="89" x2="116" y2="89" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="100" y1="92" x2="114" y2="94" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Big Open Smile -->
+    <path d="M60,95 Q80,120 100,95 Z" fill="#991b1b"/>
+    <path d="M65,96 Q80,102 95,96" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M70,110 Q80,104 90,110" fill="#f43f5e"/>
+    <!-- Orange Jacket Collar -->
+    <path d="M46,120 Q80,132 114,120 L125,140 Q80,150 35,140 Z" fill="#ea580c"/>
+    <path d="M68,122 L80,140 L92,122" fill="#ffffff"/>
+    <!-- Banner -->
+    <rect x="20" y="134" width="120" height="22" rx="11" fill="#ea580c" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">DATTEBAYO!</text>
+  </g>
+</svg>

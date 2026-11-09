@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="anyaSkin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5f5"/><stop offset="100%" stop-color="#fecdd3"/></radialGradient>
+    <linearGradient id="anyaPinkHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbcfe8"/><stop offset="100%" stop-color="#f472b6"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Back Pink Bob Hair -->
+    <ellipse cx="80" cy="74" rx="50" ry="46" fill="url(#anyaPinkHair)"/>
+    <!-- Horn Hair Cones (Black with gold trims) -->
+    <polygon points="36,46 24,18 48,32" fill="#0f172a"/>
+    <polygon points="28,24 38,32 30,34" fill="#eab308"/>
+    <polygon points="124,46 136,18 112,32" fill="#0f172a"/>
+    <polygon points="132,24 122,32 130,34" fill="#eab308"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="85" rx="38" ry="34" fill="url(#anyaSkin)"/>
+    <!-- Front Hair Bangs with parting -->
+    <path d="M38,58 Q80,48 122,58 Q115,75 106,62 Q95,78 80,60 Q65,78 54,62 Q45,75 38,58 Z" fill="url(#anyaPinkHair)"/>
+    <!-- THE ICONIC SMUG "HEH" EYES (Narrow, horizontal curved half-closed ovals) -->
+    <ellipse cx="58" cy="80" rx="10" ry="5" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="58" cy="81" r="3" fill="#047857"/>
+    <line x1="48" y1="76" x2="68" y2="78" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="102" cy="80" rx="10" ry="5" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="102" cy="81" r="3" fill="#047857"/>
+    <line x1="112" y1="76" x2="92" y2="78" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Light Blushing horizontal lines under eyes -->
+    <line x1="50" y1="90" x2="66" y2="90" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="94" y1="90" x2="110" y2="90" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- THE LEGENDARY SMUG "HEH" WIDE LOBED SMIRK -->
+    <path d="M64,96 Q72,104 80,100 Q88,104 96,96" fill="none" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round"/>
+    <!-- Eden Academy Uniform Collar -->
+    <path d="M50,118 L38,140 L122,140 L110,118 Z" fill="#0f172a"/>
+    <polygon points="70,118 80,132 90,118" fill="#eab308"/>
+    <!-- Banner -->
+    <rect x="25" y="134" width="110" height="22" rx="11" fill="#ec4899" stroke="#fdf2f8" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">HEH. 😏</text>
+  </g>
+</svg>

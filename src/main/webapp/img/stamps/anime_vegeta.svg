@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fed7aa"/></radialGradient>
+    <linearGradient id="blackSpikes" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#020617"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Towering Flame-shaped Black Hair -->
+    <path d="M42,65 C30,40 10,25 22,5 C35,2 45,20 50,22 C55,10 65,0 72,-5 C78,-5 82,10 88,0 C98,-2 110,12 112,22 C125,5 145,15 138,40 C135,55 125,65 118,65 Z" fill="url(#blackSpikes)"/>
+    <!-- Deep Widow's Peak Forehead -->
+    <ellipse cx="80" cy="80" rx="36" ry="38" fill="url(#skin)"/>
+    <path d="M44,62 Q80,78 116,62 Q80,55 44,62 Z" fill="url(#blackSpikes)"/>
+    <!-- Proud Fierce Eyes -->
+    <polygon points="56,76 72,79 69,85 58,83" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="65" cy="80" r="3" fill="#0f172a"/>
+    <polygon points="88,79 104,76 102,83 91,85" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+    <circle cx="95" cy="80" r="3" fill="#0f172a"/>
+    <!-- Intense Brow Furrow -->
+    <line x1="52" y1="72" x2="74" y2="78" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="108" y1="72" x2="86" y2="78" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="77" y1="77" x2="83" y2="77" stroke="#0f172a" stroke-width="2"/>
+    <!-- Arrogant Smirk -->
+    <path d="M72,102 Q82,103 92,97" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- Saiyan Battle Armor (White chestplate with gold straps) -->
+    <path d="M40,118 L30,140 L130,140 L120,118 Z" fill="#1e3a8a"/>
+    <rect x="55" y="118" width="50" height="24" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect x="62" y="122" width="10" height="18" fill="#eab308"/>
+    <rect x="88" y="122" width="10" height="18" fill="#eab308"/>
+    <!-- Banner -->
+    <rect x="18" y="134" width="124" height="22" rx="11" fill="#1e3a8a" stroke="#eab308" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">OVER 9000!!</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#fff5eb"/><stop offset="100%" stop-color="#fed7aa"/></radialGradient>
+    <linearGradient id="mossHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.18)"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Moss Green Cropped Hair -->
+    <ellipse cx="80" cy="58" rx="42" ry="34" fill="url(#mossHair)"/>
+    <!-- Black Bandana tied on forehead -->
+    <path d="M38,62 Q80,56 122,62 L124,76 Q80,70 36,76 Z" fill="#0f172a"/>
+    <circle cx="126" cy="74" r="6" fill="#0f172a"/>
+    <!-- Face -->
+    <ellipse cx="80" cy="85" rx="38" ry="38" fill="url(#skin)"/>
+    <!-- Left Eye Closed Scar (The famous vertical scar) -->
+    <line x1="60" y1="72" x2="60" y2="94" stroke="#991b1b" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="53" y1="83" x2="67" y2="83" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Right Eye (Annoyed / Piercing glare) -->
+    <ellipse cx="98" cy="82" rx="7" ry="6" fill="#0f172a"/>
+    <circle cx="96" cy="80" r="2" fill="#ffffff"/>
+    <line x1="88" y1="76" x2="108" y2="79" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- 3 Gold Earrings on left ear -->
+    <circle cx="36" cy="90" r="2.5" fill="#eab308"/><circle cx="36" cy="95" r="2.5" fill="#eab308"/><circle cx="36" cy="100" r="2.5" fill="#eab308"/>
+    <!-- Big Blue Sweatdrop of Confusion ("Where am I?") -->
+    <path d="M112,50 C112,42 124,32 124,32 C124,32 136,42 136,50 C136,58 126,64 124,64 C122,64 112,58 112,50 Z" fill="#38bdf8"/>
+    <!-- Gritted Teeth / Angled Mouth -->
+    <path d="M72,104 L92,100" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Green Haramaki sash / Coat collar -->
+    <path d="M46,120 L32,142 L128,142 L114,120 Z" fill="#14532d"/>
+    <!-- Question Marks / Direction Arrows -->
+    <text x="22" y="55" font-family="'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#f59e0b">?</text>
+    <!-- Banner -->
+    <rect x="20" y="134" width="120" height="22" rx="11" fill="#15803d" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="80" y="149" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">LOST AGAIN?!</text>
+  </g>
+</svg>
